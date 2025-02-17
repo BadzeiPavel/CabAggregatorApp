@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AuthUserDTO {
 
-    @Size(min = 5, message = "Lastname must be at least 5 characters long")
+    @Size(min = 5, message = "Username must be at least 5 characters long")
     @NotBlank(message = "Username cannot be empty")
     private String username;
 
@@ -23,11 +23,11 @@ public class AuthUserDTO {
     @NotBlank(message = "Email cannot be empty")
     private String email;
 
-    @Size(min = 5, message = "Lastname must be at least 5 characters long")
+    @Size(min = 5, message = "First name must be at least 5 characters long")
     @NotBlank(message = "First name cannot be empty")
     private String firstName;
 
-    @Size(min = 5, message = "Lastname must be at least 5 characters long")
+    @Size(min = 5, message = "Last name must be at least 5 characters long")
     @NotBlank(message = "Last name cannot be empty")
     private String lastName;
 

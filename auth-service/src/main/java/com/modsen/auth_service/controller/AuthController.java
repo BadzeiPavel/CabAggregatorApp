@@ -1,7 +1,7 @@
 package com.modsen.auth_service.controller;
 
-import com.modsen.auth_service.models.dto.LogoutDTO;
 import com.modsen.auth_service.models.dto.AuthUserDTO;
+import com.modsen.auth_service.models.dto.LogoutDTO;
 import com.modsen.auth_service.models.entities.User;
 import com.modsen.auth_service.services.impl.AuthService;
 import lombok.RequiredArgsConstructor;
