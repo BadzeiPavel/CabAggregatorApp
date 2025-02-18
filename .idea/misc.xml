@@ -6,6 +6,12 @@
       <list>
         <option value="$PROJECT_DIR$/gateway-service/pom.xml" />
         <option value="$PROJECT_DIR$/auth-service/pom.xml" />
+        <option value="$PROJECT_DIR$/driver-service/pom.xml" />
+        <option value="$PROJECT_DIR$/passenger-service/pom.xml" />
+        <option value="$PROJECT_DIR$/payment-service/pom.xml" />
+        <option value="$PROJECT_DIR$/rating-service/pom.xml" />
+        <option value="$PROJECT_DIR$/ride-service/pom.xml" />
+        <option value="$PROJECT_DIR$/common-module/pom.xml" />
       </list>
     </option>
   </component>
