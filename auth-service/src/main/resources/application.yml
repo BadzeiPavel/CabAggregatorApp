@@ -1,0 +1,24 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+  main:
+    allow-bean-definition-overriding: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${app.keycloak.url}/realms/${app.keycloak.realm}/protocol/openid-connect/certs
+          issuer-uri: ${app.keycloak.url}/realms/${app.keycloak.realm}
+
+app:
+  keycloak:
+    url: http://localhost:8080
+    realm: car-aggregator-auth
+    token-url: ${app.keycloak.url}/realms/${app.keycloak.realm}/protocol/openid-connect/token
+    logout-url: ${app.keycloak.url}/realms/${app.keycloak.realm}/protocol/openid-connect/logout
+    client:
+      id: auth-service-client
+      secret: bC9jzlEZps6jrLQjv0xl4kMZv2U3Mkvs
