@@ -2,6 +2,7 @@ package com.modsen.driver_service.controllers;
 
 import com.modsen.driver_service.models.dtos.CarDTO;
 import com.modsen.driver_service.services.CarService;
+import com.modsen.driver_service.services.DriverService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

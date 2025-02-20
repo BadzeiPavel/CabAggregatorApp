@@ -21,7 +21,6 @@ public class DriverService {
     private final DriverDTOMapper driverDTOMapper;
     private final DriverRepository driverRepository;
 
-    @Transactional
     public DriverDTO saveDriver(DriverDTO driverDTO) {
         Driver driver = driverDTOMapper.toDriver(driverDTO);
         return driverMapper.toDriverDTO(driverRepository.save(driver));
@@ -29,11 +28,10 @@ public class DriverService {
 
     @Transactional(readOnly = true)
     public DriverDTO getDriverDTO(UUID id) {
-        Driver driver = driverRepository.getDriverByUuid(id);
+        Driver driver = driverRepository.getDriverById(id);
         return driverMapper.toDriverDTO(driver);
     }
 
-    @Transactional(readOnly = true)
     public List<DriverDTO> getAll() {
         return driverRepository.findByIsDeletedFalse()
                 .orElseThrow(() -> new DriverNotFoundException("There is no any record in 'driver' table"))
@@ -42,7 +40,6 @@ public class DriverService {
                 .toList();
     }
 
-    @Transactional
     public DriverDTO updateDriver(DriverDTO driverDTO) {
         driverRepository.checkDriverExistenceById(driverDTO.getId());
         Driver mappedDriver = driverDTOMapper.toDriver(driverDTO);
@@ -50,12 +47,17 @@ public class DriverService {
         return driverMapper.toDriverDTO(driverRepository.save(mappedDriver));
     }
 
-    @Transactional
     public DriverDTO softDeleteDriver(UUID id) {
-        Driver driver = driverRepository.getDriverByUuid(id);
+        Driver driver = driverRepository.getDriverById(id);
         driver.setDeleted(true);
 
         return driverMapper.toDriverDTO(driverRepository.save(driver));
+    }
+
+    public void assignCarId(UUID driverId, UUID carId) {
+        Driver driver = driverRepository.getDriverById(driverId);
+        driver.setCarId(carId);
+        driverMapper.toDriverDTO(driverRepository.save(driver));
     }
 
 }

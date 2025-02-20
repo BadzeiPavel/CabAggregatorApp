@@ -20,7 +20,7 @@ public interface CarRepository extends JpaRepository<Car, UUID> {
         }
     }
 
-    default Car getCarByUuid(UUID id) {
+    default Car getCarById(UUID id) {
         return findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() ->
                 new CarNotFoundException("Car entity with id='%s' not found".formatted(id)));

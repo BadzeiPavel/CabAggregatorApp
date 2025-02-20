@@ -18,7 +18,7 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
         }
     }
 
-    default Driver getDriverByUuid(UUID id) {
+    default Driver getDriverById(UUID id) {
         return findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() ->
                         new DriverNotFoundException("Driver entity with id='%s' not found".formatted(id)));

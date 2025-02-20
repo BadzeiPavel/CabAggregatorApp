@@ -1,17 +1,15 @@
 package com.modsen.driver_service.services;
 
-import com.modsen.driver_service.exceptions.CarNotFoundException;
 import com.modsen.driver_service.mappers.car_mapper.CarDTOMapper;
 import com.modsen.driver_service.mappers.car_mapper.CarMapper;
 import com.modsen.driver_service.models.dtos.CarDTO;
-import com.modsen.driver_service.models.dtos.DriverDTO;
 import com.modsen.driver_service.models.entities.Car;
-import com.modsen.driver_service.models.entities.Driver;
 import com.modsen.driver_service.repositories.CarRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,28 +21,32 @@ public class CarService {
     private final CarDTOMapper carDTOMapper;
     private final CarRepository carRepository;
 
+    private final DriverService driverService;
+
     @Transactional
     public CarDTO saveCar(CarDTO carDTO) {
         Car car = carDTOMapper.toCar(carDTO);
-        return carMapper.toCarDTO(carRepository.save(car));
+        Car savedCar = carRepository.save(car);
+
+        driverService.assignCarId(savedCar.getDriverId(), savedCar.getId());
+
+        return carMapper.toCarDTO(savedCar);
     }
 
     @Transactional(readOnly = true)
     public CarDTO getCarDTO(UUID id) {
-        Car car = carRepository.getCarByUuid(id);
+        Car car = carRepository.getCarById(id);
         return carMapper.toCarDTO(car);
     }
 
-    @Transactional(readOnly = true)
     public List<CarDTO> getAll() {
         return carRepository.findByIsDeletedFalse()
-                .orElseThrow(() -> new CarNotFoundException("There is no any record in 'car' table"))
+                .orElse(Collections.emptyList())
                 .stream()
                 .map(carMapper::toCarDTO)
                 .toList();
     }
 
-    @Transactional
     public CarDTO updateCar(CarDTO carDTO) {
         carRepository.checkCarExistenceById(carDTO.getId());
         Car mappedCar = carDTOMapper.toCar(carDTO);
@@ -52,9 +54,8 @@ public class CarService {
         return carMapper.toCarDTO(carRepository.save(mappedCar));
     }
 
-    @Transactional
     public CarDTO softDeleteCar(UUID id) {
-        Car car = carRepository.getCarByUuid(id);
+        Car car = carRepository.getCarById(id);
         car.setDeleted(true);
 
         return carMapper.toCarDTO(carRepository.save(car));
