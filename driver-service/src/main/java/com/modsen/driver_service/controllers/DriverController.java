@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -25,6 +26,11 @@ public class DriverController {
     public ResponseEntity<DriverDTO> getDriver(@PathVariable UUID id) {
         DriverDTO driverDTO = driverService.getDriverDTO(id);
         return ResponseEntity.ok(driverDTO);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<DriverDTO>> getAllDrivers() {
+        return ResponseEntity.ok(driverService.getAll());
     }
 
     @PutMapping

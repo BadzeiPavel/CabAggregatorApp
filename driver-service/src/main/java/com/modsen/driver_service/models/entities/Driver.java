@@ -1,10 +1,8 @@
 package com.modsen.driver_service.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.modsen.driver_service.models.dtos.DriverDTO;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -15,12 +13,24 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter @Setter
-@ToString
 @Entity
 @Table(name = "driver")
 public class Driver {
     @Id
     private UUID id;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "car_id",
+                referencedColumnName = "id",
+                unique = true,
+                insertable = false,
+                updatable = false
+    )
+    @JsonIgnore
+    private Car car;
+
+    @Column(name = "car_id", columnDefinition = "UUID")
+    private UUID carId;
 
     @Size(min = 5, message = "Username must be at least 5 characters long")
     @NotBlank(message = "Username cannot be empty")
@@ -68,16 +78,4 @@ public class Driver {
     @NotNull(message = "Deletion status cannot be empty")
     @Column(columnDefinition = "BOOLEAN")
     private boolean isDeleted;
-
-    public void copyOf(DriverDTO driverDTO) {
-        this.username = driverDTO.getUsername();
-        this.firstName = driverDTO.getFirstName();
-        this.lastName = driverDTO.getLastName();
-        this.email = driverDTO.getEmail();
-        this.phone = driverDTO.getPhone();
-        this.birthDate = driverDTO.getBirthDate();
-        this.createdAt = driverDTO.getCreatedAt();
-        this.lastModificationAt = driverDTO.getLastModificationAt();
-        this.isDeleted = driverDTO.isDeleted();
-    }
 }
