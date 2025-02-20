@@ -1,0 +1,68 @@
+package com.modsen.rating_service.services;
+
+import com.modsen.rating_service.exceptions.RatingNotFoundException;
+import com.modsen.rating_service.mappers.RatingDTOMapper;
+import com.modsen.rating_service.mappers.RatingMapper;
+import com.modsen.rating_service.models.dtos.RatingDTO;
+import com.modsen.rating_service.models.dtos.RatingStatisticResponseDTO;
+import com.modsen.rating_service.models.entities.DriverRating;
+import com.modsen.rating_service.repositories.DriverRatingRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class DriverRatingService {
+
+    private final RatingMapper ratingMapper;
+    private final RatingDTOMapper ratingDTOMapper;
+    private final DriverRatingRepository driverRatingRepository;
+
+    @Transactional
+    public RatingDTO saveDriverRating(RatingDTO ratingDTO) {
+        DriverRating driverRating = ratingDTOMapper.toDriverRating(ratingDTO);
+        return ratingMapper.toRatingDTO(driverRatingRepository.save(driverRating));
+    }
+
+    @Transactional(readOnly = true)
+    public RatingDTO getDriverRatingDTO(String id) {
+        DriverRating driverRating = driverRatingRepository.getDriverRatingById(id);
+        return ratingMapper.toRatingDTO(driverRating);
+    }
+
+    public List<RatingDTO> getAllDriverRatingDTOsByDriverId(String id) {
+        return getAllDriverRatingsByDriverId(id)
+                .stream()
+                .map(ratingMapper::toRatingDTO)
+                .toList();
+    }
+
+    public RatingDTO updateDriverRating(RatingDTO ratingDTO) {
+        driverRatingRepository.checkDriverRatingExistenceById(ratingDTO.getId());
+        DriverRating mappedDriverRating = ratingDTOMapper.toDriverRating(ratingDTO);
+
+        return ratingMapper.toRatingDTO(driverRatingRepository.save(mappedDriverRating));
+    }
+
+    public RatingDTO softDeleteDriverRating(String id) {
+        DriverRating driverRating = driverRatingRepository.getDriverRatingById(id);
+        driverRating.setDeleted(true);
+
+        return ratingMapper.toRatingDTO(driverRatingRepository.save(driverRating));
+    }
+
+    public RatingStatisticResponseDTO getAverageRating(String id) {
+        List<DriverRating> driverRatings = getAllDriverRatingsByDriverId(id);
+        return RatingStatisticResponseDTO.calculateRatingStatistics(driverRatings);
+    }
+
+    private List<DriverRating> getAllDriverRatingsByDriverId(String id) {
+        return driverRatingRepository.findByDriverIdAndIsDeletedFalse(id)
+                .orElseThrow(() ->
+                        new RatingNotFoundException("There is no any record in 'driver_rating' table")
+                );
+    }
+}
