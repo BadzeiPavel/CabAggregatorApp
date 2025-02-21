@@ -33,9 +33,9 @@ public class DriverRatingController {
         return ResponseEntity.ok(driverRatingService.getAllDriverRatingDTOsByDriverId(driverId));
     }
 
-    @PutMapping
-    public ResponseEntity<RatingDTO> updateDriverRating(@RequestBody RatingDTO ratingDTO) {
-        RatingDTO updatedRatingDTO = driverRatingService.updateDriverRating(ratingDTO);
+    @PutMapping("/{id}")
+    public ResponseEntity<RatingDTO> updateDriverRating(@PathVariable String id, @RequestBody RatingDTO ratingDTO) {
+        RatingDTO updatedRatingDTO = driverRatingService.updateDriverRating(id, ratingDTO);
         return ResponseEntity.ok(updatedRatingDTO);
     }
 

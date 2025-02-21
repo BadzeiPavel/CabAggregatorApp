@@ -11,18 +11,16 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RatingStatisticResponseDTO {
-    private String driverId;
     private double rating;
     private long votesNumber;
 
     public static RatingStatisticResponseDTO calculateRatingStatistics(List<RatingDTO> ratings) {
+        int votesNumber = ratings.size();
         int sum = ratings.stream()
                 .mapToInt(RatingDTO::getRating)
                 .sum();
-        int votesNumber = ratings.size();
         double rating = (double) sum / votesNumber;
-        String driverId = ratings.get(0).getDriverId();
 
-        return new RatingStatisticResponseDTO(driverId, rating, votesNumber);
+        return new RatingStatisticResponseDTO(rating, votesNumber);
     }
 }

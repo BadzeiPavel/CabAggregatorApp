@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface DriverRatingRepository extends MongoRepository<DriverRating, String> {
-    Optional<List<DriverRating>> findByDriverIdAndIsDeletedFalse(String id);
+    List<DriverRating> findByDriverIdAndIsDeletedFalse(String id);
     Optional<DriverRating> findByIdAndIsDeletedFalse(String id);
 
     default void checkDriverRatingExistenceById(String id) {

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -60,7 +61,8 @@ public class PassengerRatingService {
     }
 
     private List<PassengerRating> getAllPassengerRatingsByPassengerId(String id) {
-        return passengerRatingRepository.findByPassengerIdAndIsDeletedFalse(id)
+        return Optional.ofNullable(passengerRatingRepository.findByPassengerIdAndIsDeletedFalse(id))
+                .filter(list -> !list.isEmpty())
                 .orElseThrow(() ->
                         new RatingNotFoundException("There is no any record in 'passenger_rating' table")
                 );

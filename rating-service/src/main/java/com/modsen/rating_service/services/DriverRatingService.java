@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,8 +41,8 @@ public class DriverRatingService {
                 .toList();
     }
 
-    public RatingDTO updateDriverRating(RatingDTO ratingDTO) {
-        driverRatingRepository.checkDriverRatingExistenceById(ratingDTO.getId());
+    public RatingDTO updateDriverRating(String id, RatingDTO ratingDTO) {
+        driverRatingRepository.checkDriverRatingExistenceById(id);
         DriverRating mappedDriverRating = ratingDTOMapper.toDriverRating(ratingDTO);
 
         return ratingMapper.toRatingDTO(driverRatingRepository.save(mappedDriverRating));
@@ -60,7 +61,8 @@ public class DriverRatingService {
     }
 
     private List<DriverRating> getAllDriverRatingsByDriverId(String id) {
-        return driverRatingRepository.findByDriverIdAndIsDeletedFalse(id)
+        return Optional.ofNullable(driverRatingRepository.findByDriverIdAndIsDeletedFalse(id))
+                .filter(list -> !list.isEmpty())
                 .orElseThrow(() ->
                         new RatingNotFoundException("There is no any record in 'driver_rating' table")
                 );

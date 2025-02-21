@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Repository
 public interface PassengerRatingRepository extends MongoRepository<PassengerRating, UUID> {
-    Optional<List<PassengerRating>> findByPassengerIdAndIsDeletedFalse(String id);
+    List<PassengerRating> findByPassengerIdAndIsDeletedFalse(String id);
     Optional<PassengerRating> findByIdAndIsDeletedFalse(String id);
 
     default void checkPassengerRatingExistenceById(String id) {
