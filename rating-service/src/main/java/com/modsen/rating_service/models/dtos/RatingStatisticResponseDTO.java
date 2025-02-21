@@ -15,13 +15,13 @@ public class RatingStatisticResponseDTO {
     private double rating;
     private long votesNumber;
 
-    public static RatingStatisticResponseDTO calculateRatingStatistics(List<DriverRating> driverRatings) {
-        int sum = driverRatings.stream()
-                .mapToInt(DriverRating::getRating)
+    public static RatingStatisticResponseDTO calculateRatingStatistics(List<RatingDTO> ratings) {
+        int sum = ratings.stream()
+                .mapToInt(RatingDTO::getRating)
                 .sum();
-        int votesNumber = driverRatings.size();
+        int votesNumber = ratings.size();
         double rating = (double) sum / votesNumber;
-        String driverId = driverRatings.get(0).getDriverId();
+        String driverId = ratings.get(0).getDriverId();
 
         return new RatingStatisticResponseDTO(driverId, rating, votesNumber);
     }

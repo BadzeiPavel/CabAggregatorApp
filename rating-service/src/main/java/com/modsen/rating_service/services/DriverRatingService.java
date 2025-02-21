@@ -55,8 +55,8 @@ public class DriverRatingService {
     }
 
     public RatingStatisticResponseDTO getAverageRating(String id) {
-        List<DriverRating> driverRatings = getAllDriverRatingsByDriverId(id);
-        return RatingStatisticResponseDTO.calculateRatingStatistics(driverRatings);
+        List<RatingDTO> driverRatingDTOs = getAllDriverRatingDTOsByDriverId(id);
+        return RatingStatisticResponseDTO.calculateRatingStatistics(driverRatingDTOs);
     }
 
     private List<DriverRating> getAllDriverRatingsByDriverId(String id) {

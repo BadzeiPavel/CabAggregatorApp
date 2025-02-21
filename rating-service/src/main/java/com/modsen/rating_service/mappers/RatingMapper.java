@@ -7,8 +7,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.springframework.stereotype.Service;
 
-import java.sql.Driver;
-
 @Service
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface RatingMapper {
