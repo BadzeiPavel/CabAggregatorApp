@@ -1,0 +1,15 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: ride-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ride_db
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      dialect: org.hibernate.dialect.PostgreSQLDialect
