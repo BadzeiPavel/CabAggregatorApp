@@ -14,39 +14,39 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PassengerRatingController {
 
-    private final PassengerRatingService passengerRatingService;
+    private final PassengerRatingService service;
 
     @PostMapping
-    public ResponseEntity<RatingDTO> savePassengerRating(@RequestBody RatingDTO ratingDTO) {
-        RatingDTO savedRatingDTO = passengerRatingService.savePassengerRating(ratingDTO);
-        return ResponseEntity.ok(savedRatingDTO);
+    public ResponseEntity<RatingDTO> createPassengerRating(@RequestBody RatingDTO ratingDTO) {
+        RatingDTO createdRatingDTO = service.createPassengerRating(ratingDTO);
+        return ResponseEntity.ok(createdRatingDTO);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<RatingDTO> getPassengerRating(@PathVariable String id) {
-        RatingDTO ratingDTO = passengerRatingService.getPassengerRatingDTO(id);
+        RatingDTO ratingDTO = service.getPassengerRating(id);
         return ResponseEntity.ok(ratingDTO);
     }
 
     @GetMapping("/{passengerId}/all")
-    public ResponseEntity<List<RatingDTO>> getAllPassengerRatings(@PathVariable String passengerId) {
-        return ResponseEntity.ok(passengerRatingService.getAllPassengerRatingDTOsByPassengerId(passengerId));
+    public ResponseEntity<List<RatingDTO>> getPassengerRatings(@PathVariable String passengerId) {
+        return ResponseEntity.ok(service.getPassengerRatingsByPassengerId(passengerId));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<RatingDTO> updatePassengerRating(@PathVariable String id, @RequestBody RatingDTO ratingDTO) {
-        RatingDTO updatedRatingDTO = passengerRatingService.updatePassengerRating(id, ratingDTO);
+        RatingDTO updatedRatingDTO = service.updatePassengerRating(id, ratingDTO);
         return ResponseEntity.ok(updatedRatingDTO);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<RatingDTO> deletePassengerRating(@PathVariable String id) {
-        RatingDTO ratingDTO = passengerRatingService.softDeletePassengerRating(id);
+    public ResponseEntity<RatingDTO> softDeletePassengerRating(@PathVariable String id) {
+        RatingDTO ratingDTO = service.softDeletePassengerRating(id);
         return ResponseEntity.ok(ratingDTO);
     }
 
     @GetMapping("/{passengerId}/statistic")
     public ResponseEntity<RatingStatisticResponseDTO> getPassengerRatingStatistic(@PathVariable String passengerId) {
-        return ResponseEntity.ok(passengerRatingService.getAverageRating(passengerId));
+        return ResponseEntity.ok(service.getAverageRating(passengerId));
     }
 }

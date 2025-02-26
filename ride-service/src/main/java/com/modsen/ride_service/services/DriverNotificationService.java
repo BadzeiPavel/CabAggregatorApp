@@ -22,7 +22,7 @@ public class DriverNotificationService {
     private final NotificationMapper notificationMapper;
     private final NotificationDTOMapper notificationDTOMapper;
 
-    public DriverNotificationDTO saveDriverNotificationDTO(DriverNotificationDTO notificationDTO) {
+    public DriverNotificationDTO createDriverNotification(DriverNotificationDTO notificationDTO) {
         notificationDTO.setStatus(NotificationStatus.SEND);
         DriverNotification notification = notificationDTOMapper.toDriverNotification(notificationDTO);
 

@@ -17,16 +17,16 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CarService {
 
-    private final CarMapper carMapper;
-    private final CarDTOMapper carDTOMapper;
-    private final CarRepository carRepository;
-
     private final DriverService driverService;
 
+    private final CarMapper carMapper;
+    private final CarDTOMapper carDTOMapper;
+    private final CarRepository repository;
+
     @Transactional
-    public CarDTO saveCar(CarDTO carDTO) {
+    public CarDTO createCar(CarDTO carDTO) {
         Car car = carDTOMapper.toCar(carDTO);
-        Car savedCar = carRepository.save(car);
+        Car savedCar = repository.save(car);
 
         driverService.assignCarId(savedCar.getDriverId(), savedCar.getId());
 
@@ -35,12 +35,12 @@ public class CarService {
 
     @Transactional(readOnly = true)
     public CarDTO getCarDTO(UUID id) {
-        Car car = carRepository.getCarById(id);
+        Car car = repository.getCarById(id);
         return carMapper.toCarDTO(car);
     }
 
     public List<CarDTO> getAll() {
-        return carRepository.findByIsDeletedFalse()
+        return repository.findByIsDeletedFalse()
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(carMapper::toCarDTO)
@@ -48,16 +48,16 @@ public class CarService {
     }
 
     public CarDTO updateCar(UUID id, CarDTO carDTO) {
-        carRepository.checkCarExistenceById(id);
+        repository.checkCarExistenceById(id);
         Car mappedCar = carDTOMapper.toCar(carDTO);
 
-        return carMapper.toCarDTO(carRepository.save(mappedCar));
+        return carMapper.toCarDTO(repository.save(mappedCar));
     }
 
     public CarDTO softDeleteCar(UUID id) {
-        Car car = carRepository.getCarById(id);
+        Car car = repository.getCarById(id);
         car.setDeleted(true);
 
-        return carMapper.toCarDTO(carRepository.save(car));
+        return carMapper.toCarDTO(repository.save(car));
     }
 }

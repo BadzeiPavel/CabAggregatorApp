@@ -21,12 +21,11 @@ public class RideController {
     private final RideService service;
 
     @PostMapping
-    public ResponseEntity<RideDTO> saveRide(@RequestBody RideDTO rideDTO) {
-        RideDTO savedRideDTO = service.saveRide(rideDTO);
-        return ResponseEntity.ok(savedRideDTO);
+    public ResponseEntity<RideDTO> createRide(@RequestBody RideDTO rideDTO) {
+        RideDTO createdRideDTO = service.createRide(rideDTO);
+        return ResponseEntity.ok(createdRideDTO);
     }
 
-    // URL example: /rides/123456/accept?driver-id=654321
     @PostMapping("/{rideId}/accept")
     public ResponseEntity<RideDTO> approveDriverRideResponse(@PathVariable UUID rideId,
                                                              @RequestParam("driver-id") UUID driverId) {
@@ -73,19 +72,19 @@ public class RideController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RideDTO> updateRideById(@PathVariable UUID id, @RequestBody RideDTO rideDTO) {
-        RideDTO updatedRideDTO = service.updateRideById(id, rideDTO);
+    public ResponseEntity<RideDTO> updateRide(@PathVariable UUID id, @RequestBody RideDTO rideDTO) {
+        RideDTO updatedRideDTO = service.updateRide(id, rideDTO);
         return ResponseEntity.ok(updatedRideDTO);
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<RideDTO> changeRideStatusById(@PathVariable UUID id,
-                                                        @RequestBody ChangeRideStatusRequestDTO requestDTO) {
+    public ResponseEntity<RideDTO> changeRideStatus(@PathVariable UUID id,
+                                                    @RequestBody ChangeRideStatusRequestDTO requestDTO) {
         RideStatus status = requestDTO.getRideStatus();
         if(List.of(RideStatus.ACCEPTED, RideStatus.REQUESTED).contains(status)) {
-            throw new InvalidRideStatusException("Status '%s' cannot be set manualy".formatted(status));
+            throw new InvalidRideStatusException("Status '%s' cannot be set manually".formatted(status));
         }
-        RideDTO rideDTO = service.changeRideStatusById(id, requestDTO);
+        RideDTO rideDTO = service.changeRideStatus(id, requestDTO);
         return ResponseEntity.ok(rideDTO);
     }
 }

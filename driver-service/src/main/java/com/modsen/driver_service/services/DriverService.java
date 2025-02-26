@@ -22,13 +22,13 @@ public class DriverService {
     private final DriverDTOMapper driverDTOMapper;
     private final DriverRepository repository;
 
-    public DriverDTO saveDriver(DriverDTO driverDTO) {
+    public DriverDTO createDriver(DriverDTO driverDTO) {
         Driver driver = driverDTOMapper.toDriver(driverDTO);
         return driverMapper.toDriverDTO(repository.save(driver));
     }
 
     @Transactional(readOnly = true)
-    public DriverDTO getDriverDTO(UUID id) {
+    public DriverDTO getDriver(UUID id) {
         Driver driver = repository.getDriverById(id);
         return driverMapper.toDriverDTO(driver);
     }

@@ -20,21 +20,21 @@ public class DriverRatingService {
 
     private final RatingMapper ratingMapper;
     private final RatingDTOMapper ratingDTOMapper;
-    private final DriverRatingRepository driverRatingRepository;
+    private final DriverRatingRepository repository;
 
     @Transactional
-    public RatingDTO saveDriverRating(RatingDTO ratingDTO) {
+    public RatingDTO createDriverRating(RatingDTO ratingDTO) {
         DriverRating driverRating = ratingDTOMapper.toDriverRating(ratingDTO);
-        return ratingMapper.toRatingDTO(driverRatingRepository.save(driverRating));
+        return ratingMapper.toRatingDTO(repository.save(driverRating));
     }
 
     @Transactional(readOnly = true)
-    public RatingDTO getDriverRatingDTO(String id) {
-        DriverRating driverRating = driverRatingRepository.getDriverRatingById(id);
+    public RatingDTO getDriverRating(String id) {
+        DriverRating driverRating = repository.getDriverRatingById(id);
         return ratingMapper.toRatingDTO(driverRating);
     }
 
-    public List<RatingDTO> getAllDriverRatingDTOsByDriverId(String id) {
+    public List<RatingDTO> getDriverRatingsByDriverId(String id) {
         return getAllDriverRatingsByDriverId(id)
                 .stream()
                 .map(ratingMapper::toRatingDTO)
@@ -42,26 +42,26 @@ public class DriverRatingService {
     }
 
     public RatingDTO updateDriverRating(String id, RatingDTO ratingDTO) {
-        driverRatingRepository.checkDriverRatingExistenceById(id);
+        repository.checkDriverRatingExistenceById(id);
         DriverRating mappedDriverRating = ratingDTOMapper.toDriverRating(ratingDTO);
 
-        return ratingMapper.toRatingDTO(driverRatingRepository.save(mappedDriverRating));
+        return ratingMapper.toRatingDTO(repository.save(mappedDriverRating));
     }
 
     public RatingDTO softDeleteDriverRating(String id) {
-        DriverRating driverRating = driverRatingRepository.getDriverRatingById(id);
+        DriverRating driverRating = repository.getDriverRatingById(id);
         driverRating.setDeleted(true);
 
-        return ratingMapper.toRatingDTO(driverRatingRepository.save(driverRating));
+        return ratingMapper.toRatingDTO(repository.save(driverRating));
     }
 
     public RatingStatisticResponseDTO getAverageRating(String id) {
-        List<RatingDTO> driverRatingDTOs = getAllDriverRatingDTOsByDriverId(id);
+        List<RatingDTO> driverRatingDTOs = getDriverRatingsByDriverId(id);
         return RatingStatisticResponseDTO.calculateRatingStatistics(driverRatingDTOs);
     }
 
     private List<DriverRating> getAllDriverRatingsByDriverId(String id) {
-        return Optional.ofNullable(driverRatingRepository.findByDriverIdAndIsDeletedFalse(id))
+        return Optional.ofNullable(repository.findByDriverIdAndIsDeletedFalse(id))
                 .filter(list -> !list.isEmpty())
                 .orElseThrow(() ->
                         new RatingNotFoundException("There is no any record in 'driver_rating' table")

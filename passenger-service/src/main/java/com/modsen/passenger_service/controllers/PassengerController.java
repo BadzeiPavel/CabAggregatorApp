@@ -16,9 +16,9 @@ public class PassengerController {
     private final PassengerService service;
 
     @PostMapping
-    public ResponseEntity<PassengerDTO> savePassenger(@RequestBody PassengerDTO passengerDTO) {
-        PassengerDTO savedPassengerDTO = service.savePassenger(passengerDTO);
-        return ResponseEntity.ok(savedPassengerDTO);
+    public ResponseEntity<PassengerDTO> createPassenger(@RequestBody PassengerDTO passengerDTO) {
+        PassengerDTO createdPassengerDTO = service.createPassenger(passengerDTO);
+        return ResponseEntity.ok(createdPassengerDTO);
     }
 
     @GetMapping("/{id}")
@@ -29,8 +29,8 @@ public class PassengerController {
 
     @PutMapping("/{id}")
     public ResponseEntity<PassengerDTO> updatePassenger(@PathVariable UUID id, @RequestBody PassengerDTO passengerDTO) {
-        PassengerDTO savedPassengerDTO = service.updatePassenger(id, passengerDTO);
-        return ResponseEntity.ok(savedPassengerDTO);
+        PassengerDTO updatedPassengerDTO = service.updatePassenger(id, passengerDTO);
+        return ResponseEntity.ok(updatedPassengerDTO);
     }
 
     @DeleteMapping("/id")

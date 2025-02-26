@@ -18,19 +18,19 @@ public class DriverController {
     private final DriverService service;
 
     @PostMapping
-    public ResponseEntity<DriverDTO> saveDriver(@RequestBody DriverDTO driverDTO) {
-        DriverDTO savedDriverDTO = service.saveDriver(driverDTO);
-        return ResponseEntity.ok(savedDriverDTO);
+    public ResponseEntity<DriverDTO> createDriver(@RequestBody DriverDTO driverDTO) {
+        DriverDTO createdDriverDTO = service.createDriver(driverDTO);
+        return ResponseEntity.ok(createdDriverDTO);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<DriverDTO> getDriver(@PathVariable UUID id) {
-        DriverDTO driverDTO = service.getDriverDTO(id);
+        DriverDTO driverDTO = service.getDriver(id);
         return ResponseEntity.ok(driverDTO);
     }
 
     @GetMapping
-    public ResponseEntity<List<DriverDTO>> getAllDrivers() {
+    public ResponseEntity<List<DriverDTO>> getDrivers() {
         return ResponseEntity.ok(service.getAll());
     }
 
@@ -42,12 +42,12 @@ public class DriverController {
 
     @PutMapping("/{id}")
     public ResponseEntity<DriverDTO> updateDriver(@PathVariable UUID id, @RequestBody DriverDTO driverDTO) {
-        DriverDTO savedDriverDTO = service.updateDriver(id, driverDTO);
-        return ResponseEntity.ok(savedDriverDTO);
+        DriverDTO updatedDriverDTO = service.updateDriver(id, driverDTO);
+        return ResponseEntity.ok(updatedDriverDTO);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<DriverDTO> deleteDriver(@PathVariable UUID id) {
+    public ResponseEntity<DriverDTO> softDeleteDriver(@PathVariable UUID id) {
         DriverDTO driverDTO = service.softDeleteDriver(id);
         return ResponseEntity.ok(driverDTO);
     }

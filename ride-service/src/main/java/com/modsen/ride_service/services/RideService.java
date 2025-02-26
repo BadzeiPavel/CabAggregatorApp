@@ -34,7 +34,7 @@ public class RideService {
     private final RideRepository repository;
 
     @Transactional
-    public RideDTO saveRide(RideDTO rideDTO) {
+    public RideDTO createRide(RideDTO rideDTO) {
         fillInRideOnCreation(rideDTO);
 
         Ride ride = rideDTOMapper.toRide(rideDTO);
@@ -81,7 +81,7 @@ public class RideService {
                 .toList();
     }
 
-    public RideDTO updateRideById(UUID rideId, RideDTO rideDTO) {
+    public RideDTO updateRide(UUID rideId, RideDTO rideDTO) {
         Ride ride = repository.checkRideExistence(rideId);
         fillInRideOnUpdate(ride, rideDTO);
         ride = rideDTOMapper.toRide(rideDTO);
@@ -90,7 +90,7 @@ public class RideService {
     }
 
     @Transactional
-    public RideDTO changeRideStatusById(UUID rideId, ChangeRideStatusRequestDTO requestDTO) {
+    public RideDTO changeRideStatus(UUID rideId, ChangeRideStatusRequestDTO requestDTO) {
         RideStatus requestRideStatus = requestDTO.getRideStatus();
         Ride ride = changeRideStatus(rideId, requestRideStatus);
 
@@ -100,7 +100,7 @@ public class RideService {
     // TODO: send request to driver-service via kafka to set driver.status to 'BUSY'
     @Transactional
     public RideDTO approveDriverRequestByRideIdAndDriverId(UUID rideId, UUID driverId) {
-        RideDTO rideDTO = changeRideStatusById(rideId, new ChangeRideStatusRequestDTO(driverId, RideStatus.ACCEPTED));
+        RideDTO rideDTO = changeRideStatus(rideId, new ChangeRideStatusRequestDTO(driverId, RideStatus.ACCEPTED));
         rideDTO.setDriverId(driverId);
 
         Ride savedRide = repository.save(rideDTOMapper.toRide(rideDTO));
@@ -112,7 +112,7 @@ public class RideService {
     // TODO sen request to driver-service to set driver.status='FREE'
     @Transactional
     public RideDTO rejectDriverRequestByRideId(UUID rideId) {
-        RideDTO rideDTO = changeRideStatusById(rideId, new ChangeRideStatusRequestDTO(null, RideStatus.REQUESTED));
+        RideDTO rideDTO = changeRideStatus(rideId, new ChangeRideStatusRequestDTO(null, RideStatus.REQUESTED));
         driverNotificationService.changeDriverNotificationOnReadByRideId(rideId);
 
         return sendNotification(rideDTOMapper.toRide(rideDTO));
@@ -136,7 +136,7 @@ public class RideService {
                 .driverId(driverId)
                 .build();
 
-        driverNotificationService.saveDriverNotificationDTO(notificationDTO);
+        driverNotificationService.createDriverNotification(notificationDTO);
     }
 
     private Ride changeRideStatus(UUID id, RideStatus rideStatus) {

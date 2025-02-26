@@ -17,9 +17,9 @@ public class DriverNotificationController {
     private final DriverNotificationService service;
 
     @PostMapping
-    public ResponseEntity<DriverNotificationDTO> saveDriverNotification(@RequestBody DriverNotificationDTO notificationDTO) {
-        DriverNotificationDTO savedNotificationDTO = service.saveDriverNotificationDTO(notificationDTO);
-        return ResponseEntity.ok(savedNotificationDTO);
+    public ResponseEntity<DriverNotificationDTO> createDriverNotification(@RequestBody DriverNotificationDTO notificationDTO) {
+        DriverNotificationDTO createdNotificationDTO = service.createDriverNotification(notificationDTO);
+        return ResponseEntity.ok(createdNotificationDTO);
     }
 
     @GetMapping("/{driverId}")

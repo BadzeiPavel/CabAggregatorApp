@@ -23,18 +23,18 @@ public class PassengerRatingService {
     private final PassengerRatingRepository passengerRatingRepository;
 
     @Transactional
-    public RatingDTO savePassengerRating(RatingDTO ratingDTO) {
+    public RatingDTO createPassengerRating(RatingDTO ratingDTO) {
         PassengerRating passengerRating = ratingDTOMapper.toPassengerRating(ratingDTO);
         return ratingMapper.toRatingDTO(passengerRatingRepository.save(passengerRating));
     }
 
     @Transactional(readOnly = true)
-    public RatingDTO getPassengerRatingDTO(String id) {
+    public RatingDTO getPassengerRating(String id) {
         PassengerRating passengerRating = passengerRatingRepository.getPassengerRatingById(id);
         return ratingMapper.toRatingDTO(passengerRating);
     }
 
-    public List<RatingDTO> getAllPassengerRatingDTOsByPassengerId(String id) {
+    public List<RatingDTO> getPassengerRatingsByPassengerId(String id) {
         return getAllPassengerRatingsByPassengerId(id)
                 .stream()
                 .map(ratingMapper::toRatingDTO)
@@ -56,7 +56,7 @@ public class PassengerRatingService {
     }
 
     public RatingStatisticResponseDTO getAverageRating(String id) {
-        List<RatingDTO> passengerRatingDTOs = getAllPassengerRatingDTOsByPassengerId(id);
+        List<RatingDTO> passengerRatingDTOs = getPassengerRatingsByPassengerId(id);
         return RatingStatisticResponseDTO.calculateRatingStatistics(passengerRatingDTOs);
     }
 

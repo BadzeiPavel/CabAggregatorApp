@@ -19,7 +19,7 @@ public class PassengerService {
     private final PassengerMapper passengerMapper;
     private final PassengerDTOMapper passengerDTOMapper;
 
-    public PassengerDTO savePassenger(PassengerDTO passengerDTO) {
+    public PassengerDTO createPassenger(PassengerDTO passengerDTO) {
         Passenger passenger = passengerDTOMapper.toPassenger(passengerDTO);
         return passengerMapper.toPassengerDTO(repository.save(passenger));
     }

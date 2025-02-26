@@ -2,7 +2,6 @@ package com.modsen.driver_service.controllers;
 
 import com.modsen.driver_service.models.dtos.CarDTO;
 import com.modsen.driver_service.services.CarService;
-import com.modsen.driver_service.services.DriverService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,35 +14,34 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CarController {
 
-    private final CarService carService;
+    private final CarService service;
 
     @PostMapping
-    public ResponseEntity<CarDTO> saveCar(@RequestBody CarDTO carDTO) {
-        CarDTO savedCar = carService.saveCar(carDTO);
-        return ResponseEntity.ok(savedCar);
+    public ResponseEntity<CarDTO> createCar(@RequestBody CarDTO carDTO) {
+        CarDTO createdCarDTO = service.createCar(carDTO);
+        return ResponseEntity.ok(createdCarDTO);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<CarDTO> getCar(@PathVariable UUID id) {
-        CarDTO carDTO = carService.getCarDTO(id);
+        CarDTO carDTO = service.getCarDTO(id);
         return ResponseEntity.ok(carDTO);
     }
 
     @GetMapping
-    public ResponseEntity<List<CarDTO>> getAllCars() {
-        return ResponseEntity.ok(carService.getAll());
+    public ResponseEntity<List<CarDTO>> getCars() {
+        return ResponseEntity.ok(service.getAll());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<CarDTO> updateCar(@PathVariable UUID id, @RequestBody CarDTO carDTO) {
-        CarDTO savedCarDTO = carService.updateCar(id, carDTO);
-        return ResponseEntity.ok(savedCarDTO);
+        CarDTO updatedCarDTO = service.updateCar(id, carDTO);
+        return ResponseEntity.ok(updatedCarDTO);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<CarDTO> deleteCar(@PathVariable UUID id) {
-        CarDTO carDTO = carService.softDeleteCar(id);
+    public ResponseEntity<CarDTO> softDeleteCar(@PathVariable UUID id) {
+        CarDTO carDTO = service.softDeleteCar(id);
         return ResponseEntity.ok(carDTO);
     }
-
 }

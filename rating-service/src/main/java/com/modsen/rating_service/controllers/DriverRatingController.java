@@ -14,39 +14,39 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DriverRatingController {
 
-    private final DriverRatingService driverRatingService;
+    private final DriverRatingService service;
 
     @PostMapping
-    public ResponseEntity<RatingDTO> saveDriverRating(@RequestBody RatingDTO ratingDTO) {
-        RatingDTO savedRatingDTO = driverRatingService.saveDriverRating(ratingDTO);
-        return ResponseEntity.ok(savedRatingDTO);
+    public ResponseEntity<RatingDTO> createDriverRating(@RequestBody RatingDTO ratingDTO) {
+        RatingDTO createdRatingDTO = service.createDriverRating(ratingDTO);
+        return ResponseEntity.ok(createdRatingDTO);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<RatingDTO> getDriverRating(@PathVariable String id) {
-        RatingDTO ratingDTO = driverRatingService.getDriverRatingDTO(id);
+        RatingDTO ratingDTO = service.getDriverRating(id);
         return ResponseEntity.ok(ratingDTO);
     }
 
     @GetMapping("/{driverId}/all")
-    public ResponseEntity<List<RatingDTO>> getAllDriverRatings(@PathVariable String driverId) {
-        return ResponseEntity.ok(driverRatingService.getAllDriverRatingDTOsByDriverId(driverId));
+    public ResponseEntity<List<RatingDTO>> getDriverRatings(@PathVariable String driverId) {
+        return ResponseEntity.ok(service.getDriverRatingsByDriverId(driverId));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<RatingDTO> updateDriverRating(@PathVariable String id, @RequestBody RatingDTO ratingDTO) {
-        RatingDTO updatedRatingDTO = driverRatingService.updateDriverRating(id, ratingDTO);
+        RatingDTO updatedRatingDTO = service.updateDriverRating(id, ratingDTO);
         return ResponseEntity.ok(updatedRatingDTO);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<RatingDTO> deleteDriverRating(@PathVariable String id) {
-        RatingDTO ratingDTO = driverRatingService.softDeleteDriverRating(id);
+    public ResponseEntity<RatingDTO> softDeleteDriverRating(@PathVariable String id) {
+        RatingDTO ratingDTO = service.softDeleteDriverRating(id);
         return ResponseEntity.ok(ratingDTO);
     }
 
     @GetMapping("/{driverId}/statistic")
     public ResponseEntity<RatingStatisticResponseDTO> getDriverRatingStatistic(@PathVariable String driverId) {
-        return ResponseEntity.ok(driverRatingService.getAverageRating(driverId));
+        return ResponseEntity.ok(service.getAverageRating(driverId));
     }
 }
