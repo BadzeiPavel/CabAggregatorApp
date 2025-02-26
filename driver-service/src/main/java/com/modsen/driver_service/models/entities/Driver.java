@@ -1,10 +1,13 @@
 package com.modsen.driver_service.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.modsen.driver_service.models.dtos.DriverDTO;
+import com.modsen.driver_service.enums.DriverStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -62,6 +65,11 @@ public class Driver {
     )
     @Column(columnDefinition = "VARCHAR(50)")
     private String phone;
+
+    @NotNull(message = "Status cannot be empty")
+    @Column(columnDefinition = "SMALLINT")
+    @Enumerated(EnumType.ORDINAL)
+    private DriverStatus status;
 
     @NotNull(message = "Birth date cannot be empty")
     @Column(columnDefinition = "DATE")

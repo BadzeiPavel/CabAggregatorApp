@@ -1,5 +1,6 @@
 package com.modsen.driver_service.services;
 
+import com.modsen.driver_service.enums.DriverStatus;
 import com.modsen.driver_service.exceptions.DriverNotFoundException;
 import com.modsen.driver_service.mappers.driver_mapper.DriverDTOMapper;
 import com.modsen.driver_service.mappers.driver_mapper.DriverMapper;
@@ -19,21 +20,27 @@ public class DriverService {
 
     private final DriverMapper driverMapper;
     private final DriverDTOMapper driverDTOMapper;
-    private final DriverRepository driverRepository;
+    private final DriverRepository repository;
 
     public DriverDTO saveDriver(DriverDTO driverDTO) {
         Driver driver = driverDTOMapper.toDriver(driverDTO);
-        return driverMapper.toDriverDTO(driverRepository.save(driver));
+        return driverMapper.toDriverDTO(repository.save(driver));
     }
 
     @Transactional(readOnly = true)
     public DriverDTO getDriverDTO(UUID id) {
-        Driver driver = driverRepository.getDriverById(id);
+        Driver driver = repository.getDriverById(id);
         return driverMapper.toDriverDTO(driver);
     }
 
+    public List<DriverDTO> getDriversByStatus(DriverStatus status) {
+        return repository.findByStatus(status).stream()
+                .map(driverMapper::toDriverDTO)
+                .toList();
+    }
+
     public List<DriverDTO> getAll() {
-        return driverRepository.findByIsDeletedFalse()
+        return repository.findByIsDeletedFalse()
                 .orElseThrow(() -> new DriverNotFoundException("There is no any record in 'driver' table"))
                 .stream()
                 .map(driverMapper::toDriverDTO)
@@ -41,23 +48,23 @@ public class DriverService {
     }
 
     public DriverDTO updateDriver(DriverDTO driverDTO) {
-        driverRepository.checkDriverExistenceById(driverDTO.getId());
+        repository.checkDriverExistenceById(driverDTO.getId());
         Driver mappedDriver = driverDTOMapper.toDriver(driverDTO);
 
-        return driverMapper.toDriverDTO(driverRepository.save(mappedDriver));
+        return driverMapper.toDriverDTO(repository.save(mappedDriver));
     }
 
     public DriverDTO softDeleteDriver(UUID id) {
-        Driver driver = driverRepository.getDriverById(id);
+        Driver driver = repository.getDriverById(id);
         driver.setDeleted(true);
 
-        return driverMapper.toDriverDTO(driverRepository.save(driver));
+        return driverMapper.toDriverDTO(repository.save(driver));
     }
 
     public void assignCarId(UUID driverId, UUID carId) {
-        Driver driver = driverRepository.getDriverById(driverId);
+        Driver driver = repository.getDriverById(driverId);
         driver.setCarId(carId);
-        driverMapper.toDriverDTO(driverRepository.save(driver));
+        driverMapper.toDriverDTO(repository.save(driver));
     }
 
 }

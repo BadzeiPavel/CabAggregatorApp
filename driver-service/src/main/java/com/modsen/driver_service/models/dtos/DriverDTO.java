@@ -1,7 +1,6 @@
 package com.modsen.driver_service.models.dtos;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.modsen.driver_service.enums.DriverStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +20,7 @@ public class DriverDTO {
     private String lastName;
     private String email;
     private String phone;
+    private DriverStatus status;
     private LocalDate birthDate;
     private LocalDateTime createdAt;
     private LocalDateTime lastModificationAt;
