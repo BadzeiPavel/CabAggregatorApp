@@ -1,9 +1,12 @@
 package com.modsen.driver_service.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.modsen.driver_service.models.dtos.CarDTO;
+import enums.CarCategory;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -46,6 +49,10 @@ public class Car {
 
     @Column(columnDefinition = "VARCHAR(50)")
     private String model;
+
+    @Enumerated(EnumType.ORDINAL)
+    @Column(columnDefinition = "SMALLINT")
+    private CarCategory carCategory;
 
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;

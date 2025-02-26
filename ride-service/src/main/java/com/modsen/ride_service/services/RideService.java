@@ -6,12 +6,12 @@ import com.modsen.ride_service.exceptions.RideNotFoundException;
 import com.modsen.ride_service.mappers.ride_mappers.RideDTOMapper;
 import com.modsen.ride_service.mappers.ride_mappers.RideMapper;
 import com.modsen.ride_service.models.dtos.ChangeRideStatusRequestDTO;
-import com.modsen.ride_service.models.dtos.DateRangeDTO;
 import com.modsen.ride_service.models.dtos.DriverNotificationDTO;
 import com.modsen.ride_service.models.dtos.RideDTO;
 import com.modsen.ride_service.models.entitties.Ride;
 import com.modsen.ride_service.repositories.RideRepository;
 import lombok.RequiredArgsConstructor;
+import models.dtos.DateRangeDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -165,8 +165,7 @@ public class RideService {
     private void fillInRideOnUpdate(Ride ride, RideDTO rideDTO) {
         rideDTO.setId(ride.getId());
         rideDTO.setUpdatedAt(LocalDateTime.now());
-        rideDTO.setEstimatedCost(ride.getEstimatedCost());
-        rideDTO.setActualCost(ride.getActualCost());
+        rideDTO.setCost(ride.getCost());
         rideDTO.setStatus(ride.getStatus());
         rideDTO.setStartTime(ride.getStartTime());
         rideDTO.setEndTime(ride.getEndTime());
@@ -176,8 +175,7 @@ public class RideService {
 
     private void fillInRideOnCreation(RideDTO rideDTO) {
         // TODO call payment-service to calculate costs
-        rideDTO.setEstimatedCost(BigDecimal.valueOf(10));
-        rideDTO.setActualCost(BigDecimal.valueOf(10));
+        rideDTO.setCost(BigDecimal.valueOf(10));
         rideDTO.setStatus(RideStatus.REQUESTED);
         rideDTO.setStartTime(null);
         rideDTO.setEndTime(null);

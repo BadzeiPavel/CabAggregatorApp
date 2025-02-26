@@ -1,4 +1,4 @@
-package com.modsen.ride_service.models.dtos;
+package models.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

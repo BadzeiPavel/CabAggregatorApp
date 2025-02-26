@@ -47,8 +47,8 @@ public class CarService {
                 .toList();
     }
 
-    public CarDTO updateCar(CarDTO carDTO) {
-        carRepository.checkCarExistenceById(carDTO.getId());
+    public CarDTO updateCar(UUID id, CarDTO carDTO) {
+        carRepository.checkCarExistenceById(id);
         Car mappedCar = carDTOMapper.toCar(carDTO);
 
         return carMapper.toCarDTO(carRepository.save(mappedCar));

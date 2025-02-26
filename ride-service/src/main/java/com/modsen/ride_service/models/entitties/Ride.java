@@ -1,8 +1,8 @@
 package com.modsen.ride_service.models.entitties;
 
-import com.modsen.ride_service.enums.CarCategory;
 import com.modsen.ride_service.enums.PaymentMethod;
 import com.modsen.ride_service.enums.RideStatus;
+import enums.CarCategory;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,11 +28,8 @@ public class Ride {
 
     private String destinationAddress;
 
-    @Column(name = "estimated_cost", columnDefinition = "MONEY")
-    private BigDecimal estimatedCost;
-
-    @Column(name = "actual_cost", columnDefinition = "MONEY")
-    private BigDecimal actualCost;
+    @Column(name = "cost", columnDefinition = "MONEY")
+    private BigDecimal cost;
 
     @Enumerated(EnumType.ORDINAL)
     private RideStatus status;
@@ -52,6 +49,4 @@ public class Ride {
 
     @Enumerated(EnumType.ORDINAL)
     private CarCategory carCategory;
-
-    private String promoCode;
 }

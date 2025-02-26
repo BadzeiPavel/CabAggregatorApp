@@ -1,8 +1,6 @@
 package com.modsen.driver_service.models.dtos;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import enums.CarCategory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +19,7 @@ public class CarDTO {
     private String color;
     private String brand;
     private String model;
+    private CarCategory carCategory;
     private LocalDateTime createdAt;
     private LocalDateTime lastModifiedAt;
     private boolean isDeleted;

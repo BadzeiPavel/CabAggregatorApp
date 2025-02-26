@@ -47,8 +47,8 @@ public class DriverService {
                 .toList();
     }
 
-    public DriverDTO updateDriver(DriverDTO driverDTO) {
-        repository.checkDriverExistenceById(driverDTO.getId());
+    public DriverDTO updateDriver(UUID id, DriverDTO driverDTO) {
+        repository.checkDriverExistenceById(id);
         Driver mappedDriver = driverDTOMapper.toDriver(driverDTO);
 
         return driverMapper.toDriverDTO(repository.save(mappedDriver));

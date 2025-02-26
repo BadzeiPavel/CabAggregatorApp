@@ -34,15 +34,15 @@ public class DriverController {
         return ResponseEntity.ok(service.getAll());
     }
 
-    @GetMapping
+    @GetMapping("/free")
     public ResponseEntity<List<DriverDTO>> getFreeDrivers() {
         List<DriverDTO> freeDrivers = service.getDriversByStatus(DriverStatus.FREE);
         return ResponseEntity.ok(freeDrivers);
     }
 
-    @PutMapping
-    public ResponseEntity<DriverDTO> updateDriver(@RequestBody DriverDTO driverDTO) {
-        DriverDTO savedDriverDTO = service.updateDriver(driverDTO);
+    @PutMapping("/{id}")
+    public ResponseEntity<DriverDTO> updateDriver(@PathVariable UUID id, @RequestBody DriverDTO driverDTO) {
+        DriverDTO savedDriverDTO = service.updateDriver(id, driverDTO);
         return ResponseEntity.ok(savedDriverDTO);
     }
 

@@ -1,17 +1,14 @@
 package com.modsen.ride_service.models.dtos;
 
-import com.modsen.ride_service.enums.CarCategory;
 import com.modsen.ride_service.enums.PaymentMethod;
 import com.modsen.ride_service.enums.RideStatus;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import enums.CarCategory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Currency;
 import java.util.UUID;
 
 @Data
@@ -23,8 +20,7 @@ public class RideDTO {
     private UUID driverId;
     private String  pickupAddress;
     private String destinationAddress;
-    private BigDecimal estimatedCost;
-    private BigDecimal actualCost;
+    private BigDecimal cost;
     private RideStatus status;
     private PaymentMethod paymentMethod;
     private LocalDateTime startTime;
@@ -33,5 +29,4 @@ public class RideDTO {
     private LocalDateTime updatedAt;
     private short seatsCount;
     private CarCategory carCategory;
-    private String promoCode;
 }

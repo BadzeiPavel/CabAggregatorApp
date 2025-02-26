@@ -34,9 +34,9 @@ public class CarController {
         return ResponseEntity.ok(carService.getAll());
     }
 
-    @PutMapping
-    public ResponseEntity<CarDTO> updateCar(@RequestBody CarDTO carDTO) {
-        CarDTO savedCarDTO = carService.updateCar(carDTO);
+    @PutMapping("/{id}")
+    public ResponseEntity<CarDTO> updateCar(@PathVariable UUID id, @RequestBody CarDTO carDTO) {
+        CarDTO savedCarDTO = carService.updateCar(id, carDTO);
         return ResponseEntity.ok(savedCarDTO);
     }
 
