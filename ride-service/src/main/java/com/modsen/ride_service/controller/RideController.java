@@ -7,7 +7,6 @@ import com.modsen.ride_service.models.dtos.RideDTO;
 import com.modsen.ride_service.services.RideService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import models.dtos.DateRangeDTO;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

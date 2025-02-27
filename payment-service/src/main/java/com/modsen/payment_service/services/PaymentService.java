@@ -1,16 +1,15 @@
 package com.modsen.payment_service.services;
 
 import com.modsen.payment_service.enums.PaymentStatus;
-import com.modsen.payment_service.exceptions.CannotProceedPayment;
-import com.modsen.payment_service.exceptions.RecordNotFound;
+import com.modsen.payment_service.exceptions.CannotProceedPaymentException;
+import com.modsen.payment_service.exceptions.RecordNotFoundException;
 import com.modsen.payment_service.mappers.DtoMapper;
 import com.modsen.payment_service.mappers.EntityMapper;
-import com.modsen.payment_service.models.dtos.PaymentDTO;
 import com.modsen.payment_service.models.RideInfo;
+import com.modsen.payment_service.models.dtos.PaymentDTO;
 import com.modsen.payment_service.models.enitties.Payment;
 import com.modsen.payment_service.repositories.PaymentRepository;
 import lombok.RequiredArgsConstructor;
-import models.dtos.DateRangeDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +34,7 @@ public class PaymentService {
         fillInPaymentOnCreation(payment, paymentDTO.getRideInfo());
 
         if (!isRideCanBePaid(payment)) {
-            throw new CannotProceedPayment("Insufficient passenger balance!");
+            throw new CannotProceedPaymentException("Insufficient passenger balance!");
         }
 
         return entityMapper.toPaymentDTO(repository.save(payment));
@@ -43,7 +42,7 @@ public class PaymentService {
 
     public PaymentDTO getPayment(String id) {
         Payment payment = repository.findById(id)
-                .orElseThrow(() -> new RecordNotFound("Payment with id='%s' not found".formatted(id)));
+                .orElseThrow(() -> new RecordNotFoundException("Payment with id='%s' not found".formatted(id)));
         return entityMapper.toPaymentDTO(payment);
     }
 
@@ -96,7 +95,7 @@ public class PaymentService {
 
     private BigDecimal getPaymentCost(String rideId) {
         return repository.findByRideId(rideId)
-                .orElseThrow(() -> new RecordNotFound("Payment with ride_id='%s' not found".formatted(rideId)))
+                .orElseThrow(() -> new RecordNotFoundException("Payment with ride_id='%s' not found".formatted(rideId)))
                 .getCost();
     }
 

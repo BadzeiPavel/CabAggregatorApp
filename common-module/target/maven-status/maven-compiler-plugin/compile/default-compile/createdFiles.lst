@@ -1,2 +1,2 @@
 enums\CarCategory.class
-models\dtos\DateRangeDTO.class
+models\dtos\ErrorResponse.class

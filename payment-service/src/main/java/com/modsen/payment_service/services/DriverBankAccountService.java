@@ -1,7 +1,7 @@
 package com.modsen.payment_service.services;
 
-import com.modsen.payment_service.exceptions.InvalidAmountValue;
-import com.modsen.payment_service.exceptions.RecordNotFound;
+import com.modsen.payment_service.exceptions.InvalidAmountValueException;
+import com.modsen.payment_service.exceptions.RecordNotFoundException;
 import com.modsen.payment_service.mappers.DtoMapper;
 import com.modsen.payment_service.mappers.EntityMapper;
 import com.modsen.payment_service.models.dtos.DriverBankAccountDTO;
@@ -29,18 +29,18 @@ public class DriverBankAccountService {
 
     public DriverBankAccountDTO getBankAccount(String driverId) {
         DriverBankAccount bankAccount = repository.findByDriverId(driverId)
-                .orElseThrow(() -> new RecordNotFound("Driver bank account with id='%s' not found".formatted(driverId)));
+                .orElseThrow(() -> new RecordNotFoundException("Driver bank account with id='%s' not found".formatted(driverId)));
         return entityMapper.toDriverBankAccountDTO(bankAccount);
     }
 
     @Transactional
     public DriverBankAccountDTO topUpBalance(String driverId, BigDecimal depositAmount) {
         if (depositAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidAmountValue("Top up amount must be greater than zero");
+            throw new InvalidAmountValueException("Top up amount must be greater than zero");
         }
 
         DriverBankAccount bankAccount = repository.findByDriverId(driverId)
-                .orElseThrow(() -> new RecordNotFound("Driver bank account with id='%s' not found".formatted(driverId)));
+                .orElseThrow(() -> new RecordNotFoundException("Driver bank account with id='%s' not found".formatted(driverId)));
         bankAccount.setBalance(bankAccount.getBalance().add(depositAmount));
 
         return entityMapper.toDriverBankAccountDTO(repository.save(bankAccount));
@@ -49,11 +49,11 @@ public class DriverBankAccountService {
     @Transactional
     public DriverBankAccountDTO deductBalance(String driverId, BigDecimal deductAmount) {
         if (deductAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidAmountValue("Top up amount must be greater than zero");
+            throw new InvalidAmountValueException("Top up amount must be greater than zero");
         }
 
         DriverBankAccount bankAccount = repository.findByDriverId(driverId)
-                .orElseThrow(() -> new RecordNotFound("Driver bank account with id='%s' not found".formatted(driverId)));
+                .orElseThrow(() -> new RecordNotFoundException("Driver bank account with id='%s' not found".formatted(driverId)));
         bankAccount.setBalance(bankAccount.getBalance().subtract(deductAmount));
 
         return entityMapper.toDriverBankAccountDTO(repository.save(bankAccount));

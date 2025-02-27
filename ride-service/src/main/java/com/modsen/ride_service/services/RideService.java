@@ -11,7 +11,6 @@ import com.modsen.ride_service.models.dtos.RideDTO;
 import com.modsen.ride_service.models.entitties.Ride;
 import com.modsen.ride_service.repositories.RideRepository;
 import lombok.RequiredArgsConstructor;
-import models.dtos.DateRangeDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
