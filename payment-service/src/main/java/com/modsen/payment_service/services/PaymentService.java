@@ -10,6 +10,7 @@ import com.modsen.payment_service.models.RideInfo;
 import com.modsen.payment_service.models.enitties.Payment;
 import com.modsen.payment_service.repositories.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import models.dtos.DateRangeDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,8 +53,24 @@ public class PaymentService {
                 .toList();
     }
 
+    public List<PaymentDTO> getPaymentsByPassengerIdInDateRange(String passengerId, DateRangeDTO dateRangeDTO) {
+        return repository.findByPassengerIdAndCreatedAtIsBetween(passengerId,
+                        dateRangeDTO.getFromDate(),
+                        dateRangeDTO.getToDate()).stream()
+                .map(entityMapper::toPaymentDTO)
+                .toList();
+    }
+
     public List<PaymentDTO> getPaymentsByDriverId(String driverId) {
         return repository.findAllByDriverId(driverId).stream()
+                .map(entityMapper::toPaymentDTO)
+                .toList();
+    }
+
+    public List<PaymentDTO> getPaymentsByDriverIdInDateRange(String driverId, DateRangeDTO dateRangeDTO) {
+        return repository.findByDriverIdAndCreatedAtIsBetween(driverId,
+                        dateRangeDTO.getFromDate(),
+                        dateRangeDTO.getToDate()).stream()
                 .map(entityMapper::toPaymentDTO)
                 .toList();
     }
