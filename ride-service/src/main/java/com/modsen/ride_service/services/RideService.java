@@ -58,18 +58,18 @@ public class RideService {
                 .toList();
     }
 
-    public List<RideDTO> getPassengerRidesInDateRange(UUID passengerId, DateRangeDTO dateRangeDTO) {
-        return repository.findByPassengerIdAndCreatedAtIsBetween(passengerId,
-                        dateRangeDTO.getFromDate(),
-                        dateRangeDTO.getToDate()).stream()
+    public List<RideDTO> getPassengerRidesInDateRange(UUID passengerId,
+                                                      LocalDateTime timeFrom,
+                                                      LocalDateTime timeTo) {
+        return repository.findByPassengerIdAndCreatedAtIsBetween(passengerId, timeFrom, timeTo).stream()
                 .map(rideMapper::toRideDTO)
                 .toList();
     }
 
-    public List<RideDTO> getDriverRidesInDateRange(UUID driverId, DateRangeDTO dateRangeDTO) {
-        return repository.findByDriverIdAndCreatedAtIsBetween(driverId,
-                        dateRangeDTO.getFromDate(),
-                        dateRangeDTO.getToDate()).stream()
+    public List<RideDTO> getDriverRidesInDateRange(UUID driverId,
+                                                   LocalDateTime timeFrom,
+                                                   LocalDateTime timeTo) {
+        return repository.findByDriverIdAndCreatedAtIsBetween(driverId, timeFrom, timeTo).stream()
                 .map(rideMapper::toRideDTO)
                 .toList();
     }

@@ -2,11 +2,15 @@ package com.modsen.payment_service.controllers;
 
 import com.modsen.payment_service.models.dtos.PaymentDTO;
 import com.modsen.payment_service.services.PaymentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import models.dtos.DateRangeDTO;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -17,8 +21,8 @@ public class PaymentController {
     private final PaymentService service;
 
     @PostMapping
-    public ResponseEntity<PaymentDTO> createPayment(@RequestBody PaymentDTO paymentDTO) {
-        return ResponseEntity.ok(service.createPayment(paymentDTO));
+    public ResponseEntity<PaymentDTO> createPayment(@Valid @RequestBody PaymentDTO paymentDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.createPayment(paymentDTO));
     }
 
     @GetMapping("/{id}")
@@ -33,8 +37,15 @@ public class PaymentController {
 
     @GetMapping("/passengers/{passengerId}/date-range")
     public ResponseEntity<List<PaymentDTO>> getPaymentsByPassengerIdInDateRange(@PathVariable String passengerId,
-                                                                            @RequestBody DateRangeDTO dateRangeDTO) {
-        List<PaymentDTO> payments = service.getPaymentsByPassengerIdInDateRange(passengerId, dateRangeDTO);
+                                                                                @RequestParam @DateTimeFormat(
+                                                                                    iso = DateTimeFormat.ISO.DATE_TIME
+                                                                                )
+                                                                                LocalDateTime timeFrom,
+                                                                                @RequestParam @DateTimeFormat(
+                                                                                        iso = DateTimeFormat.ISO.DATE_TIME
+                                                                                )
+                                                                                LocalDateTime timeTo) {
+        List<PaymentDTO> payments = service.getPaymentsByPassengerIdInDateRange(passengerId, timeFrom, timeTo);
         return ResponseEntity.ok(payments);
     }
 
@@ -45,8 +56,15 @@ public class PaymentController {
 
     @GetMapping("/drivers/{driverId}/date-range")
     public ResponseEntity<List<PaymentDTO>> getPaymentsByDriverIdInDateRange(@PathVariable String passengerId,
-                                                                             @RequestBody DateRangeDTO dateRangeDTO) {
-        List<PaymentDTO> payments = service.getPaymentsByDriverIdInDateRange(passengerId, dateRangeDTO);
+                                                                             @RequestParam @DateTimeFormat(
+                                                                                     iso = DateTimeFormat.ISO.DATE_TIME
+                                                                             )
+                                                                             LocalDateTime timeFrom,
+                                                                             @RequestParam @DateTimeFormat(
+                                                                                     iso = DateTimeFormat.ISO.DATE_TIME
+                                                                             )
+                                                                             LocalDateTime timeTo) {
+        List<PaymentDTO> payments = service.getPaymentsByDriverIdInDateRange(passengerId, timeFrom, timeTo);
         return ResponseEntity.ok(payments);
     }
 

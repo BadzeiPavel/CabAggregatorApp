@@ -53,10 +53,10 @@ public class PaymentService {
                 .toList();
     }
 
-    public List<PaymentDTO> getPaymentsByPassengerIdInDateRange(String passengerId, DateRangeDTO dateRangeDTO) {
-        return repository.findByPassengerIdAndCreatedAtIsBetween(passengerId,
-                        dateRangeDTO.getFromDate(),
-                        dateRangeDTO.getToDate()).stream()
+    public List<PaymentDTO> getPaymentsByPassengerIdInDateRange(String passengerId,
+                                                                LocalDateTime timeFrom,
+                                                                LocalDateTime timeTo) {
+        return repository.findByPassengerIdAndCreatedAtIsBetween(passengerId, timeFrom, timeTo).stream()
                 .map(entityMapper::toPaymentDTO)
                 .toList();
     }
@@ -67,10 +67,10 @@ public class PaymentService {
                 .toList();
     }
 
-    public List<PaymentDTO> getPaymentsByDriverIdInDateRange(String driverId, DateRangeDTO dateRangeDTO) {
-        return repository.findByDriverIdAndCreatedAtIsBetween(driverId,
-                        dateRangeDTO.getFromDate(),
-                        dateRangeDTO.getToDate()).stream()
+    public List<PaymentDTO> getPaymentsByDriverIdInDateRange(String driverId,
+                                                             LocalDateTime timeFrom,
+                                                             LocalDateTime timeTo) {
+        return repository.findByDriverIdAndCreatedAtIsBetween(driverId, timeFrom, timeTo).stream()
                 .map(entityMapper::toPaymentDTO)
                 .toList();
     }

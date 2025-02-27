@@ -3,7 +3,9 @@ package com.modsen.rating_service.controllers;
 import com.modsen.rating_service.models.dtos.RatingDTO;
 import com.modsen.rating_service.models.dtos.RatingStatisticResponseDTO;
 import com.modsen.rating_service.services.PassengerRatingService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,9 +19,9 @@ public class PassengerRatingController {
     private final PassengerRatingService service;
 
     @PostMapping
-    public ResponseEntity<RatingDTO> createPassengerRating(@RequestBody RatingDTO ratingDTO) {
+    public ResponseEntity<RatingDTO> createPassengerRating(@Valid @RequestBody RatingDTO ratingDTO) {
         RatingDTO createdRatingDTO = service.createPassengerRating(ratingDTO);
-        return ResponseEntity.ok(createdRatingDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdRatingDTO);
     }
 
     @GetMapping("/{id}")
@@ -34,7 +36,9 @@ public class PassengerRatingController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RatingDTO> updatePassengerRating(@PathVariable String id, @RequestBody RatingDTO ratingDTO) {
+    public ResponseEntity<RatingDTO> updatePassengerRating(@PathVariable String id, @Valid
+                                                                                    @RequestBody
+                                                                                    RatingDTO ratingDTO) {
         RatingDTO updatedRatingDTO = service.updatePassengerRating(id, ratingDTO);
         return ResponseEntity.ok(updatedRatingDTO);
     }

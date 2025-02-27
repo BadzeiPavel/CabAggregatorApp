@@ -3,7 +3,9 @@ package com.modsen.payment_service.controllers;
 import com.modsen.payment_service.models.dtos.ChangeBalanceRequestDTO;
 import com.modsen.payment_service.models.dtos.DriverBankAccountDTO;
 import com.modsen.payment_service.services.DriverBankAccountService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,8 +17,10 @@ public class DriverBankAccountController {
     private final DriverBankAccountService service;
 
     @PostMapping
-    public ResponseEntity<DriverBankAccountDTO> createBankAccount(@RequestBody DriverBankAccountDTO bankAccountDTO) {
-        return ResponseEntity.ok(service.createBankAccount(bankAccountDTO));
+    public ResponseEntity<DriverBankAccountDTO> createBankAccount(@Valid
+                                                                  @RequestBody
+                                                                  DriverBankAccountDTO bankAccountDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.createBankAccount(bankAccountDTO));
     }
 
     @GetMapping("{id}")
@@ -26,13 +30,17 @@ public class DriverBankAccountController {
 
     @PutMapping("{id}/top-up")
     public ResponseEntity<DriverBankAccountDTO> topUpBalance(@PathVariable String id,
-                                                             @RequestBody ChangeBalanceRequestDTO changeBalanceRequestDTO) {
+                                                             @Valid
+                                                             @RequestBody
+                                                             ChangeBalanceRequestDTO changeBalanceRequestDTO) {
         return ResponseEntity.ok(service.topUpBalance(id, changeBalanceRequestDTO.getAmount()));
     }
 
     @PutMapping("{id}/deduct")
     public ResponseEntity<DriverBankAccountDTO> deductBalance(@PathVariable String id,
-                                                              @RequestBody ChangeBalanceRequestDTO changeBalanceRequestDTO) {
+                                                              @Valid
+                                                              @RequestBody
+                                                              ChangeBalanceRequestDTO changeBalanceRequestDTO) {
         return ResponseEntity.ok(service.deductBalance(id, changeBalanceRequestDTO.getAmount()));
     }
 }
