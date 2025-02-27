@@ -2,18 +2,18 @@ package com.modsen.ride_service.models.entitties;
 
 import com.modsen.ride_service.enums.NotificationStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
-@ToString
+@Getter @Setter
 @Entity
 @Table(name = "driver_notification")
 public class DriverNotification {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
@@ -26,10 +26,14 @@ public class DriverNotification {
             nullable = false)
     private Ride ride;
 
-    @Column(name = "ride_id")
+    @NotNull(message = "Ride ID cannot be null")
+    @Column(nullable = false)
     private UUID rideId;
 
+    @NotNull(message = "Driver ID cannot be null")
+    @Column(nullable = false)
     private UUID driverId;
 
+    @Enumerated(EnumType.ORDINAL)
     private NotificationStatus status;
 }

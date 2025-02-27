@@ -7,6 +7,7 @@ import com.modsen.rating_service.models.dtos.RatingDTO;
 import com.modsen.rating_service.models.dtos.RatingStatisticResponseDTO;
 import com.modsen.rating_service.models.entities.PassengerRating;
 import com.modsen.rating_service.repositories.PassengerRatingRepository;
+import com.modsen.rating_service.utils.CalculationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,7 +58,7 @@ public class PassengerRatingService {
 
     public RatingStatisticResponseDTO getAverageRating(String id) {
         List<RatingDTO> passengerRatingDTOs = getPassengerRatingsByPassengerId(id);
-        return RatingStatisticResponseDTO.calculateRatingStatistics(passengerRatingDTOs);
+        return CalculationUtil.calculateRatingStatistics(passengerRatingDTOs);
     }
 
     private List<PassengerRating> getAllPassengerRatingsByPassengerId(String id) {

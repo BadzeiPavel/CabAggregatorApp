@@ -24,6 +24,8 @@ public class DriverService {
 
     public DriverDTO createDriver(DriverDTO driverDTO) {
         Driver driver = driverDTOMapper.toDriver(driverDTO);
+        driver.setStatus(DriverStatus.FREE);
+
         return driverMapper.toDriverDTO(repository.save(driver));
     }
 

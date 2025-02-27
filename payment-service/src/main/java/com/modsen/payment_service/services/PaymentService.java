@@ -84,7 +84,7 @@ public class PaymentService {
     }
 
     private static void fillInPaymentOnCreation(Payment payment, RideInfo rideInfo) {
-        payment.setCost(calculateCost(rideInfo));
+        payment.setCost(calculateCost(payment.getPromoCode(), rideInfo));
         payment.setStatus(PaymentStatus.PENDING);
         payment.setCreatedAt(LocalDateTime.now());
     }
@@ -100,10 +100,15 @@ public class PaymentService {
      *
      * @param rideInfo DTO that stores promoCode, pickup and destination address as Strings
      */
-    private static BigDecimal calculateCost(RideInfo rideInfo) {
-        BigDecimal cost = generateRandomBigDecimal();
-        BigDecimal discount = BigDecimal.valueOf((1 - getPromoCodeDiscount(rideInfo.getPromoCode())));
+    private static BigDecimal calculateCost(String promoCode, RideInfo rideInfo) {
+        BigDecimal cost = calculateRideDistance(rideInfo);
+        BigDecimal discount = BigDecimal.valueOf((1 - getPromoCodeDiscount(promoCode)));
         return cost.multiply(discount);
+    }
+
+    private static BigDecimal calculateRideDistance(RideInfo rideInfo) {
+        // *calling* service to calculate distance from pick-up to destination address
+        return generateRandomBigDecimal();
     }
 
     private static BigDecimal generateRandomBigDecimal() {

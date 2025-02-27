@@ -7,6 +7,7 @@ import com.modsen.rating_service.models.dtos.RatingDTO;
 import com.modsen.rating_service.models.dtos.RatingStatisticResponseDTO;
 import com.modsen.rating_service.models.entities.DriverRating;
 import com.modsen.rating_service.repositories.DriverRatingRepository;
+import com.modsen.rating_service.utils.CalculationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,7 +58,7 @@ public class DriverRatingService {
 
     public RatingStatisticResponseDTO getAverageRating(String id) {
         List<RatingDTO> driverRatingDTOs = getDriverRatingsByDriverId(id);
-        return RatingStatisticResponseDTO.calculateRatingStatistics(driverRatingDTOs);
+        return CalculationUtil.calculateRatingStatistics(driverRatingDTOs);
     }
 
     private List<DriverRating> getAllDriverRatingsByDriverId(String id) {

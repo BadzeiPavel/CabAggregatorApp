@@ -2,7 +2,12 @@ package com.modsen.passenger_service.models.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,31 +16,35 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter @Setter
-@ToString
 @Entity
-@Table(name = "passenger")
+@Table(name = "passenger",
+       uniqueConstraints = {@UniqueConstraint(columnNames = "email"),
+                            @UniqueConstraint(columnNames = "username")}
+)
 public class Passenger {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Size(min = 5, message = "Username must be at least 5 characters long")
     @NotBlank(message = "Username cannot be empty")
-    @Column(columnDefinition = "VARCHAR(50)")
+    @Column(nullable = false, length = 50)
     private String username;
 
-    @Size(min = 2, message = "First name must be at least 5 characters long")
+    @Size(min = 2, message = "First name must be at least 2 characters long")
     @NotBlank(message = "First name cannot be empty")
-    @Column(columnDefinition = "VARCHAR(50)")
+    @Column(nullable = false, length = 50)
     private String firstName;
 
-    @Size(min = 2, message = "Last name must be at least 5 characters long")
+    @Size(min = 2, message = "Last name must be at least 2 characters long")
     @NotBlank(message = "Last name cannot be empty")
-    @Column(columnDefinition = "VARCHAR(50)")
+    @Column(nullable = false, length = 50)
     private String lastName;
 
     @NotBlank(message = "Email cannot be empty")
     @Email(message = "Invalid email format")
-    @Column(columnDefinition = "VARCHAR(50)")
+    @Column(nullable = false, length = 50)
     private String email;
 
     @NotBlank(message = "Phone cannot be empty")
@@ -43,22 +52,20 @@ public class Passenger {
             regexp = "^\\+?[1-9]\\d{1,14}$",
             message = "Invalid phone number format"
     )
-    @Column(columnDefinition = "VARCHAR(50)")
+    @Column(nullable = false, length = 50)
     private String phone;
 
     @NotNull(message = "Birth date cannot be empty")
-    @Column(columnDefinition = "DATE")
+    @Column(nullable = false)
     private LocalDate birthDate;
 
-    @NotNull(message = "Time of account creation cannot be empty")
-    @Column(columnDefinition = "DATETIME")
+    @CreationTimestamp
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @NotNull(message = "Time of account last modification cannot be empty")
-    @Column(columnDefinition = "DATETIME")
-    private LocalDateTime lastModificationAt;
+    @UpdateTimestamp
+    private LocalDateTime lastUpdateAt;
 
-    @NotNull(message = "Deletion status cannot be empty")
-    @Column(columnDefinition = "BOOLEAN")
+    @Column(nullable = false)
     private boolean isDeleted;
 }

@@ -3,6 +3,7 @@ package com.modsen.ride_service.models.dtos;
 import com.modsen.ride_service.enums.PaymentMethod;
 import com.modsen.ride_service.enums.RideStatus;
 import enums.CarCategory;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,18 +16,45 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RideDTO {
+
     private UUID id;
+
+    @NotNull(message = "Passenger ID cannot be null")
     private UUID passengerId;
+
+    @NotNull(message = "Driver ID cannot be null")
     private UUID driverId;
-    private String  pickupAddress;
+
+    @NotBlank(message = "Pickup address cannot be empty")
+    @Size(max = 100, message = "Pickup address must not exceed 100 characters")
+    private String pickupAddress;
+
+    @NotBlank(message = "Destination address cannot be empty")
+    @Size(max = 100, message = "Destination address must not exceed 100 characters")
     private String destinationAddress;
+
+    @NotNull(message = "Cost cannot be null")
+    @Positive(message = "Cost must be a positive value")
     private BigDecimal cost;
+
+    @NotNull(message = "Status cannot be null")
     private RideStatus status;
+
+    @NotNull(message = "Payment method cannot be null")
     private PaymentMethod paymentMethod;
+
     private LocalDateTime startTime;
+
     private LocalDateTime endTime;
+
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
+
+    @Min(value = 1, message = "Seats must be at least 1")
+    @Max(value = 5, message = "Seats must be at most 5")
     private short seatsCount;
+
+    @NotNull(message = "Car category cannot be null")
     private CarCategory carCategory;
 }
