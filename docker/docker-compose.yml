@@ -8,7 +8,7 @@ services:
       - start-dev
       - --import-realm
     ports:
-      - 8080:8080
+      - "8080:8080"
     volumes:
       - ./keycloak/:/opt/keycloak/data/import/
     environment:
@@ -29,3 +29,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+
+  mongo_db:
+    image: mongo:5.0.2
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+    ports:
+      - 27017:27017
