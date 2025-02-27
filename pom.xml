@@ -20,6 +20,7 @@
         <java.version>17</java.version>
         <lombok.version>1.18.30</lombok.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <eureka-client.version>4.2.0</eureka-client.version>
     </properties>
 
     <modules>
@@ -49,6 +50,12 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <version>${eureka-client.version}</version>
         </dependency>
     </dependencies>
 
