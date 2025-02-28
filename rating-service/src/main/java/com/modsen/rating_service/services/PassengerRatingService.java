@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,17 +22,19 @@ public class PassengerRatingService {
 
     private final RatingMapper ratingMapper;
     private final RatingDTOMapper ratingDTOMapper;
-    private final PassengerRatingRepository passengerRatingRepository;
+    private final PassengerRatingRepository repository;
 
     @Transactional
     public RatingDTO createPassengerRating(RatingDTO ratingDTO) {
         PassengerRating passengerRating = ratingDTOMapper.toPassengerRating(ratingDTO);
-        return ratingMapper.toRatingDTO(passengerRatingRepository.save(passengerRating));
+        fillInRatingOnCreation(passengerRating);
+
+        return ratingMapper.toRatingDTO(repository.save(passengerRating));
     }
 
     @Transactional(readOnly = true)
     public RatingDTO getPassengerRating(String id) {
-        PassengerRating passengerRating = passengerRatingRepository.getPassengerRatingById(id);
+        PassengerRating passengerRating = repository.getPassengerRatingById(id);
         return ratingMapper.toRatingDTO(passengerRating);
     }
 
@@ -43,17 +46,17 @@ public class PassengerRatingService {
     }
 
     public RatingDTO updatePassengerRating(String id, RatingDTO ratingDTO) {
-        passengerRatingRepository.checkPassengerRatingExistenceById(id);
-        PassengerRating mappedPassengerRating = ratingDTOMapper.toPassengerRating(ratingDTO);
+        PassengerRating passengerRating = repository.getPassengerRatingById(id);
+        fillInRatingOnUpdate(passengerRating, ratingDTO);
 
-        return ratingMapper.toRatingDTO(passengerRatingRepository.save(mappedPassengerRating));
+        return ratingMapper.toRatingDTO(repository.save(passengerRating));
     }
 
     public RatingDTO softDeletePassengerRating(String id) {
-        PassengerRating passengerRating = passengerRatingRepository.getPassengerRatingById(id);
+        PassengerRating passengerRating = repository.getPassengerRatingById(id);
         passengerRating.setDeleted(true);
 
-        return ratingMapper.toRatingDTO(passengerRatingRepository.save(passengerRating));
+        return ratingMapper.toRatingDTO(repository.save(passengerRating));
     }
 
     public RatingStatisticResponseDTO getAverageRating(String id) {
@@ -62,10 +65,20 @@ public class PassengerRatingService {
     }
 
     private List<PassengerRating> getAllPassengerRatingsByPassengerId(String id) {
-        return Optional.ofNullable(passengerRatingRepository.findByPassengerIdAndIsDeletedFalse(id))
+        return Optional.ofNullable(repository.findByPassengerIdAndIsDeletedFalse(id))
                 .filter(list -> !list.isEmpty())
                 .orElseThrow(() ->
                         new RatingNotFoundException("There is no any record in 'passenger_rating' table")
                 );
+    }
+
+    private static void fillInRatingOnCreation(PassengerRating passengerRating) {
+        passengerRating.setCreatedAt(LocalDateTime.now());
+        passengerRating.setDeleted(false);
+    }
+
+    private static void fillInRatingOnUpdate(PassengerRating passengerRating, RatingDTO ratingDTO) {
+        passengerRating.setRating(ratingDTO.getRating());
+        passengerRating.setComment(ratingDTO.getComment());
     }
 }

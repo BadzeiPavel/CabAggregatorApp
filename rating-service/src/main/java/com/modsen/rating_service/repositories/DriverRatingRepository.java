@@ -13,12 +13,6 @@ public interface DriverRatingRepository extends MongoRepository<DriverRating, St
     List<DriverRating> findByDriverIdAndIsDeletedFalse(String id);
     Optional<DriverRating> findByIdAndIsDeletedFalse(String id);
 
-    default void checkDriverRatingExistenceById(String id) {
-        if(findByIdAndIsDeletedFalse(id).isEmpty()) {
-            throw new RatingNotFoundException("Rating entity with id='%s' not found".formatted(id));
-        }
-    }
-
     default DriverRating getDriverRatingById(String id) {
         return findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() ->

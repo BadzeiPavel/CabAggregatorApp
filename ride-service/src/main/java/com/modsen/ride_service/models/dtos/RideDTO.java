@@ -22,7 +22,6 @@ public class RideDTO {
     @NotNull(message = "Passenger ID cannot be null")
     private UUID passengerId;
 
-    @NotNull(message = "Driver ID cannot be null")
     private UUID driverId;
 
     @NotBlank(message = "Pickup address cannot be empty")
@@ -33,14 +32,11 @@ public class RideDTO {
     @Size(max = 100, message = "Destination address must not exceed 100 characters")
     private String destinationAddress;
 
-    @NotNull(message = "Cost cannot be null")
     @Positive(message = "Cost must be a positive value")
     private BigDecimal cost;
 
-    @NotNull(message = "Status cannot be null")
     private RideStatus status;
 
-    @NotNull(message = "Payment method cannot be null")
     private PaymentMethod paymentMethod;
 
     private LocalDateTime startTime;

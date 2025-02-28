@@ -26,7 +26,6 @@ import java.util.UUID;
 public class Driver {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -39,8 +38,7 @@ public class Driver {
     @JsonIgnore
     private Car car;
 
-    @NotNull(message = "Car ID cannot be null")
-    @Column(name = "car_id", columnDefinition = "UUID", nullable = false)
+    @Column(name = "car_id", columnDefinition = "UUID")
     private UUID carId;
 
     @Size(min = 5, message = "Username must be at least 5 characters long")

@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +27,8 @@ public class DriverRatingService {
     @Transactional
     public RatingDTO createDriverRating(RatingDTO ratingDTO) {
         DriverRating driverRating = ratingDTOMapper.toDriverRating(ratingDTO);
+        fillInRatingOnCreation(driverRating);
+
         return ratingMapper.toRatingDTO(repository.save(driverRating));
     }
 
@@ -43,10 +46,10 @@ public class DriverRatingService {
     }
 
     public RatingDTO updateDriverRating(String id, RatingDTO ratingDTO) {
-        repository.checkDriverRatingExistenceById(id);
-        DriverRating mappedDriverRating = ratingDTOMapper.toDriverRating(ratingDTO);
+        DriverRating driverRating = repository.getDriverRatingById(id);
+        fillInRatingOnUpdate(driverRating, ratingDTO);
 
-        return ratingMapper.toRatingDTO(repository.save(mappedDriverRating));
+        return ratingMapper.toRatingDTO(repository.save(driverRating));
     }
 
     public RatingDTO softDeleteDriverRating(String id) {
@@ -67,5 +70,15 @@ public class DriverRatingService {
                 .orElseThrow(() ->
                         new RatingNotFoundException("There is no any record in 'driver_rating' table")
                 );
+    }
+
+    private static void fillInRatingOnCreation(DriverRating driverRating) {
+        driverRating.setCreatedAt(LocalDateTime.now());
+        driverRating.setDeleted(false);
+    }
+
+    private static void fillInRatingOnUpdate(DriverRating driverRating, RatingDTO ratingDTO) {
+        driverRating.setRating(ratingDTO.getRating());
+        driverRating.setComment(ratingDTO.getComment());
     }
 }

@@ -14,12 +14,6 @@ public interface CarRepository extends JpaRepository<Car, UUID> {
     Optional<Car> findByIdAndIsDeletedFalse(UUID id);
     Optional<List<Car>> findByIsDeletedFalse();
 
-    default void checkCarExistenceById(UUID id) {
-        if(findByIdAndIsDeletedFalse(id).isEmpty()) {
-            throw new CarNotFoundException("Car entity with id='%s' not found".formatted(id));
-        }
-    }
-
     default Car getCarById(UUID id) {
         return findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() ->

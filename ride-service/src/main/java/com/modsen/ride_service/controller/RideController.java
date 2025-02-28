@@ -24,7 +24,7 @@ public class RideController {
     private final RideService service;
 
     @PostMapping
-    public ResponseEntity<RideDTO> createRide(@RequestBody RideDTO rideDTO) {
+    public ResponseEntity<RideDTO> createRide(@Valid @RequestBody RideDTO rideDTO) {
         RideDTO createdRideDTO = service.createRide(rideDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRideDTO);
     }
@@ -59,12 +59,12 @@ public class RideController {
                                                                       @RequestParam @DateTimeFormat(
                                                                               iso = DateTimeFormat.ISO.DATE_TIME
                                                                       )
-                                                                      LocalDateTime timeFrom,
+                                                                      LocalDateTime from,
                                                                       @RequestParam @DateTimeFormat(
                                                                               iso = DateTimeFormat.ISO.DATE_TIME
                                                                       )
-                                                                      LocalDateTime timeTo) {
-        List<RideDTO> rides = service.getPassengerRidesInDateRange(passengerId, timeFrom, timeTo);
+                                                                      LocalDateTime to) {
+        List<RideDTO> rides = service.getPassengerRidesInDateRange(passengerId, from, to);
         return ResponseEntity.ok(rides);
     }
 
@@ -79,12 +79,12 @@ public class RideController {
                                                                    @RequestParam @DateTimeFormat(
                                                                            iso = DateTimeFormat.ISO.DATE_TIME
                                                                    )
-                                                                   LocalDateTime timeFrom,
+                                                                   LocalDateTime from,
                                                                    @RequestParam @DateTimeFormat(
                                                                            iso = DateTimeFormat.ISO.DATE_TIME
                                                                    )
-                                                                   LocalDateTime timeTo) {
-        List<RideDTO> rides = service.getDriverRidesInDateRange(driverId, timeFrom, timeTo);
+                                                                   LocalDateTime to) {
+        List<RideDTO> rides = service.getDriverRidesInDateRange(driverId, from, to);
         return ResponseEntity.ok(rides);
     }
 

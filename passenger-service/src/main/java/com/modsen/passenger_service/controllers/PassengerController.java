@@ -36,7 +36,7 @@ public class PassengerController {
         return ResponseEntity.ok(updatedPassengerDTO);
     }
 
-    @DeleteMapping("/id")
+    @DeleteMapping("/{id}")
     public ResponseEntity<PassengerDTO> softDeletePassenger(@PathVariable UUID id) {
         PassengerDTO passengerDTO = service.softDeletePassenger(id);
         return ResponseEntity.ok(passengerDTO);

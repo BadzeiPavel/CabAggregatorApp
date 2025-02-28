@@ -31,7 +31,6 @@ public class Ride {
     @Column(nullable = false)
     private UUID passengerId;
 
-    @NotNull(message = "Driver ID cannot be null")
     @Column(nullable = false)
     private UUID driverId;
 

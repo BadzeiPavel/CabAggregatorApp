@@ -30,7 +30,6 @@ public class DriverNotification {
     @Column(name = "ride_id", nullable = false)
     private UUID rideId;
 
-    @NotNull(message = "Driver ID cannot be null")
     @Column(nullable = false)
     private UUID driverId;
 

@@ -32,19 +32,15 @@ public class PaymentDTO {
     @Size(min = 1, max = 50, message = "Passenger ID must be between 1 and 50 characters")
     private String passengerId;
 
-    @NotNull(message = "Cost cannot be null")
-    @Min(value = 0, message = "Cost cannot be negative")
     private BigDecimal cost;
 
-    @NotNull(message = "Payment status cannot be null")
     private PaymentStatus status;
 
-    @NotNull(message = "CreatedAt cannot be null")
     private LocalDateTime createdAt;
 
     private LocalDateTime paidAt;
 
-    @Size(max = 20, message = "Promo code cannot exceed 20 characters")
+    @Size(max = 7, message = "Promo code cannot exceed 7 characters")
     private String promoCode;
 
     @NotNull(message = "RideInfo cannot be null")

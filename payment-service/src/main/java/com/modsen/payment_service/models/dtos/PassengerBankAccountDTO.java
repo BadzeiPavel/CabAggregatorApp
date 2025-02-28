@@ -21,7 +21,6 @@ public class PassengerBankAccountDTO {
     @Size(min = 1, max = 50, message = "Passenger ID must be between 1 and 50 characters")
     private String passengerId;
 
-    @NotNull(message = "Balance cannot be null")
     @Min(value = 0, message = "Balance cannot be negative")
     private BigDecimal balance;
 }

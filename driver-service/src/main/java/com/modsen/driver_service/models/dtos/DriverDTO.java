@@ -16,7 +16,6 @@ import java.util.UUID;
 public class DriverDTO {
     private UUID id;
 
-    @NotNull(message = "Car ID cannot be null")
     private UUID carId;
 
     @Size(min = 5, message = "Username must be at least 5 characters long")
@@ -45,7 +44,6 @@ public class DriverDTO {
     )
     private String phone;
 
-    @NotNull(message = "Status cannot be empty")
     private DriverStatus status;
 
     @NotNull(message = "Birth date cannot be empty")

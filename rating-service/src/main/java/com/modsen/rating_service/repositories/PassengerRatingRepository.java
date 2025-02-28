@@ -14,12 +14,6 @@ public interface PassengerRatingRepository extends MongoRepository<PassengerRati
     List<PassengerRating> findByPassengerIdAndIsDeletedFalse(String id);
     Optional<PassengerRating> findByIdAndIsDeletedFalse(String id);
 
-    default void checkPassengerRatingExistenceById(String id) {
-        if(findByIdAndIsDeletedFalse(id).isEmpty()) {
-            throw new RatingNotFoundException("Rating entity with id='%s' not found".formatted(id));
-        }
-    }
-
     default PassengerRating getPassengerRatingById(String id) {
         return findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() ->

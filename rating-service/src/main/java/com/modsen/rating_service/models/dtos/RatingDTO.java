@@ -1,6 +1,9 @@
 package com.modsen.rating_service.models.dtos;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,7 +29,6 @@ public class RatingDTO {
     @Size(max = 255, message = "Comment cannot exceed 255 characters")
     private String comment;
 
-    @NotNull(message = "CreatedAt cannot be null")
     private LocalDateTime createdAt;
 
     private boolean isDeleted;

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +27,8 @@ public class CarService {
     @Transactional
     public CarDTO createCar(CarDTO carDTO) {
         Car car = carDTOMapper.toCar(carDTO);
+        fillInCarDTOOnCreate(car);
+
         Car savedCar = repository.save(car);
 
         driverService.assignCarId(savedCar.getDriverId(), savedCar.getId());
@@ -48,10 +51,10 @@ public class CarService {
     }
 
     public CarDTO updateCar(UUID id, CarDTO carDTO) {
-        repository.checkCarExistenceById(id);
-        Car mappedCar = carDTOMapper.toCar(carDTO);
+        Car car = repository.getCarById(id);
+        fillInCarOnUpdate(car, carDTO);
 
-        return carMapper.toCarDTO(repository.save(mappedCar));
+        return carMapper.toCarDTO(repository.save(car));
     }
 
     public CarDTO softDeleteCar(UUID id) {
@@ -59,5 +62,19 @@ public class CarService {
         car.setDeleted(true);
 
         return carMapper.toCarDTO(repository.save(car));
+    }
+
+    private static void fillInCarDTOOnCreate(Car car) {
+        car.setDeleted(false);
+        car.setCreatedAt(LocalDateTime.now());
+    }
+
+    private static void fillInCarOnUpdate(Car car, CarDTO carDTO) {
+        car.setNumber(carDTO.getNumber());
+        car.setSeatsCount(carDTO.getSeatsCount());
+        car.setColor(carDTO.getColor());
+        car.setBrand(carDTO.getBrand());
+        car.setModel(carDTO.getModel());
+        car.setCarCategory(carDTO.getCarCategory());
     }
 }

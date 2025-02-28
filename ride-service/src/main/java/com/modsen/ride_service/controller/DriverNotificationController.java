@@ -31,5 +31,4 @@ public class DriverNotificationController {
         List<DriverNotificationDTO> notificationDTOs = service.getDriverNotificationsByDriverId(driverId);
         return ResponseEntity.ok(notificationDTOs);
     }
-
 }

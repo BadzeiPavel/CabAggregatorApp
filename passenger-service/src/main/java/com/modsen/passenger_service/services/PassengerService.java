@@ -9,6 +9,7 @@ import com.modsen.passenger_service.repositories.PassengerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -21,31 +22,42 @@ public class PassengerService {
 
     public PassengerDTO createPassenger(PassengerDTO passengerDTO) {
         Passenger passenger = passengerDTOMapper.toPassenger(passengerDTO);
+        fillInPassengerOnCreate(passenger, passengerDTO);
+
         return passengerMapper.toPassengerDTO(repository.save(passenger));
     }
 
     public PassengerDTO getPassenger(UUID id) {
-        Passenger passenger = repository.findById(id)
-                .orElseThrow(() -> new PassengerNotFoundException("Passenger with id='%s' not found".formatted(id)));
+        Passenger passenger = repository.getPassengerById(id);
         return passengerMapper.toPassengerDTO(passenger);
     }
 
     public PassengerDTO updatePassenger(UUID id, PassengerDTO passengerDTO) {
-        Passenger passenger = repository.findById(id)
-                .orElseThrow(() -> new PassengerNotFoundException("Passenger with id='%s' not found".formatted(id)));
+        Passenger passenger = repository.getPassengerById(id);
+        fillInPassengerOnUpdate(passenger, passengerDTO);
 
-        Passenger updatedPassenger = passengerDTOMapper.toPassenger(passengerDTO);
-        updatedPassenger.setId(passenger.getId());
-
-        return passengerMapper.toPassengerDTO(repository.save(updatedPassenger));
+        return passengerMapper.toPassengerDTO(repository.save(passenger));
     }
 
     public PassengerDTO softDeletePassenger(UUID id) {
-        Passenger passenger = repository.findById(id)
-                .orElseThrow(() -> new PassengerNotFoundException("Passenger with id='%s' not found".formatted(id)));
+        Passenger passenger = repository.getPassengerById(id);
         passenger.setDeleted(true);
 
         return passengerMapper.toPassengerDTO(passenger);
     }
 
+    private static void fillInPassengerOnCreate(Passenger passenger, PassengerDTO passengerDTO) {
+        passenger.setId(passengerDTO.getId());
+        passenger.setDeleted(false);
+        passenger.setCreatedAt(LocalDateTime.now());
+    }
+
+    private static void fillInPassengerOnUpdate(Passenger passenger, PassengerDTO passengerDTO) {
+        passenger.setUsername(passengerDTO.getUsername());
+        passenger.setFirstName(passengerDTO.getFirstName());
+        passenger.setLastName(passengerDTO.getLastName());
+        passenger.setEmail(passengerDTO.getEmail());
+        passenger.setPhone(passengerDTO.getPhone());
+        passenger.setBirthDate(passengerDTO.getBirthDate());
+    }
 }

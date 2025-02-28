@@ -121,6 +121,7 @@ public class RideService {
         // TODO: send synchronous request to get 'FREE' driver id and NOT IN 'driverIds' List
         //  replace line below ^
         UUID driverId = UUID.fromString("b2f1b850-4d5b-11ec-81d3-0242ac130004");
+        ride.setDriverId(driverId);
 
         driverIds.add(driverId);
 

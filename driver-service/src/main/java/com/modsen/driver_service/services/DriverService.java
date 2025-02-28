@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,9 +23,10 @@ public class DriverService {
     private final DriverDTOMapper driverDTOMapper;
     private final DriverRepository repository;
 
+    @Transactional
     public DriverDTO createDriver(DriverDTO driverDTO) {
         Driver driver = driverDTOMapper.toDriver(driverDTO);
-        driver.setStatus(DriverStatus.FREE);
+        fillInDriverOnCreate(driver, driverDTO);
 
         return driverMapper.toDriverDTO(repository.save(driver));
     }
@@ -50,10 +52,10 @@ public class DriverService {
     }
 
     public DriverDTO updateDriver(UUID id, DriverDTO driverDTO) {
-        repository.checkDriverExistenceById(id);
-        Driver mappedDriver = driverDTOMapper.toDriver(driverDTO);
+        Driver driver = repository.getDriverById(id);
+        fillInDriverOnUpdate(driver, driverDTO);
 
-        return driverMapper.toDriverDTO(repository.save(mappedDriver));
+        return driverMapper.toDriverDTO(repository.save(driver));
     }
 
     public DriverDTO softDeleteDriver(UUID id) {
@@ -69,4 +71,19 @@ public class DriverService {
         driverMapper.toDriverDTO(repository.save(driver));
     }
 
+    private static void fillInDriverOnCreate(Driver driver, DriverDTO driverDTO) {
+        driver.setId(driverDTO.getId());
+        driver.setDeleted(false);
+        driver.setStatus(DriverStatus.FREE);
+        driver.setCreatedAt(LocalDateTime.now());
+    }
+
+    private static void fillInDriverOnUpdate(Driver driver, DriverDTO driverDTO) {
+        driver.setUsername(driverDTO.getUsername());
+        driver.setFirstName(driverDTO.getFirstName());
+        driver.setLastName(driverDTO.getLastName());
+        driver.setEmail(driverDTO.getEmail());
+        driver.setPhone(driverDTO.getPhone());
+        driver.setBirthDate(driverDTO.getBirthDate());
+    }
 }
