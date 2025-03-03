@@ -42,7 +42,7 @@ public class CarService {
         return carMapper.toCarDTO(car);
     }
 
-    public List<CarDTO> getAll() {
+    public List<CarDTO> getCars() {
         return repository.findByIsDeletedFalse()
                 .orElse(Collections.emptyList())
                 .stream()

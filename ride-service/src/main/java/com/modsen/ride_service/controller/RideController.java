@@ -7,6 +7,7 @@ import com.modsen.ride_service.models.dtos.RideDTO;
 import com.modsen.ride_service.services.RideService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllResponseDTO;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,13 +50,14 @@ public class RideController {
     }
 
     @GetMapping("/passengers/{passengerId}")
-    public ResponseEntity<List<RideDTO>> getRidesByPassengerId(@PathVariable UUID passengerId) {
+    public ResponseEntity<GetAllResponseDTO<RideDTO>> getRidesByPassengerId(@PathVariable UUID passengerId) {
         List<RideDTO> rides = service.getRidesByPassengerId(passengerId);
-        return ResponseEntity.ok(rides);
+        GetAllResponseDTO<RideDTO> responseDTO = new GetAllResponseDTO<>(rides);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/passengers/{passengerId}/date-range")
-    public ResponseEntity<List<RideDTO>> getPassengerRidesInDateRange(@PathVariable UUID passengerId,
+    public ResponseEntity<GetAllResponseDTO<RideDTO>> getPassengerRidesInDateRange(@PathVariable UUID passengerId,
                                                                       @RequestParam @DateTimeFormat(
                                                                               iso = DateTimeFormat.ISO.DATE_TIME
                                                                       )
@@ -65,17 +67,19 @@ public class RideController {
                                                                       )
                                                                       LocalDateTime to) {
         List<RideDTO> rides = service.getPassengerRidesInDateRange(passengerId, from, to);
-        return ResponseEntity.ok(rides);
+        GetAllResponseDTO<RideDTO> responseDTO = new GetAllResponseDTO<>(rides);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/drivers/{driverId}")
-    public ResponseEntity<List<RideDTO>> getRidesByDriverId(@PathVariable UUID driverId) {
+    public ResponseEntity<GetAllResponseDTO<RideDTO>> getRidesByDriverId(@PathVariable UUID driverId) {
         List<RideDTO> rides = service.getRidesByDriverId(driverId);
-        return ResponseEntity.ok(rides);
+        GetAllResponseDTO<RideDTO> responseDTO = new GetAllResponseDTO<>(rides);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/drivers/{driverId}/date-range")
-    public ResponseEntity<List<RideDTO>> getDriverRidesInDateRange(@PathVariable UUID driverId,
+    public ResponseEntity<GetAllResponseDTO<RideDTO>> getDriverRidesInDateRange(@PathVariable UUID driverId,
                                                                    @RequestParam @DateTimeFormat(
                                                                            iso = DateTimeFormat.ISO.DATE_TIME
                                                                    )
@@ -85,7 +89,8 @@ public class RideController {
                                                                    )
                                                                    LocalDateTime to) {
         List<RideDTO> rides = service.getDriverRidesInDateRange(driverId, from, to);
-        return ResponseEntity.ok(rides);
+        GetAllResponseDTO<RideDTO> responseDTO = new GetAllResponseDTO<>(rides);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @PutMapping("/{id}")

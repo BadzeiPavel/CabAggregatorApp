@@ -43,7 +43,7 @@ public class DriverService {
                 .toList();
     }
 
-    public List<DriverDTO> getAll() {
+    public List<DriverDTO> getDrivers() {
         return repository.findByIsDeletedFalse()
                 .orElseThrow(() -> new DriverNotFoundException("There is no any record in 'driver' table"))
                 .stream()

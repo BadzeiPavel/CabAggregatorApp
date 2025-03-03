@@ -5,6 +5,7 @@ import com.modsen.driver_service.models.dtos.DriverDTO;
 import com.modsen.driver_service.services.DriverService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +33,10 @@ public class DriverController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DriverDTO>> getDrivers() {
-        return ResponseEntity.ok(service.getAll());
+    public ResponseEntity<GetAllResponseDTO<DriverDTO>> getDrivers() {
+        List<DriverDTO> drivers = service.getDrivers();
+        GetAllResponseDTO<DriverDTO> responseDTO = new GetAllResponseDTO<>(drivers);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/free")

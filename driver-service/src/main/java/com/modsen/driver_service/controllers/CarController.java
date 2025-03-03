@@ -4,6 +4,7 @@ import com.modsen.driver_service.models.dtos.CarDTO;
 import com.modsen.driver_service.services.CarService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,8 +32,10 @@ public class CarController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CarDTO>> getCars() {
-        return ResponseEntity.ok(service.getAll());
+    public ResponseEntity<GetAllResponseDTO<CarDTO>> getCars() {
+        List<CarDTO> cars = service.getCars();
+        GetAllResponseDTO<CarDTO> responseDTO = new GetAllResponseDTO<>(cars);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @PutMapping("/{id}")

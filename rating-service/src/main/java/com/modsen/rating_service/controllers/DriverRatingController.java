@@ -5,6 +5,7 @@ import com.modsen.rating_service.models.dtos.RatingStatisticResponseDTO;
 import com.modsen.rating_service.services.DriverRatingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,8 +32,10 @@ public class DriverRatingController {
     }
 
     @GetMapping("/{driverId}/all")
-    public ResponseEntity<List<RatingDTO>> getDriverRatings(@PathVariable String driverId) {
-        return ResponseEntity.ok(service.getDriverRatingsByDriverId(driverId));
+    public ResponseEntity<GetAllResponseDTO<RatingDTO>> getDriverRatings(@PathVariable String driverId) {
+        List<RatingDTO> ratings = service.getDriverRatingsByDriverId(driverId);
+        GetAllResponseDTO<RatingDTO> responseDTO = new GetAllResponseDTO<>(ratings);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @PutMapping("/{id}")

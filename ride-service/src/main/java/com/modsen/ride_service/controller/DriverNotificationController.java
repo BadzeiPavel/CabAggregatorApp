@@ -4,6 +4,7 @@ import com.modsen.ride_service.models.dtos.DriverNotificationDTO;
 import com.modsen.ride_service.services.DriverNotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,8 +28,9 @@ public class DriverNotificationController {
     }
 
     @GetMapping("/{driverId}")
-    public ResponseEntity<List<DriverNotificationDTO>> getDriverNotificationsByDriverId(@PathVariable UUID driverId) {
-        List<DriverNotificationDTO> notificationDTOs = service.getDriverNotificationsByDriverId(driverId);
-        return ResponseEntity.ok(notificationDTOs);
+    public ResponseEntity<GetAllResponseDTO<DriverNotificationDTO>> getDriverNotificationsByDriverId(@PathVariable UUID driverId) {
+        List<DriverNotificationDTO> notifications = service.getDriverNotificationsByDriverId(driverId);
+        GetAllResponseDTO<DriverNotificationDTO> responseDTO = new GetAllResponseDTO<>(notifications);
+        return ResponseEntity.ok(responseDTO);
     }
 }
