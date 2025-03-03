@@ -3,11 +3,13 @@ package com.modsen.driver_service.services;
 import com.modsen.driver_service.mappers.car_mapper.CarDTOMapper;
 import com.modsen.driver_service.mappers.car_mapper.CarMapper;
 import com.modsen.driver_service.models.dtos.CarDTO;
+import com.modsen.driver_service.models.dtos.CarPatchDTO;
 import com.modsen.driver_service.models.entities.Car;
 import com.modsen.driver_service.repositories.CarRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import utils.PatchUtil;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -57,6 +59,13 @@ public class CarService {
         return carMapper.toCarDTO(repository.save(car));
     }
 
+    public CarDTO patchCar(UUID id, CarPatchDTO carPatchDTO) {
+        Car car = repository.getCarById(id);
+        fillInCarOnPatch(car, carPatchDTO);
+
+        return carMapper.toCarDTO(repository.save(car));
+    }
+
     public CarDTO softDeleteCar(UUID id) {
         Car car = repository.getCarById(id);
         car.setDeleted(true);
@@ -76,5 +85,15 @@ public class CarService {
         car.setBrand(carDTO.getBrand());
         car.setModel(carDTO.getModel());
         car.setCarCategory(carDTO.getCarCategory());
+    }
+
+    private static void fillInCarOnPatch(Car car, CarPatchDTO carPatchDTO) {
+        PatchUtil.patchIfNotNull(carPatchDTO.getNumber(), car::setNumber);
+        PatchUtil.patchIfNotNull(carPatchDTO.getSeatsCount(), car::setSeatsCount);
+        PatchUtil.patchIfNotNull(carPatchDTO.getColor(), car::setColor);
+        PatchUtil.patchIfNotNull(carPatchDTO.getBrand(), car::setBrand);
+        PatchUtil.patchIfNotNull(carPatchDTO.getModel(), car::setModel);
+        PatchUtil.patchIfNotNull(carPatchDTO.getCarCategory(), car::setCarCategory);
+        car.setLastUpdateAt(LocalDateTime.now());
     }
 }

@@ -1,6 +1,7 @@
 package com.modsen.rating_service.controllers;
 
 import com.modsen.rating_service.models.dtos.RatingDTO;
+import com.modsen.rating_service.models.dtos.RatingPatchDTO;
 import com.modsen.rating_service.models.dtos.RatingStatisticResponseDTO;
 import com.modsen.rating_service.services.DriverRatingService;
 import jakarta.validation.Valid;
@@ -38,22 +39,28 @@ public class DriverRatingController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @GetMapping("/{driverId}/statistic")
+    public ResponseEntity<RatingStatisticResponseDTO> getDriverRatingStatistic(@PathVariable String driverId) {
+        return ResponseEntity.ok(service.getAverageRating(driverId));
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<RatingDTO> updateDriverRating(@PathVariable String id, @Valid
-                                                                                 @RequestBody
-                                                                                 RatingDTO ratingDTO) {
+    public ResponseEntity<RatingDTO> updateDriverRating(@PathVariable String id,
+                                                        @Valid @RequestBody RatingDTO ratingDTO) {
         RatingDTO updatedRatingDTO = service.updateDriverRating(id, ratingDTO);
         return ResponseEntity.ok(updatedRatingDTO);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<RatingDTO> patchDriverRating(@PathVariable String id,
+                                                       @Valid @RequestBody RatingPatchDTO ratingPatchDTO) {
+        RatingDTO ratingDTO = service.patchDriverRating(id, ratingPatchDTO);
+        return ResponseEntity.ok(ratingDTO);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<RatingDTO> softDeleteDriverRating(@PathVariable String id) {
         RatingDTO ratingDTO = service.softDeleteDriverRating(id);
         return ResponseEntity.ok(ratingDTO);
-    }
-
-    @GetMapping("/{driverId}/statistic")
-    public ResponseEntity<RatingStatisticResponseDTO> getDriverRatingStatistic(@PathVariable String driverId) {
-        return ResponseEntity.ok(service.getAverageRating(driverId));
     }
 }

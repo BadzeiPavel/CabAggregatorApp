@@ -1,6 +1,7 @@
 package com.modsen.driver_service.controllers;
 
 import com.modsen.driver_service.models.dtos.CarDTO;
+import com.modsen.driver_service.models.dtos.CarPatchDTO;
 import com.modsen.driver_service.services.CarService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,12 @@ public class CarController {
     public ResponseEntity<CarDTO> updateCar(@PathVariable UUID id, @Valid @RequestBody CarDTO carDTO) {
         CarDTO updatedCarDTO = service.updateCar(id, carDTO);
         return ResponseEntity.ok(updatedCarDTO);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<CarDTO> patchCar(@PathVariable UUID id, @Valid @RequestBody CarPatchDTO carPatchDTO) {
+        CarDTO patchedCarDTO = service.patchCar(id, carPatchDTO);
+        return ResponseEntity.ok(patchedCarDTO);
     }
 
     @DeleteMapping("/{id}")

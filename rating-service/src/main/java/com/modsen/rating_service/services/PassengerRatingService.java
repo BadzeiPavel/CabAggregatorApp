@@ -4,13 +4,16 @@ import com.modsen.rating_service.exceptions.RatingNotFoundException;
 import com.modsen.rating_service.mappers.RatingDTOMapper;
 import com.modsen.rating_service.mappers.RatingMapper;
 import com.modsen.rating_service.models.dtos.RatingDTO;
+import com.modsen.rating_service.models.dtos.RatingPatchDTO;
 import com.modsen.rating_service.models.dtos.RatingStatisticResponseDTO;
+import com.modsen.rating_service.models.entities.DriverRating;
 import com.modsen.rating_service.models.entities.PassengerRating;
 import com.modsen.rating_service.repositories.PassengerRatingRepository;
 import com.modsen.rating_service.utils.CalculationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import utils.PatchUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -52,6 +55,13 @@ public class PassengerRatingService {
         return ratingMapper.toRatingDTO(repository.save(passengerRating));
     }
 
+    public RatingDTO patchPassengerRating(String id, RatingPatchDTO ratingPatchDTO) {
+        PassengerRating passengerRating = repository.getPassengerRatingById(id);
+        fillInRatingOnPatch(passengerRating, ratingPatchDTO);
+
+        return ratingMapper.toRatingDTO(repository.save(passengerRating));
+    }
+
     public RatingDTO softDeletePassengerRating(String id) {
         PassengerRating passengerRating = repository.getPassengerRatingById(id);
         passengerRating.setDeleted(true);
@@ -80,5 +90,10 @@ public class PassengerRatingService {
     private static void fillInRatingOnUpdate(PassengerRating passengerRating, RatingDTO ratingDTO) {
         passengerRating.setRating(ratingDTO.getRating());
         passengerRating.setComment(ratingDTO.getComment());
+    }
+
+    private static void fillInRatingOnPatch(PassengerRating passengerRating, RatingPatchDTO ratingPatchDTO) {
+        PatchUtil.patchIfNotNull(ratingPatchDTO.getRating(), passengerRating::setRating);
+        PatchUtil.patchIfNotNull(ratingPatchDTO.getComment(), passengerRating::setComment);
     }
 }

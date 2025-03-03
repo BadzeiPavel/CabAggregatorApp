@@ -4,6 +4,7 @@ import com.modsen.rating_service.exceptions.RatingNotFoundException;
 import com.modsen.rating_service.mappers.RatingDTOMapper;
 import com.modsen.rating_service.mappers.RatingMapper;
 import com.modsen.rating_service.models.dtos.RatingDTO;
+import com.modsen.rating_service.models.dtos.RatingPatchDTO;
 import com.modsen.rating_service.models.dtos.RatingStatisticResponseDTO;
 import com.modsen.rating_service.models.entities.DriverRating;
 import com.modsen.rating_service.repositories.DriverRatingRepository;
@@ -11,6 +12,7 @@ import com.modsen.rating_service.utils.CalculationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import utils.PatchUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -52,6 +54,13 @@ public class DriverRatingService {
         return ratingMapper.toRatingDTO(repository.save(driverRating));
     }
 
+    public RatingDTO patchDriverRating(String id, RatingPatchDTO ratingPatchDTO) {
+        DriverRating driverRating = repository.getDriverRatingById(id);
+        fillInRatingOnPatch(driverRating, ratingPatchDTO);
+
+        return ratingMapper.toRatingDTO(repository.save(driverRating));
+    }
+
     public RatingDTO softDeleteDriverRating(String id) {
         DriverRating driverRating = repository.getDriverRatingById(id);
         driverRating.setDeleted(true);
@@ -80,5 +89,10 @@ public class DriverRatingService {
     private static void fillInRatingOnUpdate(DriverRating driverRating, RatingDTO ratingDTO) {
         driverRating.setRating(ratingDTO.getRating());
         driverRating.setComment(ratingDTO.getComment());
+    }
+
+    private static void fillInRatingOnPatch(DriverRating driverRating, RatingPatchDTO ratingPatchDTO) {
+        PatchUtil.patchIfNotNull(ratingPatchDTO.getRating(), driverRating::setRating);
+        PatchUtil.patchIfNotNull(ratingPatchDTO.getComment(), driverRating::setComment);
     }
 }

@@ -4,8 +4,10 @@ import com.modsen.ride_service.enums.RideStatus;
 import com.modsen.ride_service.exceptions.InvalidRideStatusException;
 import com.modsen.ride_service.models.dtos.ChangeRideStatusRequestDTO;
 import com.modsen.ride_service.models.dtos.RideDTO;
+import com.modsen.ride_service.models.dtos.RidePatchDTO;
 import com.modsen.ride_service.services.RideService;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
 import models.dtos.GetAllResponseDTO;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -108,5 +110,11 @@ public class RideController {
         }
         RideDTO rideDTO = service.changeRideStatus(id, requestDTO);
         return ResponseEntity.ok(rideDTO);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<RideDTO> patchRide(@PathVariable UUID id, @Valid @RequestBody RidePatchDTO ridePatchDTO) {
+        RideDTO updatedRideDTO = service.patchRide(id, ridePatchDTO);
+        return ResponseEntity.ok(updatedRideDTO);
     }
 }

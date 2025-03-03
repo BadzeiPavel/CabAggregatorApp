@@ -6,6 +6,7 @@ import com.modsen.driver_service.services.DriverService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import models.dtos.GetAllResponseDTO;
+import models.dtos.UserPatchDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,6 +50,13 @@ public class DriverController {
     public ResponseEntity<DriverDTO> updateDriver(@PathVariable UUID id, @Valid @RequestBody DriverDTO driverDTO) {
         DriverDTO updatedDriverDTO = service.updateDriver(id, driverDTO);
         return ResponseEntity.ok(updatedDriverDTO);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<DriverDTO> patchDriver(@PathVariable UUID id,
+                                                 @Valid @RequestBody UserPatchDTO userPatchDTO) {
+        DriverDTO driverDTO = service.patchDriver(id, userPatchDTO);
+        return ResponseEntity.ok(driverDTO);
     }
 
     @DeleteMapping("/{id}")

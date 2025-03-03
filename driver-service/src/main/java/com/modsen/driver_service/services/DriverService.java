@@ -8,8 +8,10 @@ import com.modsen.driver_service.models.dtos.DriverDTO;
 import com.modsen.driver_service.models.entities.Driver;
 import com.modsen.driver_service.repositories.DriverRepository;
 import lombok.RequiredArgsConstructor;
+import models.dtos.UserPatchDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import utils.PatchUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -58,6 +60,13 @@ public class DriverService {
         return driverMapper.toDriverDTO(repository.save(driver));
     }
 
+    public DriverDTO patchDriver(UUID id, UserPatchDTO userPatchDTO) {
+        Driver driver = repository.getDriverById(id);
+        fillInDriverOnPatch(driver, userPatchDTO);
+
+        return driverMapper.toDriverDTO(repository.save(driver));
+    }
+
     public DriverDTO softDeleteDriver(UUID id) {
         Driver driver = repository.getDriverById(id);
         driver.setDeleted(true);
@@ -85,5 +94,14 @@ public class DriverService {
         driver.setEmail(driverDTO.getEmail());
         driver.setPhone(driverDTO.getPhone());
         driver.setBirthDate(driverDTO.getBirthDate());
+    }
+
+    private static void fillInDriverOnPatch(Driver driver, UserPatchDTO userPatchDTO) {
+       PatchUtil.patchIfNotNull(userPatchDTO.getUsername(), driver::setUsername);
+       PatchUtil.patchIfNotNull(userPatchDTO.getFirstName(), driver::setFirstName);
+       PatchUtil.patchIfNotNull(userPatchDTO.getLastName(), driver::setLastName);
+       PatchUtil.patchIfNotNull(userPatchDTO.getEmail(), driver::setEmail);
+       PatchUtil.patchIfNotNull(userPatchDTO.getPhone(), driver::setPhone);
+       PatchUtil.patchIfNotNull(userPatchDTO.getBirthDate(), driver::setBirthDate);
     }
 }

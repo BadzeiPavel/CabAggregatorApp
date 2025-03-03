@@ -3,7 +3,9 @@ package com.modsen.passenger_service.controllers;
 import com.modsen.passenger_service.models.dtos.PassengerDTO;
 import com.modsen.passenger_service.services.PassengerService;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
+import models.dtos.UserPatchDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +36,13 @@ public class PassengerController {
                                                         @Valid @RequestBody PassengerDTO passengerDTO) {
         PassengerDTO updatedPassengerDTO = service.updatePassenger(id, passengerDTO);
         return ResponseEntity.ok(updatedPassengerDTO);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<PassengerDTO> patchPassenger(@PathVariable UUID id,
+                                                       @Valid @RequestBody UserPatchDTO userPatchDTO) {
+        PassengerDTO passengerDTO = service.patchPassenger(id, userPatchDTO);
+        return ResponseEntity.ok(passengerDTO);
     }
 
     @DeleteMapping("/{id}")

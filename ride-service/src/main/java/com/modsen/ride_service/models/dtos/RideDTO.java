@@ -45,7 +45,7 @@ public class RideDTO {
 
     private LocalDateTime createdAt;
 
-    private LocalDateTime updatedAt;
+    private LocalDateTime lastUpdateAt;
 
     @Min(value = 1, message = "Seats must be at least 1")
     @Max(value = 5, message = "Seats must be at most 5")
