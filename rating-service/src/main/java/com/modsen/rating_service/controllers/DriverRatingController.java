@@ -33,9 +33,10 @@ public class DriverRatingController {
 
     @GetMapping("/{driverId}/all")
     public ResponseEntity<GetAllPaginatedResponseDTO<RatingDTO>> getPaginatedDriverRatings(
-                                                                    @PathVariable String driverId,
-                                                                    @RequestParam(defaultValue = "0") int page,
-                                                                    @RequestParam(defaultValue = "10") int size) {
+            @PathVariable String driverId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         GetAllPaginatedResponseDTO<RatingDTO> responseDTO =
                 service.getPaginatedDriverRatingsByDriverId(driverId, PageRequest.of(page, size));
         return ResponseEntity.ok(responseDTO);
@@ -47,15 +48,19 @@ public class DriverRatingController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RatingDTO> updateDriverRating(@PathVariable String id,
-                                                        @Valid @RequestBody RatingDTO ratingDTO) {
+    public ResponseEntity<RatingDTO> updateDriverRating(
+            @PathVariable String id,
+            @Valid @RequestBody RatingDTO ratingDTO
+    ) {
         RatingDTO updatedRatingDTO = service.updateDriverRating(id, ratingDTO);
         return ResponseEntity.ok(updatedRatingDTO);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<RatingDTO> patchDriverRating(@PathVariable String id,
-                                                       @Valid @RequestBody RatingPatchDTO ratingPatchDTO) {
+    public ResponseEntity<RatingDTO> patchDriverRating(
+            @PathVariable String id,
+            @Valid @RequestBody RatingPatchDTO ratingPatchDTO
+    ) {
         RatingDTO ratingDTO = service.patchDriverRating(id, ratingPatchDTO);
         return ResponseEntity.ok(ratingDTO);
     }

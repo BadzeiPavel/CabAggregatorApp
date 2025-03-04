@@ -41,33 +41,19 @@ public class DriverService {
         return driverMapper.toDriverDTO(driver);
     }
 
-    public GetAllPaginatedResponseDTO<DriverDTO> getPaginatedDriversByStatus(DriverStatus status,
-                                                                             PageRequest pageRequest) {
-        Page<Driver> driverPage = repository.findByStatus(status, pageRequest);
-
-        List<DriverDTO> driverDTOs = driverPage.stream()
-                .map(driverMapper::toDriverDTO)
-                .toList();
-
-        return new GetAllPaginatedResponseDTO<>(
-                driverDTOs,
-                driverPage.getTotalPages(),
-                driverPage.getTotalElements()
-        );
-    }
-
     public GetAllPaginatedResponseDTO<DriverDTO> getPaginatedDrivers(PageRequest pageRequest) {
         Page<Driver> driverPage = repository.findByIsDeletedFalse(pageRequest);
 
-        List<DriverDTO> driverDTOs = driverPage.stream()
-                .map(driverMapper::toDriverDTO)
-                .toList();
+        return getAllPaginatedResponseDTO(driverPage);
+    }
 
-        return new GetAllPaginatedResponseDTO<>(
-                driverDTOs,
-                driverPage.getTotalPages(),
-                driverPage.getTotalElements()
-        );
+    public GetAllPaginatedResponseDTO<DriverDTO> getPaginatedDriversByStatus(
+            DriverStatus status,
+            PageRequest pageRequest
+    ) {
+        Page<Driver> driverPage = repository.findByStatus(status, pageRequest);
+
+        return getAllPaginatedResponseDTO(driverPage);
     }
 
     public DriverDTO updateDriver(UUID id, DriverDTO driverDTO) {
@@ -95,6 +81,18 @@ public class DriverService {
         Driver driver = repository.getDriverById(driverId);
         driver.setCarId(carId);
         driverMapper.toDriverDTO(repository.save(driver));
+    }
+
+    private GetAllPaginatedResponseDTO<DriverDTO> getAllPaginatedResponseDTO(Page<Driver> driverPage) {
+        List<DriverDTO> driverDTOs = driverPage.stream()
+                .map(driverMapper::toDriverDTO)
+                .toList();
+
+        return new GetAllPaginatedResponseDTO<>(
+                driverDTOs,
+                driverPage.getTotalPages(),
+                driverPage.getTotalElements()
+        );
     }
 
     private static void fillInDriverOnCreate(Driver driver, DriverDTO driverDTO) {

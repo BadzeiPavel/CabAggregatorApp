@@ -33,9 +33,10 @@ public class PassengerRatingController {
 
     @GetMapping("/{passengerId}/all")
     public ResponseEntity<GetAllPaginatedResponseDTO<RatingDTO>> getPassengerRatings(
-                                                                    @PathVariable String passengerId,
-                                                                    @RequestParam(defaultValue = "0") int page,
-                                                                    @RequestParam(defaultValue = "10") int size) {
+            @PathVariable String passengerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         GetAllPaginatedResponseDTO<RatingDTO> responseDTO =
                 service.getPaginatedPassengerRatingsByPassengerId(passengerId, PageRequest.of(page, size));
         return ResponseEntity.ok(responseDTO);
@@ -47,15 +48,19 @@ public class PassengerRatingController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RatingDTO> updatePassengerRating(@PathVariable String id,
-                                                           @Valid @RequestBody RatingDTO ratingDTO) {
+    public ResponseEntity<RatingDTO> updatePassengerRating(
+            @PathVariable String id,
+            @Valid @RequestBody RatingDTO ratingDTO
+    ) {
         RatingDTO updatedRatingDTO = service.updatePassengerRating(id, ratingDTO);
         return ResponseEntity.ok(updatedRatingDTO);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<RatingDTO> patchPassengerRating(@PathVariable String id,
-                                                          @Valid @RequestBody RatingPatchDTO ratingPatchDTO) {
+    public ResponseEntity<RatingDTO> patchPassengerRating(
+            @PathVariable String id,
+            @Valid @RequestBody RatingPatchDTO ratingPatchDTO
+    ) {
         RatingDTO ratingDTO = service.patchPassengerRating(id, ratingPatchDTO);
         return ResponseEntity.ok(ratingDTO);
     }

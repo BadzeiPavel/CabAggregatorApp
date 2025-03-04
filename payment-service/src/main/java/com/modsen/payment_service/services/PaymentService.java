@@ -36,7 +36,7 @@ public class PaymentService {
         Payment payment = dtoMapper.toPayment(paymentDTO);
         fillInPaymentOnCreation(payment, paymentDTO.getRideInfo());
 
-        if (!isRideCanBePaid(payment)) {
+        if(!isRideCanBePaid(payment)) {
             throw new CannotProceedPaymentException("Insufficient passenger balance!");
         }
 
@@ -49,7 +49,10 @@ public class PaymentService {
         return entityMapper.toPaymentDTO(payment);
     }
 
-    public GetAllPaginatedResponseDTO<PaymentDTO> getPaginatedPaymentsByPassengerId(String passengerId, PageRequest pageRequest) {
+    public GetAllPaginatedResponseDTO<PaymentDTO> getPaginatedPaymentsByPassengerId(
+            String passengerId,
+            PageRequest pageRequest
+    ) {
         Page<Payment> paymentPage = repository.findAllByPassengerId(passengerId, pageRequest);
 
         return getAllPaginatedResponseDTO(paymentPage);
@@ -66,7 +69,10 @@ public class PaymentService {
         return getAllPaginatedResponseDTO(paymentPage);
     }
 
-    public GetAllPaginatedResponseDTO<PaymentDTO> getPaginatedPaymentsByDriverId(String driverId, PageRequest pageRequest) {
+    public GetAllPaginatedResponseDTO<PaymentDTO> getPaginatedPaymentsByDriverId(
+            String driverId,
+            PageRequest pageRequest
+    ) {
         Page<Payment> paymentPage = repository.findAllByDriverId(driverId, pageRequest);
 
         return getAllPaginatedResponseDTO(paymentPage);
@@ -159,7 +165,7 @@ public class PaymentService {
     }
 
     private static float getPromoCodeDiscount(String promoCode) {
-        return switch (promoCode) {
+        return switch(promoCode) {
             case "QWERTY1",
                  "HELL000",
                  "CAR1000" -> 0.2f;

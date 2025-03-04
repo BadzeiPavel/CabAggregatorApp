@@ -56,7 +56,10 @@ public class RideService {
         return rideMapper.toRideDTO(ride);
     }
 
-    public GetAllPaginatedResponseDTO<RideDTO> getPaginatedRidesByPassengerId(UUID passengerId, PageRequest pageRequest) {
+    public GetAllPaginatedResponseDTO<RideDTO> getPaginatedRidesByPassengerId(
+            UUID passengerId,
+            PageRequest pageRequest
+    ) {
         Page<Ride> ridePage = repository.findByPassengerId(passengerId, pageRequest);
 
         return getAllPaginatedResponseDTO(ridePage);
@@ -160,12 +163,12 @@ public class RideService {
                 .orElseThrow(() -> new RideNotFoundException("Ride entity with id='%s' cannot be found"
                         .formatted(id)));
 
-        if (!rideStatus.canBeObtainedFrom().contains(ride.getStatus())) {
+        if(!rideStatus.canBeObtainedFrom().contains(ride.getStatus())) {
             throw new InvalidRideStatusException("Status '%s' cannot be set".formatted(rideStatus));
         }
 
         ride.setStatus(rideStatus);
-        switch (ride.getStatus()) {
+        switch(ride.getStatus()) {
             case IN_RIDE -> ride.setStartTime(LocalDateTime.now());
             case COMPLETED -> {
                 // TODO send req via Kafka to payment-service

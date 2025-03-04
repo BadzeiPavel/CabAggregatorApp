@@ -32,15 +32,19 @@ public class PassengerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PassengerDTO> updatePassenger(@PathVariable UUID id,
-                                                        @Valid @RequestBody PassengerDTO passengerDTO) {
+    public ResponseEntity<PassengerDTO> updatePassenger(
+            @PathVariable UUID id,
+            @Valid @RequestBody PassengerDTO passengerDTO
+    ) {
         PassengerDTO updatedPassengerDTO = service.updatePassenger(id, passengerDTO);
         return ResponseEntity.ok(updatedPassengerDTO);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<PassengerDTO> patchPassenger(@PathVariable UUID id,
-                                                       @Valid @RequestBody UserPatchDTO userPatchDTO) {
+    public ResponseEntity<PassengerDTO> patchPassenger(
+            @PathVariable UUID id,
+            @Valid @RequestBody UserPatchDTO userPatchDTO
+    ) {
         PassengerDTO passengerDTO = service.patchPassenger(id, userPatchDTO);
         return ResponseEntity.ok(passengerDTO);
     }

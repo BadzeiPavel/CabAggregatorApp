@@ -43,7 +43,10 @@ public class DriverRatingService {
         return ratingMapper.toRatingDTO(driverRating);
     }
 
-    public GetAllPaginatedResponseDTO<RatingDTO> getPaginatedDriverRatingsByDriverId(String id, PageRequest pageRequest) {
+    public GetAllPaginatedResponseDTO<RatingDTO> getPaginatedDriverRatingsByDriverId(
+            String id,
+            PageRequest pageRequest
+    ) {
         Page<DriverRating> driverRatingPage = repository.findByDriverIdAndIsDeletedFalse(id, pageRequest);
 
         List<RatingDTO> ratingDTOs = driverRatingPage.stream()

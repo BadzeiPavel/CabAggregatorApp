@@ -58,5 +58,4 @@ public class DriverBankAccountService {
 
         return entityMapper.toDriverBankAccountDTO(repository.save(bankAccount));
     }
-
 }

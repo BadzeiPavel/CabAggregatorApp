@@ -33,8 +33,10 @@ public class RideController {
     }
 
     @PutMapping("/{rideId}/accept")
-    public ResponseEntity<RideDTO> approveDriverRideResponse(@PathVariable UUID rideId,
-                                                             @RequestParam("driver-id") UUID driverId) {
+    public ResponseEntity<RideDTO> approveDriverRideResponse(
+            @PathVariable UUID rideId,
+            @RequestParam("driver-id") UUID driverId
+    ) {
         RideDTO rideDTO = service.approveDriverRequestByRideIdAndDriverId(rideId, driverId);
         return ResponseEntity.ok(rideDTO);
     }

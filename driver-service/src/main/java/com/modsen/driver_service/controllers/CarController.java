@@ -34,8 +34,9 @@ public class CarController {
 
     @GetMapping
     public ResponseEntity<GetAllPaginatedResponseDTO<CarDTO>> getPaginatedCars(
-                                                                    @RequestParam(defaultValue = "0") int page,
-                                                                    @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         GetAllPaginatedResponseDTO<CarDTO> cars = service.getPaginatedCars(PageRequest.of(page, size));
         return ResponseEntity.ok(cars);
     }

@@ -17,9 +17,8 @@ public class PassengerBankAccountController {
     private final PassengerBankAccountService service;
 
     @PostMapping
-    public ResponseEntity<PassengerBankAccountDTO> createBankAccount(@Valid
-                                                                     @RequestBody
-                                                                     PassengerBankAccountDTO bankAccountDTO) {
+    public ResponseEntity<PassengerBankAccountDTO> createBankAccount(
+            @Valid @RequestBody PassengerBankAccountDTO bankAccountDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.createBankAccount(bankAccountDTO));
     }
 
@@ -29,16 +28,18 @@ public class PassengerBankAccountController {
     }
 
     @PutMapping("{id}/top-up")
-    public ResponseEntity<PassengerBankAccountDTO> topUpBalance(@PathVariable String id,
-                                                                @Valid @RequestBody
-                                                                ChangeBalanceRequestDTO changeBalanceRequestDTO) {
+    public ResponseEntity<PassengerBankAccountDTO> topUpBalance(
+            @PathVariable String id,
+            @Valid @RequestBody ChangeBalanceRequestDTO changeBalanceRequestDTO
+    ) {
         return ResponseEntity.ok(service.topUpBalance(id, changeBalanceRequestDTO.getAmount()));
     }
 
     @PutMapping("{id}/deduct")
-    public ResponseEntity<PassengerBankAccountDTO> deductBalance(@PathVariable String id,
-                                                                 @Valid @RequestBody
-                                                                 ChangeBalanceRequestDTO changeBalanceRequestDTO) {
+    public ResponseEntity<PassengerBankAccountDTO> deductBalance(
+            @PathVariable String id,
+            @Valid @RequestBody ChangeBalanceRequestDTO changeBalanceRequestDTO
+    ) {
         return ResponseEntity.ok(service.deductBalance(id, changeBalanceRequestDTO.getAmount()));
     }
 }

@@ -35,16 +35,18 @@ public class DriverController {
 
     @GetMapping
     public ResponseEntity<GetAllPaginatedResponseDTO<DriverDTO>> getPaginatedDrivers(
-                                                                    @RequestParam(defaultValue = "0") int page,
-                                                                    @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         GetAllPaginatedResponseDTO<DriverDTO> drivers = service.getPaginatedDrivers(PageRequest.of(page, size));
         return ResponseEntity.ok(drivers);
     }
 
     @GetMapping("/free")
     public ResponseEntity<GetAllPaginatedResponseDTO<DriverDTO>> getPaginatedFreeDrivers(
-                                                                    @RequestParam(defaultValue = "0") int page,
-                                                                    @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         GetAllPaginatedResponseDTO<DriverDTO> freeDrivers =
                 service.getPaginatedDriversByStatus(DriverStatus.FREE, PageRequest.of(page, size));
         return ResponseEntity.ok(freeDrivers);
@@ -57,8 +59,7 @@ public class DriverController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<DriverDTO> patchDriver(@PathVariable UUID id,
-                                                 @Valid @RequestBody UserPatchDTO userPatchDTO) {
+    public ResponseEntity<DriverDTO> patchDriver(@PathVariable UUID id, @Valid @RequestBody UserPatchDTO userPatchDTO) {
         DriverDTO driverDTO = service.patchDriver(id, userPatchDTO);
         return ResponseEntity.ok(driverDTO);
     }

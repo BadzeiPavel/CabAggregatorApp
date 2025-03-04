@@ -43,8 +43,10 @@ public class PassengerRatingService {
         return ratingMapper.toRatingDTO(passengerRating);
     }
 
-    public GetAllPaginatedResponseDTO<RatingDTO> getPaginatedPassengerRatingsByPassengerId(String id,
-                                                                                           PageRequest pageRequest) {
+    public GetAllPaginatedResponseDTO<RatingDTO> getPaginatedPassengerRatingsByPassengerId(
+            String id,
+            PageRequest pageRequest
+    ) {
         Page<PassengerRating> passengerRatingPage = repository.findByPassengerIdAndIsDeletedFalse(id, pageRequest);
 
         List<RatingDTO> ratingDTOs = passengerRatingPage.stream()

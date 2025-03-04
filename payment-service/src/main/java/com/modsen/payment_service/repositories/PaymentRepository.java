@@ -14,7 +14,6 @@ import java.util.Optional;
 public interface PaymentRepository extends MongoRepository<Payment, String> {
     Optional<Payment> findByRideId(String id);
 
-
     Page<Payment> findAllByPassengerId(String passengerId, Pageable pageable);
     Page<Payment> findByPassengerIdAndCreatedAtIsBetween(
             String passengerId,
