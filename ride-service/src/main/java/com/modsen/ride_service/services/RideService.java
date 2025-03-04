@@ -12,6 +12,9 @@ import com.modsen.ride_service.models.dtos.RidePatchDTO;
 import com.modsen.ride_service.models.entitties.Ride;
 import com.modsen.ride_service.repositories.RideRepository;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllPaginatedResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import utils.PatchUtil;
@@ -53,33 +56,38 @@ public class RideService {
         return rideMapper.toRideDTO(ride);
     }
 
-    public List<RideDTO> getRidesByPassengerId(UUID passengerId) {
-        return repository.findByPassengerId(passengerId).stream()
-                .map(rideMapper::toRideDTO)
-                .toList();
+    public GetAllPaginatedResponseDTO<RideDTO> getPaginatedRidesByPassengerId(UUID passengerId, PageRequest pageRequest) {
+        Page<Ride> ridePage = repository.findByPassengerId(passengerId, pageRequest);
+
+        return getAllPaginatedResponseDTO(ridePage);
     }
 
-    public List<RideDTO> getPassengerRidesInDateRange(UUID passengerId,
-                                                      LocalDateTime timeFrom,
-                                                      LocalDateTime timeTo) {
-        return repository.findByPassengerIdAndCreatedAtIsBetween(passengerId, timeFrom, timeTo).stream()
-                .map(rideMapper::toRideDTO)
-                .toList();
+    public GetAllPaginatedResponseDTO<RideDTO> getPaginatedPassengerRidesInDateRange(
+            UUID passengerId,
+            LocalDateTime from,
+            LocalDateTime to,
+            PageRequest pageRequest
+    ) {
+        Page<Ride> ridePage = repository.findByPassengerIdAndCreatedAtIsBetween(passengerId, from, to, pageRequest);
+
+        return getAllPaginatedResponseDTO(ridePage);
     }
 
-    public List<RideDTO> getDriverRidesInDateRange(UUID driverId,
-                                                   LocalDateTime timeFrom,
-                                                   LocalDateTime timeTo) {
-        return repository.findByDriverIdAndCreatedAtIsBetween(driverId, timeFrom, timeTo).stream()
-                .map(rideMapper::toRideDTO)
-                .toList();
+    public GetAllPaginatedResponseDTO<RideDTO> getPaginatedDriverRidesInDateRange(
+            UUID driverId,
+            LocalDateTime from,
+            LocalDateTime to,
+            PageRequest pageRequest
+    ) {
+        Page<Ride> ridePage = repository.findByDriverIdAndCreatedAtIsBetween(driverId, from, to, pageRequest);
+
+        return getAllPaginatedResponseDTO(ridePage);
     }
 
-    public List<RideDTO> getRidesByDriverId(UUID driverId) {
-        return repository.findByDriverId(driverId).stream()
-                .filter(ride -> ride.getPassengerId() != null)
-                .map(rideMapper::toRideDTO)
-                .toList();
+    public GetAllPaginatedResponseDTO<RideDTO> getPaginatedRidesByDriverId(UUID driverId, PageRequest pageRequest) {
+        Page<Ride> ridePage = repository.findByDriverId(driverId, pageRequest);
+
+        return getAllPaginatedResponseDTO(ridePage);
     }
 
     public RideDTO updateRide(UUID rideId, RideDTO rideDTO) {
@@ -169,7 +177,19 @@ public class RideService {
         return ride;
     }
 
-    private void fillInRideOnCreation(RideDTO rideDTO) {
+    private GetAllPaginatedResponseDTO<RideDTO> getAllPaginatedResponseDTO(Page<Ride> ridePage) {
+        List<RideDTO> rideDTOs = ridePage.stream()
+                .map(rideMapper::toRideDTO)
+                .toList();
+
+        return new GetAllPaginatedResponseDTO<>(
+                rideDTOs,
+                ridePage.getTotalPages(),
+                ridePage.getTotalElements()
+        );
+    }
+
+    private static void fillInRideOnCreation(RideDTO rideDTO) {
         // TODO call payment-service to calculate costs
         rideDTO.setCost(BigDecimal.valueOf(10));
         rideDTO.setStatus(RideStatus.REQUESTED);
@@ -180,7 +200,7 @@ public class RideService {
     }
 
     // TODO: move fillIns to utils/dto (?)
-    private void fillInRideOnUpdate(Ride ride, RideDTO rideDTO) {
+    private static void fillInRideOnUpdate(Ride ride, RideDTO rideDTO) {
         ride.setPassengerId(rideDTO.getPassengerId());
         ride.setPickupAddress(rideDTO.getPickupAddress());
         ride.setDestinationAddress(rideDTO.getDestinationAddress());
@@ -190,7 +210,7 @@ public class RideService {
         ride.setLastUpdateAt(LocalDateTime.now());
     }
 
-    private void fillInRideOnPatch(Ride ride, RidePatchDTO ridePatchDTO) {
+    private static void fillInRideOnPatch(Ride ride, RidePatchDTO ridePatchDTO) {
         PatchUtil.patchIfNotNull(ridePatchDTO.getPickupAddress(), ride::setPickupAddress);
         PatchUtil.patchIfNotNull(ridePatchDTO.getDestinationAddress(), ride::setDestinationAddress);
         PatchUtil.patchIfNotNull(ridePatchDTO.getSeatsCount(), ride::setSeatsCount);

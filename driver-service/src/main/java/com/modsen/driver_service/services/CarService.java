@@ -7,12 +7,14 @@ import com.modsen.driver_service.models.dtos.CarPatchDTO;
 import com.modsen.driver_service.models.entities.Car;
 import com.modsen.driver_service.repositories.CarRepository;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllPaginatedResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import utils.PatchUtil;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,12 +46,18 @@ public class CarService {
         return carMapper.toCarDTO(car);
     }
 
-    public List<CarDTO> getCars() {
-        return repository.findByIsDeletedFalse()
-                .orElse(Collections.emptyList())
-                .stream()
+    public GetAllPaginatedResponseDTO<CarDTO> getPaginatedCars(PageRequest pageRequest) {
+        Page<Car> carPage = repository.findByIsDeletedFalse(pageRequest);
+
+        List<CarDTO> carDTOs = carPage.stream()
                 .map(carMapper::toCarDTO)
                 .toList();
+
+        return new GetAllPaginatedResponseDTO<>(
+                carDTOs,
+                carPage.getTotalPages(),
+                carPage.getTotalElements()
+        );
     }
 
     public CarDTO updateCar(UUID id, CarDTO carDTO) {

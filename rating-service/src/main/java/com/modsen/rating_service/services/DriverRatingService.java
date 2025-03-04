@@ -10,6 +10,9 @@ import com.modsen.rating_service.models.entities.DriverRating;
 import com.modsen.rating_service.repositories.DriverRatingRepository;
 import com.modsen.rating_service.utils.CalculationUtil;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllPaginatedResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import utils.PatchUtil;
@@ -40,11 +43,18 @@ public class DriverRatingService {
         return ratingMapper.toRatingDTO(driverRating);
     }
 
-    public List<RatingDTO> getDriverRatingsByDriverId(String id) {
-        return getAllDriverRatingsByDriverId(id)
-                .stream()
+    public GetAllPaginatedResponseDTO<RatingDTO> getPaginatedDriverRatingsByDriverId(String id, PageRequest pageRequest) {
+        Page<DriverRating> driverRatingPage = repository.findByDriverIdAndIsDeletedFalse(id, pageRequest);
+
+        List<RatingDTO> ratingDTOs = driverRatingPage.stream()
                 .map(ratingMapper::toRatingDTO)
                 .toList();
+
+        return new GetAllPaginatedResponseDTO<>(
+                ratingDTOs,
+                driverRatingPage.getTotalPages(),
+                driverRatingPage.getTotalElements()
+        );
     }
 
     public RatingDTO updateDriverRating(String id, RatingDTO ratingDTO) {
@@ -69,16 +79,20 @@ public class DriverRatingService {
     }
 
     public RatingStatisticResponseDTO getAverageRating(String id) {
-        List<RatingDTO> driverRatingDTOs = getDriverRatingsByDriverId(id);
+        List<RatingDTO> driverRatingDTOs = getAllDriverRatingsByDriverId(id);
         return CalculationUtil.calculateRatingStatistics(driverRatingDTOs);
     }
 
-    private List<DriverRating> getAllDriverRatingsByDriverId(String id) {
-        return Optional.ofNullable(repository.findByDriverIdAndIsDeletedFalse(id))
+    private List<RatingDTO> getAllDriverRatingsByDriverId(String id) {
+        List<DriverRating> driverRatings = Optional.ofNullable(repository.findByDriverIdAndIsDeletedFalse(id))
                 .filter(list -> !list.isEmpty())
                 .orElseThrow(() ->
                         new RatingNotFoundException("There is no any record in 'driver_rating' table")
                 );
+
+        return driverRatings.stream()
+                .map(ratingMapper::toRatingDTO)
+                .toList();
     }
 
     private static void fillInRatingOnCreation(DriverRating driverRating) {

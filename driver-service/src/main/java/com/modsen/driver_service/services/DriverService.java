@@ -1,14 +1,16 @@
 package com.modsen.driver_service.services;
 
 import com.modsen.driver_service.enums.DriverStatus;
-import com.modsen.driver_service.exceptions.DriverNotFoundException;
 import com.modsen.driver_service.mappers.driver_mapper.DriverDTOMapper;
 import com.modsen.driver_service.mappers.driver_mapper.DriverMapper;
 import com.modsen.driver_service.models.dtos.DriverDTO;
 import com.modsen.driver_service.models.entities.Driver;
 import com.modsen.driver_service.repositories.DriverRepository;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllPaginatedResponseDTO;
 import models.dtos.UserPatchDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import utils.PatchUtil;
@@ -39,18 +41,33 @@ public class DriverService {
         return driverMapper.toDriverDTO(driver);
     }
 
-    public List<DriverDTO> getDriversByStatus(DriverStatus status) {
-        return repository.findByStatus(status).stream()
+    public GetAllPaginatedResponseDTO<DriverDTO> getPaginatedDriversByStatus(DriverStatus status,
+                                                                             PageRequest pageRequest) {
+        Page<Driver> driverPage = repository.findByStatus(status, pageRequest);
+
+        List<DriverDTO> driverDTOs = driverPage.stream()
                 .map(driverMapper::toDriverDTO)
                 .toList();
+
+        return new GetAllPaginatedResponseDTO<>(
+                driverDTOs,
+                driverPage.getTotalPages(),
+                driverPage.getTotalElements()
+        );
     }
 
-    public List<DriverDTO> getDrivers() {
-        return repository.findByIsDeletedFalse()
-                .orElseThrow(() -> new DriverNotFoundException("There is no any record in 'driver' table"))
-                .stream()
+    public GetAllPaginatedResponseDTO<DriverDTO> getPaginatedDrivers(PageRequest pageRequest) {
+        Page<Driver> driverPage = repository.findByIsDeletedFalse(pageRequest);
+
+        List<DriverDTO> driverDTOs = driverPage.stream()
                 .map(driverMapper::toDriverDTO)
                 .toList();
+
+        return new GetAllPaginatedResponseDTO<>(
+                driverDTOs,
+                driverPage.getTotalPages(),
+                driverPage.getTotalElements()
+        );
     }
 
     public DriverDTO updateDriver(UUID id, DriverDTO driverDTO) {

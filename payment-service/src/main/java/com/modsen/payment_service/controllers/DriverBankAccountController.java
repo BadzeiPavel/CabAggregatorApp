@@ -30,16 +30,14 @@ public class DriverBankAccountController {
 
     @PutMapping("{id}/top-up")
     public ResponseEntity<DriverBankAccountDTO> topUpBalance(@PathVariable String id,
-                                                             @Valid
-                                                             @RequestBody
+                                                             @Valid @RequestBody
                                                              ChangeBalanceRequestDTO changeBalanceRequestDTO) {
         return ResponseEntity.ok(service.topUpBalance(id, changeBalanceRequestDTO.getAmount()));
     }
 
     @PutMapping("{id}/deduct")
     public ResponseEntity<DriverBankAccountDTO> deductBalance(@PathVariable String id,
-                                                              @Valid
-                                                              @RequestBody
+                                                              @Valid @RequestBody
                                                               ChangeBalanceRequestDTO changeBalanceRequestDTO) {
         return ResponseEntity.ok(service.deductBalance(id, changeBalanceRequestDTO.getAmount()));
     }

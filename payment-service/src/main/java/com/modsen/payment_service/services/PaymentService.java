@@ -10,6 +10,9 @@ import com.modsen.payment_service.models.dtos.PaymentDTO;
 import com.modsen.payment_service.models.enitties.Payment;
 import com.modsen.payment_service.repositories.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllPaginatedResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,32 +49,38 @@ public class PaymentService {
         return entityMapper.toPaymentDTO(payment);
     }
 
-    public List<PaymentDTO> getPaymentsByPassengerId(String passengerId) {
-        return repository.findAllByPassengerId(passengerId).stream()
-                .map(entityMapper::toPaymentDTO)
-                .toList();
+    public GetAllPaginatedResponseDTO<PaymentDTO> getPaginatedPaymentsByPassengerId(String passengerId, PageRequest pageRequest) {
+        Page<Payment> paymentPage = repository.findAllByPassengerId(passengerId, pageRequest);
+
+        return getAllPaginatedResponseDTO(paymentPage);
     }
 
-    public List<PaymentDTO> getPaymentsByPassengerIdInDateRange(String passengerId,
-                                                                LocalDateTime timeFrom,
-                                                                LocalDateTime timeTo) {
-        return repository.findByPassengerIdAndCreatedAtIsBetween(passengerId, timeFrom, timeTo).stream()
-                .map(entityMapper::toPaymentDTO)
-                .toList();
+    public GetAllPaginatedResponseDTO<PaymentDTO> getPaginatedPaymentsByPassengerIdInDateRange(
+            String passengerId,
+            LocalDateTime from,
+            LocalDateTime to,
+            PageRequest pageRequest
+    ) {
+        Page<Payment> paymentPage = repository.findByPassengerIdAndCreatedAtIsBetween(passengerId, from, to, pageRequest);
+
+        return getAllPaginatedResponseDTO(paymentPage);
     }
 
-    public List<PaymentDTO> getPaymentsByDriverId(String driverId) {
-        return repository.findAllByDriverId(driverId).stream()
-                .map(entityMapper::toPaymentDTO)
-                .toList();
+    public GetAllPaginatedResponseDTO<PaymentDTO> getPaginatedPaymentsByDriverId(String driverId, PageRequest pageRequest) {
+        Page<Payment> paymentPage = repository.findAllByDriverId(driverId, pageRequest);
+
+        return getAllPaginatedResponseDTO(paymentPage);
     }
 
-    public List<PaymentDTO> getPaymentsByDriverIdInDateRange(String driverId,
-                                                             LocalDateTime timeFrom,
-                                                             LocalDateTime timeTo) {
-        return repository.findByDriverIdAndCreatedAtIsBetween(driverId, timeFrom, timeTo).stream()
-                .map(entityMapper::toPaymentDTO)
-                .toList();
+    public GetAllPaginatedResponseDTO<PaymentDTO> getPaginatedPaymentsByDriverIdInDateRange(
+            String driverId,
+            LocalDateTime from,
+            LocalDateTime to,
+            PageRequest pageRequest
+    ) {
+        Page<Payment> paymentPage = repository.findByDriverIdAndCreatedAtIsBetween(driverId, from, to, pageRequest);
+
+        return getAllPaginatedResponseDTO(paymentPage);
     }
 
     @Transactional
@@ -97,6 +106,18 @@ public class PaymentService {
         return repository.findByRideId(rideId)
                 .orElseThrow(() -> new RecordNotFoundException("Payment with ride_id='%s' not found".formatted(rideId)))
                 .getCost();
+    }
+
+    private GetAllPaginatedResponseDTO<PaymentDTO> getAllPaginatedResponseDTO(Page<Payment> paymentPage) {
+        List<PaymentDTO> paymentDTOs = paymentPage.stream()
+                .map(entityMapper::toPaymentDTO)
+                .toList();
+
+        return new GetAllPaginatedResponseDTO<>(
+                paymentDTOs,
+                paymentPage.getTotalPages(),
+                paymentPage.getTotalElements()
+        );
     }
 
     private static void fillInPaymentOnCreation(Payment payment, RideInfo rideInfo) {

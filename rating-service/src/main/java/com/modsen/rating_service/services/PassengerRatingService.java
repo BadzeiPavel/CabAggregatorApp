@@ -6,11 +6,13 @@ import com.modsen.rating_service.mappers.RatingMapper;
 import com.modsen.rating_service.models.dtos.RatingDTO;
 import com.modsen.rating_service.models.dtos.RatingPatchDTO;
 import com.modsen.rating_service.models.dtos.RatingStatisticResponseDTO;
-import com.modsen.rating_service.models.entities.DriverRating;
 import com.modsen.rating_service.models.entities.PassengerRating;
 import com.modsen.rating_service.repositories.PassengerRatingRepository;
 import com.modsen.rating_service.utils.CalculationUtil;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllPaginatedResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import utils.PatchUtil;
@@ -41,11 +43,19 @@ public class PassengerRatingService {
         return ratingMapper.toRatingDTO(passengerRating);
     }
 
-    public List<RatingDTO> getPassengerRatingsByPassengerId(String id) {
-        return getAllPassengerRatingsByPassengerId(id)
-                .stream()
+    public GetAllPaginatedResponseDTO<RatingDTO> getPaginatedPassengerRatingsByPassengerId(String id,
+                                                                                           PageRequest pageRequest) {
+        Page<PassengerRating> passengerRatingPage = repository.findByPassengerIdAndIsDeletedFalse(id, pageRequest);
+
+        List<RatingDTO> ratingDTOs = passengerRatingPage.stream()
                 .map(ratingMapper::toRatingDTO)
                 .toList();
+
+        return new GetAllPaginatedResponseDTO<>(
+                ratingDTOs,
+                passengerRatingPage.getTotalPages(),
+                passengerRatingPage.getTotalElements()
+        );
     }
 
     public RatingDTO updatePassengerRating(String id, RatingDTO ratingDTO) {
@@ -70,16 +80,20 @@ public class PassengerRatingService {
     }
 
     public RatingStatisticResponseDTO getAverageRating(String id) {
-        List<RatingDTO> passengerRatingDTOs = getPassengerRatingsByPassengerId(id);
+        List<RatingDTO> passengerRatingDTOs = getAllPassengerRatingsByDriverId(id);
         return CalculationUtil.calculateRatingStatistics(passengerRatingDTOs);
     }
 
-    private List<PassengerRating> getAllPassengerRatingsByPassengerId(String id) {
-        return Optional.ofNullable(repository.findByPassengerIdAndIsDeletedFalse(id))
+    private List<RatingDTO> getAllPassengerRatingsByDriverId(String id) {
+        List<PassengerRating> passengerRatings = Optional.ofNullable(repository.findByPassengerIdAndIsDeletedFalse(id))
                 .filter(list -> !list.isEmpty())
                 .orElseThrow(() ->
                         new RatingNotFoundException("There is no any record in 'passenger_rating' table")
                 );
+
+        return passengerRatings.stream()
+                .map(ratingMapper::toRatingDTO)
+                .toList();
     }
 
     private static void fillInRatingOnCreation(PassengerRating passengerRating) {

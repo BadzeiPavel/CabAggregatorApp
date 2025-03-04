@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetAllPageableResponseDTO<T> {
+public class GetAllPaginatedResponseDTO<T> {
     private List<T> content;
     private int totalPages;
     private long totalElements;
