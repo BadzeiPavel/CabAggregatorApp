@@ -1,2 +1,5 @@
-enums\CarCategory.class
 models\dtos\ErrorResponse.class
+models\dtos\UserPatchDTO.class
+utils\PatchUtil.class
+models\dtos\GetAllPaginatedResponseDTO.class
+enums\CarCategory.class
