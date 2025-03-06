@@ -14,3 +14,5 @@ spring:
       ddl-auto: validate
       dialect: org.hibernate.dialect.PostgreSQLDialect
 
+kafka:
+  bootstrap-servers: localhost:29092

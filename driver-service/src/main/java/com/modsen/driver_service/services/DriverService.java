@@ -1,6 +1,7 @@
 package com.modsen.driver_service.services;
 
-import com.modsen.driver_service.enums.DriverStatus;
+import com.modsen.driver_service.exceptions.DriverNotFoundException;
+import enums.DriverStatus;
 import com.modsen.driver_service.mappers.driver_mapper.DriverDTOMapper;
 import com.modsen.driver_service.mappers.driver_mapper.DriverMapper;
 import com.modsen.driver_service.models.dtos.DriverDTO;
@@ -9,6 +10,7 @@ import com.modsen.driver_service.repositories.DriverRepository;
 import lombok.RequiredArgsConstructor;
 import models.dtos.GetAllPaginatedResponseDTO;
 import models.dtos.UserPatchDTO;
+import models.dtos.requests.ChangeDriverStatusRequestDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -37,7 +39,7 @@ public class DriverService {
 
     @Transactional(readOnly = true)
     public DriverDTO getDriver(UUID id) {
-        Driver driver = repository.getDriverById(id);
+        Driver driver = repository.findDriverById(id);
         return driverMapper.toDriverDTO(driver);
     }
 
@@ -57,28 +59,42 @@ public class DriverService {
     }
 
     public DriverDTO updateDriver(UUID id, DriverDTO driverDTO) {
-        Driver driver = repository.getDriverById(id);
+        Driver driver = repository.findDriverById(id);
         fillInDriverOnUpdate(driver, driverDTO);
 
         return driverMapper.toDriverDTO(repository.save(driver));
     }
 
+    public void changeDriverStatus(UUID id, DriverStatus status) {
+        Driver driver = repository.findDriverById(id);
+        driver.setStatus(status);
+
+        repository.save(driver);
+    }
+
     public DriverDTO patchDriver(UUID id, UserPatchDTO userPatchDTO) {
-        Driver driver = repository.getDriverById(id);
+        Driver driver = repository.findDriverById(id);
         fillInDriverOnPatch(driver, userPatchDTO);
 
         return driverMapper.toDriverDTO(repository.save(driver));
     }
 
+    public void patchDriverStatus(UUID id, ChangeDriverStatusRequestDTO requestDTO) {
+        Driver driver = repository.findDriverById(id);
+        driver.setStatus(requestDTO.getDriverStatus());
+
+        repository.save(driver);
+    }
+
     public DriverDTO softDeleteDriver(UUID id) {
-        Driver driver = repository.getDriverById(id);
+        Driver driver = repository.findDriverById(id);
         driver.setDeleted(true);
 
         return driverMapper.toDriverDTO(repository.save(driver));
     }
 
     public void assignCarId(UUID driverId, UUID carId) {
-        Driver driver = repository.getDriverById(driverId);
+        Driver driver = repository.findDriverById(driverId);
         driver.setCarId(carId);
         driverMapper.toDriverDTO(repository.save(driver));
     }

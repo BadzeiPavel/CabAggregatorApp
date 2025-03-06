@@ -1,12 +1,13 @@
 package com.modsen.driver_service.controllers;
 
-import com.modsen.driver_service.enums.DriverStatus;
 import com.modsen.driver_service.models.dtos.DriverDTO;
 import com.modsen.driver_service.services.DriverService;
+import enums.DriverStatus;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import models.dtos.GetAllPaginatedResponseDTO;
 import models.dtos.UserPatchDTO;
+import models.dtos.requests.ChangeDriverStatusRequestDTO;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +57,12 @@ public class DriverController {
     public ResponseEntity<DriverDTO> updateDriver(@PathVariable UUID id, @Valid @RequestBody DriverDTO driverDTO) {
         DriverDTO updatedDriverDTO = service.updateDriver(id, driverDTO);
         return ResponseEntity.ok(updatedDriverDTO);
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Void> patchDriverStatus(@PathVariable UUID id, @RequestBody ChangeDriverStatusRequestDTO requestDTO) {
+        service.patchDriverStatus(id, requestDTO);
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}")
