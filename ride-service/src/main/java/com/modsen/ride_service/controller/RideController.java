@@ -2,7 +2,7 @@ package com.modsen.ride_service.controller;
 
 import com.modsen.ride_service.enums.RideStatus;
 import com.modsen.ride_service.exceptions.InvalidRideStatusException;
-import com.modsen.ride_service.models.dtos.ChangeRideStatusRequestDTO;
+import com.modsen.ride_service.models.dtos.requests.ChangeRideStatusRequestDTO;
 import com.modsen.ride_service.models.dtos.RideDTO;
 import com.modsen.ride_service.models.dtos.RidePatchDTO;
 import com.modsen.ride_service.services.RideService;

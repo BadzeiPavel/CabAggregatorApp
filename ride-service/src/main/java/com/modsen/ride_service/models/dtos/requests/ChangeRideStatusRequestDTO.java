@@ -1,4 +1,4 @@
-package com.modsen.ride_service.models.dtos;
+package com.modsen.ride_service.models.dtos.requests;
 
 import com.modsen.ride_service.enums.RideStatus;
 import jakarta.validation.constraints.NotNull;

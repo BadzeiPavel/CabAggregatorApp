@@ -1,4 +1,4 @@
-package com.modsen.driver_service.enums;
+package enums;
 
 public enum DriverStatus {
     FREE,

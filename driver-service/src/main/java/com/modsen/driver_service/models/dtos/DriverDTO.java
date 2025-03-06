@@ -1,6 +1,6 @@
 package com.modsen.driver_service.models.dtos;
 
-import com.modsen.driver_service.enums.DriverStatus;
+import enums.DriverStatus;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,5 +1,6 @@
 package com.modsen.ride_service.exceptions.handlers;
 
+import com.modsen.ride_service.exceptions.ErrorServiceResponseException;
 import com.modsen.ride_service.exceptions.InvalidRideStatusException;
 import com.modsen.ride_service.exceptions.RideNotFoundException;
 import models.dtos.ErrorResponse;
@@ -46,6 +47,19 @@ public class GlobalExceptionHandler {
                 UUID.randomUUID(),
                 HttpStatus.BAD_REQUEST.value(),
                 "Ride Not Found",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(ErrorServiceResponseException.class)
+    public ResponseEntity<ErrorResponse> handleErrorServiceResponseException(ErrorServiceResponseException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                UUID.randomUUID(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Error Service Response",
                 ex.getMessage(),
                 LocalDateTime.now()
         );

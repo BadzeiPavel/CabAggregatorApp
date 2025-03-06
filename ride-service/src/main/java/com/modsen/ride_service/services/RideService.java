@@ -3,16 +3,19 @@ package com.modsen.ride_service.services;
 import com.modsen.ride_service.enums.RideStatus;
 import com.modsen.ride_service.exceptions.InvalidRideStatusException;
 import com.modsen.ride_service.exceptions.RideNotFoundException;
+import com.modsen.ride_service.feign_clients.DriverServiceFeignClient;
 import com.modsen.ride_service.mappers.ride_mappers.RideDTOMapper;
 import com.modsen.ride_service.mappers.ride_mappers.RideMapper;
-import com.modsen.ride_service.models.dtos.ChangeRideStatusRequestDTO;
 import com.modsen.ride_service.models.dtos.DriverNotificationDTO;
 import com.modsen.ride_service.models.dtos.RideDTO;
 import com.modsen.ride_service.models.dtos.RidePatchDTO;
+import com.modsen.ride_service.models.dtos.requests.ChangeRideStatusRequestDTO;
 import com.modsen.ride_service.models.entitties.Ride;
 import com.modsen.ride_service.repositories.RideRepository;
+import enums.DriverStatus;
 import lombok.RequiredArgsConstructor;
 import models.dtos.GetAllPaginatedResponseDTO;
+import models.dtos.requests.ChangeDriverStatusRequestDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -32,6 +35,7 @@ public class RideService {
     private List<UUID> driverIds = new ArrayList<>();
 
     private final DriverNotificationService driverNotificationService;
+    private final DriverServiceFeignClient driverServiceFeignClient;
 
     private final RideMapper rideMapper;
     private final RideDTOMapper rideDTOMapper;
@@ -115,19 +119,20 @@ public class RideService {
         return rideMapper.toRideDTO(repository.save(ride));
     }
 
-    // TODO: send request to driver-service via kafka to set driver.status to 'BUSY'
     @Transactional
     public RideDTO approveDriverRequestByRideIdAndDriverId(UUID rideId, UUID driverId) {
+        driverServiceFeignClient.changeDriverStatus(driverId, new ChangeDriverStatusRequestDTO(DriverStatus.BUSY));
+
         RideDTO rideDTO = changeRideStatus(rideId, new ChangeRideStatusRequestDTO(driverId, RideStatus.ACCEPTED));
         rideDTO.setDriverId(driverId);
 
         Ride savedRide = repository.save(rideDTOMapper.toRide(rideDTO));
         driverNotificationService.changeDriverNotificationOnReadByRideId(rideId);
 
-        return rideMapper.toRideDTO(repository.save(savedRide));
+        return rideMapper.toRideDTO(savedRide);
     }
 
-    // TODO sen request to driver-service to set driver.status='FREE'
+    // TODO send request to driver-service to set driver.status='FREE'
     @Transactional
     public RideDTO rejectDriverRequestByRideId(UUID rideId) {
         RideDTO rideDTO = changeRideStatus(rideId, new ChangeRideStatusRequestDTO(null, RideStatus.REQUESTED));
@@ -193,7 +198,7 @@ public class RideService {
     }
 
     private static void fillInRideOnCreation(RideDTO rideDTO) {
-        // TODO call payment-service to calculate costs
+        // TODO call payment-service to calculate costs and check if passenger balance is enough for ride
         rideDTO.setCost(BigDecimal.valueOf(10));
         rideDTO.setStatus(RideStatus.REQUESTED);
         rideDTO.setStartTime(null);

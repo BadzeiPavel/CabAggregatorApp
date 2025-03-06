@@ -1,7 +1,7 @@
 package com.modsen.driver_service.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.modsen.driver_service.enums.DriverStatus;
+import enums.DriverStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
