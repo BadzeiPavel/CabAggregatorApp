@@ -4,7 +4,7 @@ import com.modsen.ride_service.models.dtos.DriverNotificationDTO;
 import com.modsen.ride_service.services.DriverNotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponseDTO;
+import models.dtos.GetAllPaginatedResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,12 +28,12 @@ public class DriverNotificationController {
     }
 
     @GetMapping("/{driverId}")
-    public ResponseEntity<GetAllPaginatedResponseDTO<DriverNotificationDTO>> getPaginatedDriverNotificationsByDriverId(
+    public ResponseEntity<GetAllPaginatedResponse<DriverNotificationDTO>> getPaginatedDriverNotificationsByDriverId(
             @PathVariable UUID driverId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        GetAllPaginatedResponseDTO<DriverNotificationDTO> responseDTO =
+        GetAllPaginatedResponse<DriverNotificationDTO> responseDTO =
                 service.getPaginatedDriverNotificationsByDriverId(driverId, PageRequest.of(page, size));
         return ResponseEntity.ok(responseDTO);
     }
