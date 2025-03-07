@@ -5,7 +5,7 @@ import com.modsen.driver_service.services.DriverService;
 import enums.DriverStatus;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponseDTO;
+import models.dtos.GetAllPaginatedResponse;
 import models.dtos.UserPatchDTO;
 import models.dtos.requests.ChangeDriverStatusRequestDTO;
 import org.springframework.data.domain.PageRequest;
@@ -35,20 +35,20 @@ public class DriverController {
     }
 
     @GetMapping
-    public ResponseEntity<GetAllPaginatedResponseDTO<DriverDTO>> getPaginatedDrivers(
+    public ResponseEntity<GetAllPaginatedResponse<DriverDTO>> getPaginatedDrivers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        GetAllPaginatedResponseDTO<DriverDTO> drivers = service.getPaginatedDrivers(PageRequest.of(page, size));
+        GetAllPaginatedResponse<DriverDTO> drivers = service.getPaginatedDrivers(PageRequest.of(page, size));
         return ResponseEntity.ok(drivers);
     }
 
     @GetMapping("/free")
-    public ResponseEntity<GetAllPaginatedResponseDTO<DriverDTO>> getPaginatedFreeDrivers(
+    public ResponseEntity<GetAllPaginatedResponse<DriverDTO>> getPaginatedFreeDrivers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        GetAllPaginatedResponseDTO<DriverDTO> freeDrivers =
+        GetAllPaginatedResponse<DriverDTO> freeDrivers =
                 service.getPaginatedDriversByStatus(DriverStatus.FREE, PageRequest.of(page, size));
         return ResponseEntity.ok(freeDrivers);
     }

@@ -5,7 +5,7 @@ import com.modsen.driver_service.models.dtos.CarPatchDTO;
 import com.modsen.driver_service.services.CarService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponseDTO;
+import models.dtos.GetAllPaginatedResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,16 +28,16 @@ public class CarController {
 
     @GetMapping("/{id}")
     public ResponseEntity<CarDTO> getCar(@PathVariable UUID id) {
-        CarDTO carDTO = service.getCarDTO(id);
+        CarDTO carDTO = service.getCarById(id);
         return ResponseEntity.ok(carDTO);
     }
 
     @GetMapping
-    public ResponseEntity<GetAllPaginatedResponseDTO<CarDTO>> getPaginatedCars(
+    public ResponseEntity<GetAllPaginatedResponse<CarDTO>> getPaginatedCars(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        GetAllPaginatedResponseDTO<CarDTO> cars = service.getPaginatedCars(PageRequest.of(page, size));
+        GetAllPaginatedResponse<CarDTO> cars = service.getPaginatedCars(PageRequest.of(page, size));
         return ResponseEntity.ok(cars);
     }
 

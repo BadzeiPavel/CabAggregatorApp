@@ -10,7 +10,7 @@ import com.modsen.rating_service.models.entities.DriverRating;
 import com.modsen.rating_service.repositories.DriverRatingRepository;
 import com.modsen.rating_service.utils.CalculationUtil;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponseDTO;
+import models.dtos.GetAllPaginatedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -43,7 +43,7 @@ public class DriverRatingService {
         return ratingMapper.toRatingDTO(driverRating);
     }
 
-    public GetAllPaginatedResponseDTO<RatingDTO> getPaginatedDriverRatingsByDriverId(
+    public GetAllPaginatedResponse<RatingDTO> getPaginatedDriverRatingsByDriverId(
             String id,
             PageRequest pageRequest
     ) {
@@ -53,7 +53,7 @@ public class DriverRatingService {
                 .map(ratingMapper::toRatingDTO)
                 .toList();
 
-        return new GetAllPaginatedResponseDTO<>(
+        return new GetAllPaginatedResponse<>(
                 ratingDTOs,
                 driverRatingPage.getTotalPages(),
                 driverRatingPage.getTotalElements()

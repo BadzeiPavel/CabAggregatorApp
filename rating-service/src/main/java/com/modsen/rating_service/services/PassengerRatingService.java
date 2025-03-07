@@ -10,7 +10,7 @@ import com.modsen.rating_service.models.entities.PassengerRating;
 import com.modsen.rating_service.repositories.PassengerRatingRepository;
 import com.modsen.rating_service.utils.CalculationUtil;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponseDTO;
+import models.dtos.GetAllPaginatedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -43,7 +43,7 @@ public class PassengerRatingService {
         return ratingMapper.toRatingDTO(passengerRating);
     }
 
-    public GetAllPaginatedResponseDTO<RatingDTO> getPaginatedPassengerRatingsByPassengerId(
+    public GetAllPaginatedResponse<RatingDTO> getPaginatedPassengerRatingsByPassengerId(
             String id,
             PageRequest pageRequest
     ) {
@@ -53,7 +53,7 @@ public class PassengerRatingService {
                 .map(ratingMapper::toRatingDTO)
                 .toList();
 
-        return new GetAllPaginatedResponseDTO<>(
+        return new GetAllPaginatedResponse<>(
                 ratingDTOs,
                 passengerRatingPage.getTotalPages(),
                 passengerRatingPage.getTotalElements()

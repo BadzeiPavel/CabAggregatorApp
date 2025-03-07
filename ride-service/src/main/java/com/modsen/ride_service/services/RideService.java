@@ -9,15 +9,17 @@ import com.modsen.ride_service.mappers.ride_mappers.RideMapper;
 import com.modsen.ride_service.models.dtos.DriverNotificationDTO;
 import com.modsen.ride_service.models.dtos.RideDTO;
 import com.modsen.ride_service.models.dtos.RidePatchDTO;
-import com.modsen.ride_service.models.dtos.requests.ChangeRideStatusRequestDTO;
 import com.modsen.ride_service.models.entitties.Ride;
 import com.modsen.ride_service.repositories.RideRepository;
+import constants.KafkaConstants;
 import enums.DriverStatus;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponseDTO;
+import models.dtos.GetAllPaginatedResponse;
+import models.dtos.events.ChangeDriverStatusEvent;
 import models.dtos.requests.ChangeDriverStatusRequestDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import utils.PatchUtil;
@@ -34,8 +36,9 @@ public class RideService {
 
     private List<UUID> driverIds = new ArrayList<>();
 
-    private final DriverNotificationService driverNotificationService;
     private final DriverServiceFeignClient driverServiceFeignClient;
+    private final DriverNotificationService driverNotificationService;
+    private final KafkaTemplate<String, ChangeDriverStatusEvent> kafkaTemplate;
 
     private final RideMapper rideMapper;
     private final RideDTOMapper rideDTOMapper;
@@ -60,7 +63,7 @@ public class RideService {
         return rideMapper.toRideDTO(ride);
     }
 
-    public GetAllPaginatedResponseDTO<RideDTO> getPaginatedRidesByPassengerId(
+    public GetAllPaginatedResponse<RideDTO> getPaginatedRidesByPassengerId(
             UUID passengerId,
             PageRequest pageRequest
     ) {
@@ -69,7 +72,7 @@ public class RideService {
         return getAllPaginatedResponseDTO(ridePage);
     }
 
-    public GetAllPaginatedResponseDTO<RideDTO> getPaginatedPassengerRidesInDateRange(
+    public GetAllPaginatedResponse<RideDTO> getPaginatedPassengerRidesInDateRange(
             UUID passengerId,
             LocalDateTime from,
             LocalDateTime to,
@@ -80,7 +83,7 @@ public class RideService {
         return getAllPaginatedResponseDTO(ridePage);
     }
 
-    public GetAllPaginatedResponseDTO<RideDTO> getPaginatedDriverRidesInDateRange(
+    public GetAllPaginatedResponse<RideDTO> getPaginatedDriverRidesInDateRange(
             UUID driverId,
             LocalDateTime from,
             LocalDateTime to,
@@ -91,7 +94,7 @@ public class RideService {
         return getAllPaginatedResponseDTO(ridePage);
     }
 
-    public GetAllPaginatedResponseDTO<RideDTO> getPaginatedRidesByDriverId(UUID driverId, PageRequest pageRequest) {
+    public GetAllPaginatedResponse<RideDTO> getPaginatedRidesByDriverId(UUID driverId, PageRequest pageRequest) {
         Page<Ride> ridePage = repository.findByDriverId(driverId, pageRequest);
 
         return getAllPaginatedResponseDTO(ridePage);
@@ -111,19 +114,37 @@ public class RideService {
         return rideMapper.toRideDTO(repository.save(ride));
     }
 
+
     @Transactional
-    public RideDTO changeRideStatus(UUID rideId, ChangeRideStatusRequestDTO requestDTO) {
-        RideStatus requestRideStatus = requestDTO.getRideStatus();
-        Ride ride = changeRideStatus(rideId, requestRideStatus);
+    public RideDTO changeRideStatus(UUID id, RideStatus rideStatus) {
+        Ride ride = repository.findById(id)
+                .orElseThrow(() -> new RideNotFoundException("Ride entity with id='%s' cannot be found"
+                        .formatted(id)));
+
+        if(!rideStatus.canBeObtainedFrom().contains(ride.getStatus())) {
+            throw new InvalidRideStatusException("Status '%s' cannot be set".formatted(rideStatus));
+        }
+
+        handleRideStatus(ride, rideStatus);
 
         return rideMapper.toRideDTO(repository.save(ride));
     }
 
-    @Transactional
+    public void recoverRide(ChangeDriverStatusEvent event) {
+        UUID recoveryRideId = event.getRecoveryRideId();
+        Ride ride = repository.findById(recoveryRideId)
+                .orElseThrow(() -> new RideNotFoundException("Ride entity with id='%s' cannot be found"
+                        .formatted(recoveryRideId)));
+        ride.setStatus(RideStatus.IN_RIDE);
+        ride.setEndTime(null);
+
+        repository.save(ride);
+    }
+
     public RideDTO approveDriverRequestByRideIdAndDriverId(UUID rideId, UUID driverId) {
         driverServiceFeignClient.changeDriverStatus(driverId, new ChangeDriverStatusRequestDTO(DriverStatus.BUSY));
 
-        RideDTO rideDTO = changeRideStatus(rideId, new ChangeRideStatusRequestDTO(driverId, RideStatus.ACCEPTED));
+        RideDTO rideDTO = changeRideStatus(rideId, RideStatus.ACCEPTED);
         rideDTO.setDriverId(driverId);
 
         Ride savedRide = repository.save(rideDTOMapper.toRide(rideDTO));
@@ -133,9 +154,8 @@ public class RideService {
     }
 
     // TODO send request to driver-service to set driver.status='FREE'
-    @Transactional
     public RideDTO rejectDriverRequestByRideId(UUID rideId) {
-        RideDTO rideDTO = changeRideStatus(rideId, new ChangeRideStatusRequestDTO(null, RideStatus.REQUESTED));
+        RideDTO rideDTO = changeRideStatus(rideId, RideStatus.REQUESTED);
         driverNotificationService.changeDriverNotificationOnReadByRideId(rideId);
 
         return sendNotification(rideDTOMapper.toRide(rideDTO));
@@ -163,38 +183,42 @@ public class RideService {
         driverNotificationService.createDriverNotification(notificationDTO);
     }
 
-    private Ride changeRideStatus(UUID id, RideStatus rideStatus) {
-        Ride ride = repository.findById(id)
-                .orElseThrow(() -> new RideNotFoundException("Ride entity with id='%s' cannot be found"
-                        .formatted(id)));
-
-        if(!rideStatus.canBeObtainedFrom().contains(ride.getStatus())) {
-            throw new InvalidRideStatusException("Status '%s' cannot be set".formatted(rideStatus));
-        }
-
-        ride.setStatus(rideStatus);
-        switch(ride.getStatus()) {
-            case IN_RIDE -> ride.setStartTime(LocalDateTime.now());
-            case COMPLETED -> {
-                // TODO send req via Kafka to payment-service
-                ride.setEndTime(LocalDateTime.now());
-            }
-            case REQUESTED -> ride.setDriverId(null);
-        }
-
-        return ride;
-    }
-
-    private GetAllPaginatedResponseDTO<RideDTO> getAllPaginatedResponseDTO(Page<Ride> ridePage) {
+    private GetAllPaginatedResponse<RideDTO> getAllPaginatedResponseDTO(Page<Ride> ridePage) {
         List<RideDTO> rideDTOs = ridePage.stream()
                 .map(rideMapper::toRideDTO)
                 .toList();
 
-        return new GetAllPaginatedResponseDTO<>(
+        return new GetAllPaginatedResponse<>(
                 rideDTOs,
                 ridePage.getTotalPages(),
                 ridePage.getTotalElements()
         );
+    }
+
+    private void handleRideStatus(Ride ride, RideStatus rideStatus) {
+        switch (rideStatus) {
+            case IN_RIDE -> handleInRideStatus(ride);
+            case COMPLETED -> handleCompletedRideStatus(ride);
+            case REQUESTED -> handleRequestedStatus(ride);
+        }
+        ride.setStatus(rideStatus);
+    }
+
+    private void handleCompletedRideStatus(Ride ride) {
+        kafkaTemplate.send(KafkaConstants.RIDE_COMPLETED_EVENT, new ChangeDriverStatusEvent(
+                ride.getDriverId(),
+                DriverStatus.FREE,
+                ride.getId())
+        );
+        ride.setEndTime(LocalDateTime.now());
+    }
+
+    private void handleInRideStatus(Ride ride) {
+        ride.setStartTime(LocalDateTime.now());
+    }
+
+    private void handleRequestedStatus(Ride ride) {
+        ride.setDriverId(null);
     }
 
     private static void fillInRideOnCreation(RideDTO rideDTO) {

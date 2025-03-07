@@ -6,7 +6,7 @@ import com.modsen.rating_service.models.dtos.RatingStatisticResponseDTO;
 import com.modsen.rating_service.services.DriverRatingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponseDTO;
+import models.dtos.GetAllPaginatedResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +32,12 @@ public class DriverRatingController {
     }
 
     @GetMapping("/{driverId}/all")
-    public ResponseEntity<GetAllPaginatedResponseDTO<RatingDTO>> getPaginatedDriverRatings(
+    public ResponseEntity<GetAllPaginatedResponse<RatingDTO>> getPaginatedDriverRatings(
             @PathVariable String driverId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        GetAllPaginatedResponseDTO<RatingDTO> responseDTO =
+        GetAllPaginatedResponse<RatingDTO> responseDTO =
                 service.getPaginatedDriverRatingsByDriverId(driverId, PageRequest.of(page, size));
         return ResponseEntity.ok(responseDTO);
     }

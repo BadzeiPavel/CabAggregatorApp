@@ -1,5 +1,9 @@
 models\dtos\ErrorResponse.class
 models\dtos\UserPatchDTO.class
-utils\PatchUtil.class
 models\dtos\GetAllPaginatedResponseDTO.class
+enums\DriverStatus.class
+models\dtos\requests\ChangeDriverStatusRequestDTO.class
+models\dtos\events\ChangeDriverStatusEvent.class
+utils\PatchUtil.class
+models\dtos\UserPatchDTO$UserPatchDTOBuilder.class
 enums\CarCategory.class

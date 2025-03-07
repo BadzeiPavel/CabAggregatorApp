@@ -10,7 +10,7 @@ import com.modsen.payment_service.models.dtos.PaymentDTO;
 import com.modsen.payment_service.models.enitties.Payment;
 import com.modsen.payment_service.repositories.PaymentRepository;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponseDTO;
+import models.dtos.GetAllPaginatedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -49,7 +49,7 @@ public class PaymentService {
         return entityMapper.toPaymentDTO(payment);
     }
 
-    public GetAllPaginatedResponseDTO<PaymentDTO> getPaginatedPaymentsByPassengerId(
+    public GetAllPaginatedResponse<PaymentDTO> getPaginatedPaymentsByPassengerId(
             String passengerId,
             PageRequest pageRequest
     ) {
@@ -58,7 +58,7 @@ public class PaymentService {
         return getAllPaginatedResponseDTO(paymentPage);
     }
 
-    public GetAllPaginatedResponseDTO<PaymentDTO> getPaginatedPaymentsByPassengerIdInDateRange(
+    public GetAllPaginatedResponse<PaymentDTO> getPaginatedPaymentsByPassengerIdInDateRange(
             String passengerId,
             LocalDateTime from,
             LocalDateTime to,
@@ -69,7 +69,7 @@ public class PaymentService {
         return getAllPaginatedResponseDTO(paymentPage);
     }
 
-    public GetAllPaginatedResponseDTO<PaymentDTO> getPaginatedPaymentsByDriverId(
+    public GetAllPaginatedResponse<PaymentDTO> getPaginatedPaymentsByDriverId(
             String driverId,
             PageRequest pageRequest
     ) {
@@ -78,7 +78,7 @@ public class PaymentService {
         return getAllPaginatedResponseDTO(paymentPage);
     }
 
-    public GetAllPaginatedResponseDTO<PaymentDTO> getPaginatedPaymentsByDriverIdInDateRange(
+    public GetAllPaginatedResponse<PaymentDTO> getPaginatedPaymentsByDriverIdInDateRange(
             String driverId,
             LocalDateTime from,
             LocalDateTime to,
@@ -114,12 +114,12 @@ public class PaymentService {
                 .getCost();
     }
 
-    private GetAllPaginatedResponseDTO<PaymentDTO> getAllPaginatedResponseDTO(Page<Payment> paymentPage) {
+    private GetAllPaginatedResponse<PaymentDTO> getAllPaginatedResponseDTO(Page<Payment> paymentPage) {
         List<PaymentDTO> paymentDTOs = paymentPage.stream()
                 .map(entityMapper::toPaymentDTO)
                 .toList();
 
-        return new GetAllPaginatedResponseDTO<>(
+        return new GetAllPaginatedResponse<>(
                 paymentDTOs,
                 paymentPage.getTotalPages(),
                 paymentPage.getTotalElements()

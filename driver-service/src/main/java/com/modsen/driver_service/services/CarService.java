@@ -7,7 +7,7 @@ import com.modsen.driver_service.models.dtos.CarPatchDTO;
 import com.modsen.driver_service.models.entities.Car;
 import com.modsen.driver_service.repositories.CarRepository;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponseDTO;
+import models.dtos.GetAllPaginatedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -41,25 +41,27 @@ public class CarService {
     }
 
     @Transactional(readOnly = true)
-    public CarDTO getCarDTO(UUID id) {
+    public CarDTO getCarById(UUID id) {
         Car car = repository.getCarById(id);
         return carMapper.toCarDTO(car);
     }
 
-    public GetAllPaginatedResponseDTO<CarDTO> getPaginatedCars(PageRequest pageRequest) {
+    @Transactional(readOnly = true)
+    public GetAllPaginatedResponse<CarDTO> getPaginatedCars(PageRequest pageRequest) {
         Page<Car> carPage = repository.findByIsDeletedFalse(pageRequest);
 
         List<CarDTO> carDTOs = carPage.stream()
                 .map(carMapper::toCarDTO)
                 .toList();
 
-        return new GetAllPaginatedResponseDTO<>(
+        return new GetAllPaginatedResponse<>(
                 carDTOs,
                 carPage.getTotalPages(),
                 carPage.getTotalElements()
         );
     }
 
+    @Transactional
     public CarDTO updateCar(UUID id, CarDTO carDTO) {
         Car car = repository.getCarById(id);
         fillInCarOnUpdate(car, carDTO);
@@ -67,6 +69,7 @@ public class CarService {
         return carMapper.toCarDTO(repository.save(car));
     }
 
+    @Transactional
     public CarDTO patchCar(UUID id, CarPatchDTO carPatchDTO) {
         Car car = repository.getCarById(id);
         fillInCarOnPatch(car, carPatchDTO);
@@ -74,6 +77,7 @@ public class CarService {
         return carMapper.toCarDTO(repository.save(car));
     }
 
+    @Transactional
     public CarDTO softDeleteCar(UUID id) {
         Car car = repository.getCarById(id);
         car.setDeleted(true);

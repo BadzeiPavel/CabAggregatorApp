@@ -1,5 +1,8 @@
 D:\work\ModsenInternship\CarAggregatorApp\common-module\src\main\java\enums\CarCategory.java
+D:\work\ModsenInternship\CarAggregatorApp\common-module\src\main\java\enums\DriverStatus.java
 D:\work\ModsenInternship\CarAggregatorApp\common-module\src\main\java\models\dtos\ErrorResponse.java
+D:\work\ModsenInternship\CarAggregatorApp\common-module\src\main\java\models\dtos\events\ChangeDriverStatusEvent.java
 D:\work\ModsenInternship\CarAggregatorApp\common-module\src\main\java\models\dtos\GetAllPaginatedResponseDTO.java
+D:\work\ModsenInternship\CarAggregatorApp\common-module\src\main\java\models\dtos\requests\ChangeDriverStatusRequestDTO.java
 D:\work\ModsenInternship\CarAggregatorApp\common-module\src\main\java\models\dtos\UserPatchDTO.java
 D:\work\ModsenInternship\CarAggregatorApp\common-module\src\main\java\utils\PatchUtil.java

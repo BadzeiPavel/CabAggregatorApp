@@ -7,7 +7,7 @@ import com.modsen.ride_service.models.dtos.DriverNotificationDTO;
 import com.modsen.ride_service.models.entitties.DriverNotification;
 import com.modsen.ride_service.repositories.DriverNotificationRepository;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponseDTO;
+import models.dtos.GetAllPaginatedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class DriverNotificationService {
     }
 
     @Transactional
-    public GetAllPaginatedResponseDTO<DriverNotificationDTO> getPaginatedDriverNotificationsByDriverId(
+    public GetAllPaginatedResponse<DriverNotificationDTO> getPaginatedDriverNotificationsByDriverId(
             UUID driverId,
             PageRequest pageRequest
     ) {
@@ -44,7 +44,7 @@ public class DriverNotificationService {
                 .map(notificationMapper::toDriverNotificationDTO)
                 .toList();
 
-        return new GetAllPaginatedResponseDTO<>(
+        return new GetAllPaginatedResponse<>(
                 notificationDTOs,
                 driverNotificationPage.getTotalPages(),
                 driverNotificationPage.getTotalElements()

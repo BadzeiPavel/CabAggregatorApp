@@ -1,14 +1,12 @@
 package com.modsen.ride_service.controller;
 
 import com.modsen.ride_service.enums.RideStatus;
-import com.modsen.ride_service.exceptions.InvalidRideStatusException;
-import com.modsen.ride_service.models.dtos.requests.ChangeRideStatusRequestDTO;
 import com.modsen.ride_service.models.dtos.RideDTO;
 import com.modsen.ride_service.models.dtos.RidePatchDTO;
 import com.modsen.ride_service.services.RideService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponseDTO;
+import models.dtos.GetAllPaginatedResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -16,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -54,49 +51,49 @@ public class RideController {
     }
 
     @GetMapping("/passengers/{passengerId}")
-    public ResponseEntity<GetAllPaginatedResponseDTO<RideDTO>> getPaginatedRidesByPassengerId(
+    public ResponseEntity<GetAllPaginatedResponse<RideDTO>> getPaginatedRidesByPassengerId(
             @PathVariable UUID passengerId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        GetAllPaginatedResponseDTO<RideDTO> responseDTO =
+        GetAllPaginatedResponse<RideDTO> responseDTO =
                 service.getPaginatedRidesByPassengerId(passengerId, PageRequest.of(page, size));
         return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/passengers/{passengerId}/date-range")
-    public ResponseEntity<GetAllPaginatedResponseDTO<RideDTO>> getPaginatedPassengerRidesInDateRange(
+    public ResponseEntity<GetAllPaginatedResponse<RideDTO>> getPaginatedPassengerRidesInDateRange(
             @PathVariable UUID passengerId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        GetAllPaginatedResponseDTO<RideDTO> responseDTO =
+        GetAllPaginatedResponse<RideDTO> responseDTO =
                 service.getPaginatedPassengerRidesInDateRange(passengerId, from, to, PageRequest.of(page, size));
         return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/drivers/{driverId}")
-    public ResponseEntity<GetAllPaginatedResponseDTO<RideDTO>> getPaginatedRidesByDriverId(
+    public ResponseEntity<GetAllPaginatedResponse<RideDTO>> getPaginatedRidesByDriverId(
             @PathVariable UUID driverId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        GetAllPaginatedResponseDTO<RideDTO> responseDTO =
+        GetAllPaginatedResponse<RideDTO> responseDTO =
                 service.getPaginatedRidesByDriverId(driverId, PageRequest.of(page, size));
         return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/drivers/{driverId}/date-range")
-    public ResponseEntity<GetAllPaginatedResponseDTO<RideDTO>> getPaginatedDriverRidesInDateRange(
+    public ResponseEntity<GetAllPaginatedResponse<RideDTO>> getPaginatedDriverRidesInDateRange(
             @PathVariable UUID driverId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        GetAllPaginatedResponseDTO<RideDTO> responseDTO =
+        GetAllPaginatedResponse<RideDTO> responseDTO =
                 service.getPaginatedDriverRidesInDateRange(driverId, from, to, PageRequest.of(page, size));
         return ResponseEntity.ok(responseDTO);
     }
@@ -107,16 +104,15 @@ public class RideController {
         return ResponseEntity.ok(updatedRideDTO);
     }
 
-    @PutMapping("/{id}/status")
-    public ResponseEntity<RideDTO> changeRideStatus(
-            @PathVariable UUID id,
-            @Valid @RequestBody ChangeRideStatusRequestDTO requestDTO
-    ) {
-        RideStatus status = requestDTO.getRideStatus();
-        if(List.of(RideStatus.ACCEPTED, RideStatus.REQUESTED).contains(status)) {
-            throw new InvalidRideStatusException("Status '%s' cannot be set manually".formatted(status));
-        }
-        RideDTO rideDTO = service.changeRideStatus(id, requestDTO);
+    @PutMapping("/{id}/status/in-ride")
+    public ResponseEntity<RideDTO> changeRideStatusOnInRide(@PathVariable UUID id) {
+        RideDTO rideDTO = service.changeRideStatus(id, RideStatus.IN_RIDE);
+        return ResponseEntity.ok(rideDTO);
+    }
+
+    @PutMapping("/{id}/status/completed")
+    public ResponseEntity<RideDTO> changeRideStatusOnCompleted(@PathVariable UUID id) {
+        RideDTO rideDTO = service.changeRideStatus(id, RideStatus.COMPLETED);
         return ResponseEntity.ok(rideDTO);
     }
 
