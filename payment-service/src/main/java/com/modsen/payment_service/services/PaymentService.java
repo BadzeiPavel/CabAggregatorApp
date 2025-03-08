@@ -10,7 +10,7 @@ import com.modsen.payment_service.models.dtos.PaymentDTO;
 import com.modsen.payment_service.models.enitties.Payment;
 import com.modsen.payment_service.repositories.PaymentRepository;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponse;
+import models.dtos.responses.GetAllPaginatedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;

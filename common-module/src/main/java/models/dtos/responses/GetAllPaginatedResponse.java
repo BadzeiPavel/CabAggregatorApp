@@ -1,4 +1,4 @@
-package models.dtos;
+package models.dtos.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

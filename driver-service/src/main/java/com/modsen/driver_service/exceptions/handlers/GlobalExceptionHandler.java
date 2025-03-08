@@ -2,7 +2,7 @@ package com.modsen.driver_service.exceptions.handlers;
 
 import com.modsen.driver_service.exceptions.CarNotFoundException;
 import com.modsen.driver_service.exceptions.DriverNotFoundException;
-import models.dtos.ErrorResponse;
+import models.dtos.responses.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -24,11 +24,19 @@ public class RideDTO {
 
     private UUID driverId;
 
-    @NotBlank(message = "Pickup address cannot be empty")
-    @Size(max = 100, message = "Pickup address must not exceed 100 characters")
-    private String pickupAddress;
+    @NotNull(message = "Latitude cannot be null")
+    @Positive(message = "Cost must be a positive value")
+    private double latitude;
 
-    @NotBlank(message = "Destination address cannot be empty")
+    @NotNull(message = "Longitude cannot be null")
+    @Positive(message = "Cost must be a positive value")
+    private double longitude;
+
+    private float distance;
+
+    @Size(max = 100, message = "Origin address must not exceed 100 characters")
+    private String originAddress;
+
     @Size(max = 100, message = "Destination address must not exceed 100 characters")
     private String destinationAddress;
 

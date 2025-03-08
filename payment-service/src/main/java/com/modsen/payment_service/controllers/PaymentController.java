@@ -4,7 +4,7 @@ import com.modsen.payment_service.models.dtos.PaymentDTO;
 import com.modsen.payment_service.services.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponse;
+import models.dtos.responses.GetAllPaginatedResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;

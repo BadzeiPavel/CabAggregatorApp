@@ -1,8 +1,7 @@
 package com.modsen.payment_service.models.dtos;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +20,6 @@ public class PassengerBankAccountDTO {
     @Size(min = 1, max = 50, message = "Passenger ID must be between 1 and 50 characters")
     private String passengerId;
 
-    @Min(value = 0, message = "Balance cannot be negative")
+    @Positive(message = "Balance cannot be negative")
     private BigDecimal balance;
 }

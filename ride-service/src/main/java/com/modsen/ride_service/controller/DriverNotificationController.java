@@ -4,7 +4,7 @@ import com.modsen.ride_service.models.dtos.DriverNotificationDTO;
 import com.modsen.ride_service.services.DriverNotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponse;
+import models.dtos.responses.GetAllPaginatedResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

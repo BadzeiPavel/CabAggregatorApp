@@ -6,7 +6,7 @@ import com.modsen.ride_service.models.dtos.RidePatchDTO;
 import com.modsen.ride_service.services.RideService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponse;
+import models.dtos.responses.GetAllPaginatedResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -39,8 +39,11 @@ public class RideController {
     }
 
     @PutMapping("/{rideId}/reject")
-    public ResponseEntity<RideDTO> rejectDriverRideResponse(@PathVariable UUID rideId) {
-        RideDTO rideDTO = service.rejectDriverRequestByRideId(rideId);
+    public ResponseEntity<RideDTO> rejectDriverRideResponse(
+            @PathVariable UUID rideId,
+            @RequestParam("driver-id") UUID driverId
+    ) {
+        RideDTO rideDTO = service.rejectDriverRequestByRideId(rideId, driverId);
         return ResponseEntity.ok(rideDTO);
     }
 

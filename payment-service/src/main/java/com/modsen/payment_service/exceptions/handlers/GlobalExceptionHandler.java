@@ -3,7 +3,7 @@ package com.modsen.payment_service.exceptions.handlers;
 import com.modsen.payment_service.exceptions.CannotProceedPaymentException;
 import com.modsen.payment_service.exceptions.InvalidAmountValueException;
 import com.modsen.payment_service.exceptions.RecordNotFoundException;
-import models.dtos.ErrorResponse;
+import models.dtos.responses.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

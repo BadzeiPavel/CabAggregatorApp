@@ -2,9 +2,9 @@ package com.modsen.payment_service.models.enitties;
 
 import com.modsen.payment_service.enums.PaymentStatus;
 import com.modsen.payment_service.models.RideInfo;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,7 +37,7 @@ public class Payment {
     private String passengerId;
 
     @NotNull(message = "Cost cannot be null")
-    @Min(value = 0, message = "Cost cannot be negative")
+    @Positive(message = "Cost cannot be negative")
     private BigDecimal cost;
 
     @NotNull(message = "Payment status cannot be null")

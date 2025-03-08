@@ -10,10 +10,10 @@ public enum RideStatus {
     REJECTED;
 
     public List<RideStatus> canBeObtainedFrom() {
-        return switch (this) {
+        return switch(this) {
             case REQUESTED,
-                 IN_RIDE -> List.of(ACCEPTED);
-            case ACCEPTED -> List.of(REQUESTED);
+                 ACCEPTED -> List.of(REQUESTED);
+            case IN_RIDE -> List.of(ACCEPTED);
             case COMPLETED -> List.of(IN_RIDE);
             case REJECTED -> List.of(REQUESTED, ACCEPTED);
         };

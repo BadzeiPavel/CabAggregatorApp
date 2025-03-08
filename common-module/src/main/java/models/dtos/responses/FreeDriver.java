@@ -1,13 +1,14 @@
-package models.dtos.requests;
+package models.dtos.responses;
 
-import enums.DriverStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChangeDriverStatusRequestDTO {
-    private DriverStatus driverStatus;
+public class FreeDriver {
+    private UUID driverId;
 }
