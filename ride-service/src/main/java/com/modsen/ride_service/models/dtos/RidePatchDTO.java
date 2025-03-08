@@ -4,7 +4,6 @@ import com.modsen.ride_service.enums.PaymentMethod;
 import enums.CarCategory;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,8 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RidePatchDTO {
 
-    @Size(max = 100, message = "Pickup address must not exceed 100 characters")
-    private String pickupAddress;
+    @Size(max = 100, message = "Origin address must not exceed 100 characters")
+    private String originAddress;
 
     @Size(max = 100, message = "Destination address must not exceed 100 characters")
     private String destinationAddress;

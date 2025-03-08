@@ -1,8 +1,8 @@
 package com.modsen.payment_service.models.enitties;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,6 +27,6 @@ public class DriverBankAccount {
     private String driverId;
 
     @NotNull(message = "Balance cannot be null")
-    @Min(value = 0, message = "Balance cannot be negative")
+    @Positive(message = "Balance cannot be negative")
     private BigDecimal balance;
 }

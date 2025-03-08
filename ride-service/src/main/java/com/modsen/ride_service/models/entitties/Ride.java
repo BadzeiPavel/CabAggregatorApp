@@ -31,13 +31,23 @@ public class Ride {
     @Column(nullable = false)
     private UUID passengerId;
 
-    @Column(nullable = false)
     private UUID driverId;
 
-    @NotBlank(message = "Pickup address cannot be empty")
-    @Size(max = 100, message = "Pickup address must not exceed 100 characters")
+    @Min(value = -90, message = "Latitude must be between -90 and 90")
+    @Max(value = 90, message = "Latitude must be between -90 and 90")
+    private double latitude;
+
+    @Min(value = -180, message = "Longitude must be between -180 and 180")
+    @Max(value = 180, message = "Longitude must be between -180 and 180")
+    private double longitude;
+
+    @Positive(message = "Distance must be a positive value")
+    private float distance;
+
+    @NotBlank(message = "Origin address cannot be empty")
+    @Size(max = 100, message = "Origin address must not exceed 100 characters")
     @Column(nullable = false, length = 100)
-    private String pickupAddress;
+    private String originAddress;
 
     @NotBlank(message = "Destination address cannot be empty")
     @Size(max = 100, message = "Destination address must not exceed 100 characters")

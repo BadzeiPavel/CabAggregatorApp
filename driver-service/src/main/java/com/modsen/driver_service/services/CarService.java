@@ -7,7 +7,7 @@ import com.modsen.driver_service.models.dtos.CarPatchDTO;
 import com.modsen.driver_service.models.entities.Car;
 import com.modsen.driver_service.repositories.CarRepository;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponse;
+import models.dtos.responses.GetAllPaginatedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;

@@ -21,13 +21,14 @@ public interface RideRepository extends JpaRepository<Ride, UUID> {
     );
     Page<Ride> findByDriverId(UUID driverId, Pageable pageable);
     Page<Ride> findByDriverIdAndCreatedAtIsBetween(
-            UUID passengerId,
+            UUID driverId,
             LocalDateTime from,
             LocalDateTime to,
             Pageable pageable
     );
 
-    default Ride checkRideExistence(UUID id) {
-        return findById(id).orElseThrow(() -> new RideNotFoundException("Ride entity with id='%s' not found".formatted(id)));
+    default Ride findByRideId(UUID id) {
+        return findById(id)
+                .orElseThrow(() -> new RideNotFoundException("Ride entity with id='%s' not found".formatted(id)));
     }
 }

@@ -1,7 +1,6 @@
 package com.modsen.ride_service.models.dtos;
 
 import com.modsen.ride_service.enums.NotificationStatus;
-import com.modsen.ride_service.models.entitties.Ride;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -15,7 +14,7 @@ public class DriverNotificationDTO {
 
     private UUID id;
 
-    private Ride ride;
+    private DriverRideInfoDTO rideInfo;
 
     @NotNull(message = "Ride ID cannot be null")
     private UUID rideId;

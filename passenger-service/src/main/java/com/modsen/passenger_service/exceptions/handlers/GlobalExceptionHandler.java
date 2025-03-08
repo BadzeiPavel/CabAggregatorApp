@@ -1,7 +1,7 @@
 package com.modsen.passenger_service.exceptions.handlers;
 
 import com.modsen.passenger_service.exceptions.PassengerNotFoundException;
-import models.dtos.ErrorResponse;
+import models.dtos.responses.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

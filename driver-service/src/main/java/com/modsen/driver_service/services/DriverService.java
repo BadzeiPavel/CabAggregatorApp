@@ -10,10 +10,12 @@ import com.modsen.driver_service.models.entities.Driver;
 import com.modsen.driver_service.repositories.DriverRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import models.dtos.GetAllPaginatedResponse;
+import models.dtos.GetFreeDriverNotInListRequest;
+import models.dtos.responses.FreeDriver;
+import models.dtos.responses.GetAllPaginatedResponse;
 import models.dtos.UserPatchDTO;
 import models.dtos.events.ChangeDriverStatusEvent;
-import models.dtos.requests.ChangeDriverStatusRequestDTO;
+import models.dtos.requests.ChangeDriverStatusRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -58,13 +60,19 @@ public class DriverService {
     }
 
     @Transactional(readOnly = true)
-    public GetAllPaginatedResponse<DriverDTO> getPaginatedDriversByStatus(
-            DriverStatus status,
-            PageRequest pageRequest
-    ) {
-        Page<Driver> driverPage = repository.findByStatus(status, pageRequest);
+    public FreeDriver getFreeDriverNotInList(GetFreeDriverNotInListRequest request) {
+        FreeDriver freeDriver = repository.findFirstFreeNotInList(
+                request.getDriverIdExclusions(),
+                DriverStatus.FREE,
+                request.getSeatsCount(),
+                request.getCarCategory()
+        ).orElseThrow(() ->
+                new DriverNotFoundException("Driver entity with provided parameters not found. Parameters: %s"
+                        .formatted(request)));
 
-        return getAllPaginatedResponseDTO(driverPage);
+        log.info("Sending driver with id {}", freeDriver.getDriverId());
+
+        return freeDriver;
     }
 
     @Transactional
@@ -104,7 +112,7 @@ public class DriverService {
     }
 
     @Transactional
-    public void patchDriverStatus(UUID id, ChangeDriverStatusRequestDTO requestDTO) {
+    public void patchDriverStatus(UUID id, ChangeDriverStatusRequest requestDTO) {
         Driver driver = repository.findDriverById(id);
         driver.setStatus(requestDTO.getDriverStatus());
 

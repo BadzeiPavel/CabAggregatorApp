@@ -1,6 +1,6 @@
 package com.modsen.payment_service.models.dtos;
 
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +12,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class ChangeBalanceRequestDTO {
 
-    @Min(value = 0, message = "Amount cannot be negative")
+    @Positive(message = "Amount cannot be negative")
     private BigDecimal amount;
 }

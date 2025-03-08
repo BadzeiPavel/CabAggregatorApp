@@ -1,6 +1,7 @@
 package com.modsen.ride_service.services;
 
 import com.modsen.ride_service.enums.RideStatus;
+import com.modsen.ride_service.exceptions.ErrorServiceResponseException;
 import com.modsen.ride_service.exceptions.InvalidRideStatusException;
 import com.modsen.ride_service.exceptions.RideNotFoundException;
 import com.modsen.ride_service.feign_clients.DriverServiceFeignClient;
@@ -14,11 +15,14 @@ import com.modsen.ride_service.repositories.RideRepository;
 import constants.KafkaConstants;
 import enums.DriverStatus;
 import lombok.RequiredArgsConstructor;
-import models.dtos.GetAllPaginatedResponse;
+import models.dtos.GetFreeDriverNotInListRequest;
 import models.dtos.events.ChangeDriverStatusEvent;
-import models.dtos.requests.ChangeDriverStatusRequestDTO;
+import models.dtos.requests.ChangeDriverStatusRequest;
+import models.dtos.responses.FreeDriver;
+import models.dtos.responses.GetAllPaginatedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,13 +32,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class RideService {
 
-    private List<UUID> driverIds = new ArrayList<>();
+    private List<UUID> idExclusions = new ArrayList<>();
 
     private final DriverServiceFeignClient driverServiceFeignClient;
     private final DriverNotificationService driverNotificationService;
@@ -101,14 +106,14 @@ public class RideService {
     }
 
     public RideDTO updateRide(UUID rideId, RideDTO rideDTO) {
-        Ride ride = repository.checkRideExistence(rideId);
+        Ride ride = repository.findByRideId(rideId);
         fillInRideOnUpdate(ride, rideDTO);
 
         return rideMapper.toRideDTO(repository.save(ride));
     }
 
     public RideDTO patchRide(UUID rideId, RidePatchDTO ridePatchDTO) {
-        Ride ride = repository.checkRideExistence(rideId);
+        Ride ride = repository.findByRideId(rideId);
         fillInRideOnPatch(ride, ridePatchDTO);
 
         return rideMapper.toRideDTO(repository.save(ride));
@@ -141,35 +146,49 @@ public class RideService {
         repository.save(ride);
     }
 
+    @Transactional
     public RideDTO approveDriverRequestByRideIdAndDriverId(UUID rideId, UUID driverId) {
-        driverServiceFeignClient.changeDriverStatus(driverId, new ChangeDriverStatusRequestDTO(DriverStatus.BUSY));
+        driverServiceFeignClient.changeDriverStatus(driverId, new ChangeDriverStatusRequest(DriverStatus.BUSY));
 
         RideDTO rideDTO = changeRideStatus(rideId, RideStatus.ACCEPTED);
         rideDTO.setDriverId(driverId);
 
         Ride savedRide = repository.save(rideDTOMapper.toRide(rideDTO));
-        driverNotificationService.changeDriverNotificationOnReadByRideId(rideId);
+        driverNotificationService.changeStatusOnReadByRideIdAndDriverId(rideId, driverId);
 
         return rideMapper.toRideDTO(savedRide);
     }
 
-    // TODO send request to driver-service to set driver.status='FREE'
-    public RideDTO rejectDriverRequestByRideId(UUID rideId) {
-        RideDTO rideDTO = changeRideStatus(rideId, RideStatus.REQUESTED);
-        driverNotificationService.changeDriverNotificationOnReadByRideId(rideId);
+    @Transactional
+    public RideDTO rejectDriverRequestByRideId(UUID rideId, UUID driverId) {
+        driverServiceFeignClient.changeDriverStatus(driverId, new ChangeDriverStatusRequest(DriverStatus.FREE));
 
-        return sendNotification(rideDTOMapper.toRide(rideDTO));
+        driverNotificationService.changeStatusOnReadByRideIdAndDriverId(rideId, driverId);
+
+        Ride ride = repository.findByRideId(rideId);
+        ride.setDriverId(null);
+
+        return sendNotification(repository.save(ride));
     }
 
     private RideDTO sendNotification(Ride ride) {
-        // TODO: send synchronous request to get 'FREE' driver id and NOT IN 'driverIds' List
-        //  replace line below ^
-        UUID driverId = UUID.fromString("b2f1b850-4d5b-11ec-81d3-0242ac130004");
-        ride.setDriverId(driverId);
+        UUID freeDriverId = Optional.ofNullable(
+                        driverServiceFeignClient.getFreeDriverNotInList(new GetFreeDriverNotInListRequest(
+                                idExclusions,
+                                ride.getSeatsCount(),
+                                ride.getCarCategory()
+                        ))
+                )
+                .map(ResponseEntity::getBody)
+                .map(FreeDriver::getDriverId)
+                .orElseThrow(() -> new ErrorServiceResponseException("Driver with status FREE not found"));
 
-        driverIds.add(driverId);
+        ride.setDriverId(freeDriverId);
 
-        sendDriverNotification(ride, driverId);
+        // add found driver id to exclusion to not send same ride notification again
+        idExclusions.add(freeDriverId);
+
+        sendDriverNotification(ride, freeDriverId);
 
         return rideMapper.toRideDTO(ride);
     }
@@ -196,7 +215,7 @@ public class RideService {
     }
 
     private void handleRideStatus(Ride ride, RideStatus rideStatus) {
-        switch (rideStatus) {
+        switch(rideStatus) {
             case IN_RIDE -> handleInRideStatus(ride);
             case COMPLETED -> handleCompletedRideStatus(ride);
             case REQUESTED -> handleRequestedStatus(ride);
@@ -223,6 +242,7 @@ public class RideService {
 
     private static void fillInRideOnCreation(RideDTO rideDTO) {
         // TODO call payment-service to calculate costs and check if passenger balance is enough for ride
+        //  call google maps service to fill in addresses and distance
         rideDTO.setCost(BigDecimal.valueOf(10));
         rideDTO.setStatus(RideStatus.REQUESTED);
         rideDTO.setStartTime(null);
@@ -234,7 +254,7 @@ public class RideService {
     // TODO: move fillIns to utils/dto (?)
     private static void fillInRideOnUpdate(Ride ride, RideDTO rideDTO) {
         ride.setPassengerId(rideDTO.getPassengerId());
-        ride.setPickupAddress(rideDTO.getPickupAddress());
+        ride.setOriginAddress(rideDTO.getOriginAddress());
         ride.setDestinationAddress(rideDTO.getDestinationAddress());
         ride.setSeatsCount(rideDTO.getSeatsCount());
         ride.setCarCategory(rideDTO.getCarCategory());
@@ -243,7 +263,7 @@ public class RideService {
     }
 
     private static void fillInRideOnPatch(Ride ride, RidePatchDTO ridePatchDTO) {
-        PatchUtil.patchIfNotNull(ridePatchDTO.getPickupAddress(), ride::setPickupAddress);
+        PatchUtil.patchIfNotNull(ridePatchDTO.getOriginAddress(), ride::setOriginAddress);
         PatchUtil.patchIfNotNull(ridePatchDTO.getDestinationAddress(), ride::setDestinationAddress);
         PatchUtil.patchIfNotNull(ridePatchDTO.getSeatsCount(), ride::setSeatsCount);
         PatchUtil.patchIfNotNull(ridePatchDTO.getCarCategory(), ride::setCarCategory);
