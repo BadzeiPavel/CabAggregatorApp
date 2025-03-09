@@ -13,6 +13,7 @@ import com.modsen.ride_service.models.dtos.RidePatchDTO;
 import com.modsen.ride_service.models.entitties.Ride;
 import com.modsen.ride_service.repositories.RideRepository;
 import constants.KafkaConstants;
+import enums.CarCategory;
 import enums.DriverStatus;
 import lombok.RequiredArgsConstructor;
 import models.dtos.GetFreeDriverNotInListRequest;
@@ -30,10 +31,7 @@ import utils.PatchUtil;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +39,7 @@ public class RideService {
 
     private List<UUID> idExclusions = new ArrayList<>();
 
+    private final BingMapsService mapsService;
     private final DriverServiceFeignClient driverServiceFeignClient;
     private final DriverNotificationService driverNotificationService;
     private final KafkaTemplate<String, ChangeDriverStatusEvent> kafkaTemplate;
@@ -183,8 +182,6 @@ public class RideService {
                 .map(FreeDriver::getDriverId)
                 .orElseThrow(() -> new ErrorServiceResponseException("Driver with status FREE not found"));
 
-        ride.setDriverId(freeDriverId);
-
         // add found driver id to exclusion to not send same ride notification again
         idExclusions.add(freeDriverId);
 
@@ -240,22 +237,35 @@ public class RideService {
         ride.setDriverId(null);
     }
 
-    private static void fillInRideOnCreation(RideDTO rideDTO) {
+    private void fillInRideOnCreation(RideDTO rideDTO) {
+        Map<String, String> rideDetails = mapsService.getRideDetails(rideDTO);
+
         // TODO call payment-service to calculate costs and check if passenger balance is enough for ride
         //  call google maps service to fill in addresses and distance
+        double distance = Double.parseDouble(rideDetails.get("distance"));
+        CarCategory carCategory = rideDTO.getCarCategory();
+
         rideDTO.setCost(BigDecimal.valueOf(10));
+
+        rideDTO.setDistance(distance);
+        rideDTO.setOriginAddress(rideDetails.get("originAddress"));
+        rideDTO.setDestinationAddress(rideDetails.get("destinationAddress"));
         rideDTO.setStatus(RideStatus.REQUESTED);
-        rideDTO.setStartTime(null);
-        rideDTO.setEndTime(null);
         rideDTO.setCreatedAt(LocalDateTime.now());
-        rideDTO.setLastUpdateAt(null);
     }
 
     // TODO: move fillIns to utils/dto (?)
     private static void fillInRideOnUpdate(Ride ride, RideDTO rideDTO) {
+        double originLatitude = rideDTO.getOriginLatitude();
+        double originLongitude = rideDTO.getOriginLongitude();
+        double destinationLatitude = rideDTO.getDestinationLatitude();
+        double destinationLongitude = rideDTO.getDestinationLongitude();
+
+        ride.setOriginLatitude(originLatitude);
+        ride.setOriginLongitude(originLongitude);
+        ride.setDestinationLatitude(destinationLatitude);
+        ride.setDestinationLongitude(destinationLongitude);
         ride.setPassengerId(rideDTO.getPassengerId());
-        ride.setOriginAddress(rideDTO.getOriginAddress());
-        ride.setDestinationAddress(rideDTO.getDestinationAddress());
         ride.setSeatsCount(rideDTO.getSeatsCount());
         ride.setCarCategory(rideDTO.getCarCategory());
         ride.setPaymentMethod(rideDTO.getPaymentMethod());
@@ -263,8 +273,10 @@ public class RideService {
     }
 
     private static void fillInRideOnPatch(Ride ride, RidePatchDTO ridePatchDTO) {
-        PatchUtil.patchIfNotNull(ridePatchDTO.getOriginAddress(), ride::setOriginAddress);
-        PatchUtil.patchIfNotNull(ridePatchDTO.getDestinationAddress(), ride::setDestinationAddress);
+        PatchUtil.patchIfNotNull(ridePatchDTO.getOriginLatitude(), ride::setOriginLatitude);
+        PatchUtil.patchIfNotNull(ridePatchDTO.getOriginLongitude(), ride::setOriginLongitude);
+        PatchUtil.patchIfNotNull(ridePatchDTO.getDestinationLatitude(), ride::setDestinationLatitude);
+        PatchUtil.patchIfNotNull(ridePatchDTO.getDestinationLongitude(), ride::setDestinationLongitude);
         PatchUtil.patchIfNotNull(ridePatchDTO.getSeatsCount(), ride::setSeatsCount);
         PatchUtil.patchIfNotNull(ridePatchDTO.getCarCategory(), ride::setCarCategory);
         PatchUtil.patchIfNotNull(ridePatchDTO.getPaymentMethod(), ride::setPaymentMethod);

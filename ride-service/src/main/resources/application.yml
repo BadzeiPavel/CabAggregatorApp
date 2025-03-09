@@ -1,6 +1,9 @@
 server:
   port: 8085
 
+bing-maps:
+  api-key: ${BING_MAPS_API_KEY:}
+
 spring:
   application:
     name: ride-service
