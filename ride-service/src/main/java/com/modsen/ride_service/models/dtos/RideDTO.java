@@ -24,23 +24,28 @@ public class RideDTO {
 
     private UUID driverId;
 
-    @NotNull(message = "Latitude cannot be null")
-    @Positive(message = "Cost must be a positive value")
-    private double latitude;
+    @Min(value = -90, message = "Origin latitude must be between -90 and 90")
+    @Max(value = 90, message = "Origin latitude must be between -90 and 90")
+    private double originLatitude;
 
-    @NotNull(message = "Longitude cannot be null")
-    @Positive(message = "Cost must be a positive value")
-    private double longitude;
+    @Min(value = -180, message = "Origin longitude must be between -180 and 180")
+    @Max(value = 180, message = "Origin longitude must be between -180 and 180")
+    private double originLongitude;
 
-    private float distance;
+    @Min(value = -90, message = "Destination latitude must be between -90 and 90")
+    @Max(value = 90, message = "Destination latitude must be between -90 and 90")
+    private double destinationLatitude;
 
-    @Size(max = 100, message = "Origin address must not exceed 100 characters")
+    @Min(value = -180, message = "Destination longitude must be between -180 and 180")
+    @Max(value = 180, message = "Destination longitude must be between -180 and 180")
+    private double destinationLongitude;
+
+    private double distance;
+
     private String originAddress;
 
-    @Size(max = 100, message = "Destination address must not exceed 100 characters")
     private String destinationAddress;
 
-    @Positive(message = "Cost must be a positive value")
     private BigDecimal cost;
 
     private RideStatus status;

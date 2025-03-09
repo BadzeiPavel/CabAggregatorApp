@@ -33,16 +33,24 @@ public class Ride {
 
     private UUID driverId;
 
-    @Min(value = -90, message = "Latitude must be between -90 and 90")
-    @Max(value = 90, message = "Latitude must be between -90 and 90")
-    private double latitude;
+    @Min(value = -90, message = "Origin latitude must be between -90 and 90")
+    @Max(value = 90, message = "Origin latitude must be between -90 and 90")
+    private double originLatitude;
 
-    @Min(value = -180, message = "Longitude must be between -180 and 180")
-    @Max(value = 180, message = "Longitude must be between -180 and 180")
-    private double longitude;
+    @Min(value = -180, message = "Origin longitude must be between -180 and 180")
+    @Max(value = 180, message = "Origin longitude must be between -180 and 180")
+    private double originLongitude;
+
+    @Min(value = -90, message = "Destination latitude must be between -90 and 90")
+    @Max(value = 90, message = "Destination latitude must be between -90 and 90")
+    private double destinationLatitude;
+
+    @Min(value = -180, message = "Destination longitude must be between -180 and 180")
+    @Max(value = 180, message = "Destination longitude must be between -180 and 180")
+    private double destinationLongitude;
 
     @Positive(message = "Distance must be a positive value")
-    private float distance;
+    private double distance;
 
     @NotBlank(message = "Origin address cannot be empty")
     @Size(max = 100, message = "Origin address must not exceed 100 characters")

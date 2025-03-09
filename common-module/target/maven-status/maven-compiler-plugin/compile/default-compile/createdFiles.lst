@@ -7,7 +7,7 @@ models\dtos\responses\FreeDriver.class
 enums\CarCategory.class
 models\dtos\UserPatchDTO.class
 enums\DriverStatus.class
-models\dtos\DriverExclusions.class
 models\dtos\events\ChangeDriverStatusEvent.class
 models\dtos\responses\GetAllPaginatedResponse.class
 models\dtos\UserPatchDTO$UserPatchDTOBuilder.class
+models\dtos\GetFreeDriverNotInListRequest.class

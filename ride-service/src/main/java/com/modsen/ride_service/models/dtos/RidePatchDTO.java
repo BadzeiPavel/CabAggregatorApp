@@ -14,11 +14,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RidePatchDTO {
 
-    @Size(max = 100, message = "Origin address must not exceed 100 characters")
-    private String originAddress;
+    @Min(value = -90, message = "Origin latitude must be between -90 and 90")
+    @Max(value = 90, message = "Origin latitude must be between -90 and 90")
+    private double originLatitude;
 
-    @Size(max = 100, message = "Destination address must not exceed 100 characters")
-    private String destinationAddress;
+    @Min(value = -180, message = "Origin longitude must be between -180 and 180")
+    @Max(value = 180, message = "Origin longitude must be between -180 and 180")
+    private double originLongitude;
+
+    @Min(value = -90, message = "Destination latitude must be between -90 and 90")
+    @Max(value = 90, message = "Destination latitude must be between -90 and 90")
+    private double destinationLatitude;
+
+    @Min(value = -180, message = "Destination longitude must be between -180 and 180")
+    @Max(value = 180, message = "Destination longitude must be between -180 and 180")
+    private double destinationLongitude;
 
     @Min(value = 1, message = "Seats must be at least 1")
     @Max(value = 5, message = "Seats must be at most 5")
