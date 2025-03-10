@@ -1,12 +1,11 @@
-package com.modsen.payment_service.models.dtos;
+package models.dtos;
 
-import com.modsen.payment_service.enums.PaymentStatus;
-import com.modsen.payment_service.models.RideInfo;
-import jakarta.validation.constraints.Min;
+import enums.PaymentStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaymentDTO {

@@ -1,8 +1,6 @@
 package com.modsen.payment_service.config;
 
-import com.modsen.payment_service.models.dtos.PaymentDTO;
 import constants.KafkaConstants;
-import models.dtos.events.ChangeDriverStatusEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;

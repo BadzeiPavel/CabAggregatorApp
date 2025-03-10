@@ -1,6 +1,6 @@
 package com.modsen.payment_service.controllers;
 
-import com.modsen.payment_service.models.dtos.PaymentDTO;
+import models.dtos.PaymentDTO;
 import com.modsen.payment_service.services.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +23,11 @@ public class PaymentController {
     @PostMapping
     public ResponseEntity<PaymentDTO> createPayment(@Valid @RequestBody PaymentDTO paymentDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.createPayment(paymentDTO));
+    }
+
+    @DeleteMapping("/{rideId}")
+    public ResponseEntity<PaymentDTO> deletePayment(@PathVariable String rideId) {
+        return ResponseEntity.ok(service.deletePayment(rideId));
     }
 
     @GetMapping("/{id}")

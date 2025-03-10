@@ -1,4 +1,4 @@
-package com.modsen.payment_service.enums;
+package enums;
 
 public enum PaymentStatus {
     PAID,

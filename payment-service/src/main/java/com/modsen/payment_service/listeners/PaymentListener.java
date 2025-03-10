@@ -1,6 +1,5 @@
 package com.modsen.payment_service.listeners;
 
-import com.modsen.payment_service.models.dtos.PaymentDTO;
 import com.modsen.payment_service.services.PaymentService;
 import constants.KafkaConstants;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,7 @@
 package constants;
 
 public class KafkaConstants {
+
     public static final String RIDE_COMPLETED_EVENT = "ride-completed-event";
     public static final String RIDE_COMPLETED_RECOVERY_EVENT = "ride-completed-recovery-event";
     public static final String RIDE_PAYMENT_ON_COMPLETE_EVENT = "ride-payment-on-complete-event";
