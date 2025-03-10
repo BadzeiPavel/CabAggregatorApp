@@ -1,4 +1,4 @@
-package com.modsen.driver_service.configs;
+package com.modsen.driver_service.configs.kafka;
 
 import constants.KafkaConstants;
 import models.dtos.events.ChangeDriverStatusEvent;

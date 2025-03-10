@@ -1,4 +1,4 @@
-package com.modsen.ride_service.configs;
+package com.modsen.ride_service.configs.kafka;
 
 import constants.KafkaConstants;
 import models.dtos.events.ChangeDriverStatusEvent;
@@ -18,7 +18,7 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, ChangeDriverStatusEvent> consumerFactory() {
+    public ConsumerFactory<String, Object> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
 
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConstants.CONSUMER_BOOTSTRAP_SERVERS);
@@ -32,8 +32,8 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, ChangeDriverStatusEvent> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, ChangeDriverStatusEvent> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;

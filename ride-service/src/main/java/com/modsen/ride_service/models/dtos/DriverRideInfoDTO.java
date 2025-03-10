@@ -1,6 +1,6 @@
 package com.modsen.ride_service.models.dtos;
 
-import com.modsen.ride_service.enums.PaymentMethod;
+import enums.PaymentMethod;
 import enums.CarCategory;
 import lombok.AllArgsConstructor;
 import lombok.Data;

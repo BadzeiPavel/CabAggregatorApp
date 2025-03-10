@@ -18,6 +18,7 @@ import enums.DriverStatus;
 import lombok.RequiredArgsConstructor;
 import models.dtos.GetFreeDriverNotInListRequest;
 import models.dtos.events.ChangeDriverStatusEvent;
+import models.dtos.events.MakePaymentOnCompleteEvent;
 import models.dtos.requests.ChangeDriverStatusRequest;
 import models.dtos.responses.FreeDriver;
 import models.dtos.responses.GetAllPaginatedResponse;
@@ -40,9 +41,9 @@ public class RideService {
     private List<UUID> idExclusions = new ArrayList<>();
 
     private final BingMapsService mapsService;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
     private final DriverServiceFeignClient driverServiceFeignClient;
     private final DriverNotificationService driverNotificationService;
-    private final KafkaTemplate<String, ChangeDriverStatusEvent> kafkaTemplate;
 
     private final RideMapper rideMapper;
     private final RideDTOMapper rideDTOMapper;
@@ -134,11 +135,10 @@ public class RideService {
         return rideMapper.toRideDTO(repository.save(ride));
     }
 
-    public void recoverRide(ChangeDriverStatusEvent event) {
-        UUID recoveryRideId = event.getRecoveryRideId();
-        Ride ride = repository.findById(recoveryRideId)
+    public void recoverRide(UUID rideId) {
+        Ride ride = repository.findById(rideId)
                 .orElseThrow(() -> new RideNotFoundException("Ride entity with id='%s' cannot be found"
-                        .formatted(recoveryRideId)));
+                        .formatted(rideId)));
         ride.setStatus(RideStatus.IN_RIDE);
         ride.setEndTime(null);
 
@@ -226,6 +226,9 @@ public class RideService {
                 DriverStatus.FREE,
                 ride.getId())
         );
+        kafkaTemplate.send(KafkaConstants.RIDE_PAYMENT_ON_COMPLETE_EVENT, new MakePaymentOnCompleteEvent(
+                ride.getId().toString()
+        ));
         ride.setEndTime(LocalDateTime.now());
     }
 

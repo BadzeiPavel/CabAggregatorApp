@@ -1,4 +1,4 @@
-package com.modsen.ride_service.enums;
+package enums;
 
 public enum PaymentMethod {
     CASH,

@@ -78,9 +78,9 @@ public class PaymentController {
         return ResponseEntity.ok(responseDTO);
     }
 
-    @PutMapping("/{id}/completed")
-    public ResponseEntity<PaymentDTO> makePaymentOnCompletedRide(@PathVariable String id) {
-        PaymentDTO paymentDTO = service.makePaymentOnCompletedRide(id);
+    @PutMapping("/rides/{rideId}/completed")
+    public ResponseEntity<PaymentDTO> makePaymentOnCompletedRide(@PathVariable String rideId) {
+        PaymentDTO paymentDTO = service.makePaymentOnCompletedRide(rideId);
         return ResponseEntity.ok(paymentDTO);
     }
 }

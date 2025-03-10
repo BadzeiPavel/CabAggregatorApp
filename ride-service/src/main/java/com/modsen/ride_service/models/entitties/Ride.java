@@ -1,6 +1,6 @@
 package com.modsen.ride_service.models.entitties;
 
-import com.modsen.ride_service.enums.PaymentMethod;
+import enums.PaymentMethod;
 import com.modsen.ride_service.enums.RideStatus;
 import enums.CarCategory;
 import jakarta.persistence.*;
