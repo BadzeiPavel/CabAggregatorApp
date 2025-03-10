@@ -1,4 +1,4 @@
-package com.modsen.driver_service.configs;
+package com.modsen.ride_service.configs.kafka;
 
 import constants.KafkaConstants;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -10,8 +10,16 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaTopicConfig {
 
     @Bean
-    public NewTopic rideCompletedRecoveryEventsTopic() {
-        return TopicBuilder.name(KafkaConstants.RIDE_COMPLETED_RECOVERY_EVENT)
+    public NewTopic rideCompletedEventsTopic() {
+        return TopicBuilder.name(KafkaConstants.RIDE_COMPLETED_EVENT)
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    public NewTopic ridePaymentEventsTopic() {
+        return TopicBuilder.name(KafkaConstants.RIDE_PAYMENT_ON_COMPLETE_EVENT)
                 .partitions(3)
                 .replicas(1)
                 .build();

@@ -1,4 +1,4 @@
-package com.modsen.driver_service.configs;
+package com.modsen.ride_service.configs.kafka;
 
 import constants.KafkaConstants;
 import models.dtos.events.ChangeDriverStatusEvent;
@@ -18,7 +18,7 @@ import java.util.Map;
 public class KafkaProducerConfig {
 
     @Bean
-    public ProducerFactory<String, ChangeDriverStatusEvent> producerFactory() {
+    public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> config = new HashMap<>();
 
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConstants.PRODUCER_BOOTSTRAP_SERVERS);
@@ -29,7 +29,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, ChangeDriverStatusEvent> kafkaTemplate() {
+    public KafkaTemplate<String, Object> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }

@@ -43,6 +43,6 @@ public class PaymentDTO {
     @Size(max = 7, message = "Promo code cannot exceed 7 characters")
     private String promoCode;
 
-    @NotNull(message = "RideInfo cannot be null")
+    @NotNull(message = "Ride info cannot be null")
     private RideInfo rideInfo;
 }

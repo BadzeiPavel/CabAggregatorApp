@@ -9,6 +9,7 @@ import com.modsen.payment_service.models.RideInfo;
 import com.modsen.payment_service.models.dtos.PaymentDTO;
 import com.modsen.payment_service.models.enitties.Payment;
 import com.modsen.payment_service.repositories.PaymentRepository;
+import enums.PaymentMethod;
 import lombok.RequiredArgsConstructor;
 import models.dtos.responses.GetAllPaginatedResponse;
 import org.springframework.data.domain.Page;
@@ -90,9 +91,18 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentDTO makePaymentOnCompletedRide(String paymentId) {
-        Payment payment = dtoMapper.toPayment(getPayment(paymentId));
+    public PaymentDTO makePaymentOnCompletedRide(String rideId) {
+        Payment payment = repository.findByRideId(rideId)
+                .orElseThrow(() -> new RecordNotFoundException("Payment with ride_id='%s' not found".formatted(rideId)));
+        if(payment.getStatus().equals(PaymentStatus.PAID)) {
+            throw new CannotProceedPaymentException("Ride already paid!");
+        }
+        
         fillInPaymentOnClosing(payment);
+
+        if(payment.getRideInfo().getPaymentMethod().equals(PaymentMethod.CASH)) {
+            return entityMapper.toPaymentDTO(repository.save(payment));
+        }
 
         BigDecimal rideCost = getPaymentCost(payment.getRideId());
         passengerBankAccountService.deductBalance(payment.getPassengerId(), rideCost);

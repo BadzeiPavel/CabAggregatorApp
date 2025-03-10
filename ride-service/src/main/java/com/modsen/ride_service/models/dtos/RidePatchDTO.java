@@ -1,10 +1,9 @@
 package com.modsen.ride_service.models.dtos;
 
-import com.modsen.ride_service.enums.PaymentMethod;
+import enums.PaymentMethod;
 import enums.CarCategory;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

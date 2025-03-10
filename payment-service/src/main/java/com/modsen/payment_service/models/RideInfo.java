@@ -1,6 +1,10 @@
 package com.modsen.payment_service.models;
 
+import enums.CarCategory;
+import enums.PaymentMethod;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,11 +15,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RideInfo {
 
-    @NotBlank(message = "Origin address cannot be empty")
-    @Size(min = 1, max = 100, message = "Origin address must be between 1 and 100 characters")
-    private String originAddress;
+    @NotNull(message = "Payment method cannot be null")
+    private PaymentMethod paymentMethod;
 
-    @NotBlank(message = "Destination address cannot be empty")
-    @Size(min = 1, max = 100, message = "Destination address must be between 1 and 100 characters")
-    private String destinationAddress;
+    @NotNull(message = "Car category cannot be null")
+    private CarCategory carCategory;
+
+    @Positive(message = "Distance must be a positive value")
+    private double distance;
 }
