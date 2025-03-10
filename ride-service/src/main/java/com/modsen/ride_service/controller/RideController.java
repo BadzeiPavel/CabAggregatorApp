@@ -4,6 +4,7 @@ import com.modsen.ride_service.enums.RideStatus;
 import com.modsen.ride_service.models.dtos.RideDTO;
 import com.modsen.ride_service.models.dtos.RidePatchDTO;
 import com.modsen.ride_service.services.RideService;
+import enums.CarCategory;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import models.dtos.responses.GetAllPaginatedResponse;

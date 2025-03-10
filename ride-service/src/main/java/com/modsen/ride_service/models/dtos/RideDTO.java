@@ -66,4 +66,6 @@ public class RideDTO {
 
     @NotNull(message = "Car category cannot be null")
     private CarCategory carCategory;
+
+    private String promoCode;
 }

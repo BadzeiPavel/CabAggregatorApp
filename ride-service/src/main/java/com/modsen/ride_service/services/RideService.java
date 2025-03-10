@@ -5,6 +5,7 @@ import com.modsen.ride_service.exceptions.ErrorServiceResponseException;
 import com.modsen.ride_service.exceptions.InvalidRideStatusException;
 import com.modsen.ride_service.exceptions.RideNotFoundException;
 import com.modsen.ride_service.feign_clients.DriverServiceFeignClient;
+import com.modsen.ride_service.feign_clients.PaymentServiceFeignClient;
 import com.modsen.ride_service.mappers.ride_mappers.RideDTOMapper;
 import com.modsen.ride_service.mappers.ride_mappers.RideMapper;
 import com.modsen.ride_service.models.dtos.DriverNotificationDTO;
@@ -13,10 +14,11 @@ import com.modsen.ride_service.models.dtos.RidePatchDTO;
 import com.modsen.ride_service.models.entitties.Ride;
 import com.modsen.ride_service.repositories.RideRepository;
 import constants.KafkaConstants;
-import enums.CarCategory;
 import enums.DriverStatus;
 import lombok.RequiredArgsConstructor;
 import models.dtos.GetFreeDriverNotInListRequest;
+import models.dtos.PaymentDTO;
+import models.dtos.RideInfo;
 import models.dtos.events.ChangeDriverStatusEvent;
 import models.dtos.events.MakePaymentOnCompleteEvent;
 import models.dtos.requests.ChangeDriverStatusRequest;
@@ -28,9 +30,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import utils.CalculationUtil;
 import utils.PatchUtil;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -41,9 +43,11 @@ public class RideService {
     private List<UUID> idExclusions = new ArrayList<>();
 
     private final BingMapsService mapsService;
+    private final DriverNotificationService driverNotificationService;
+
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final DriverServiceFeignClient driverServiceFeignClient;
-    private final DriverNotificationService driverNotificationService;
+    private final PaymentServiceFeignClient paymentServiceFeignClient;
 
     private final RideMapper rideMapper;
     private final RideDTOMapper rideDTOMapper;
@@ -150,6 +154,22 @@ public class RideService {
         driverServiceFeignClient.changeDriverStatus(driverId, new ChangeDriverStatusRequest(DriverStatus.BUSY));
 
         RideDTO rideDTO = changeRideStatus(rideId, RideStatus.ACCEPTED);
+
+        PaymentDTO paymentDTO = PaymentDTO.builder()
+                .rideId(rideDTO.getId().toString())
+                .passengerId(rideDTO.getPassengerId().toString())
+                .driverId(driverId.toString())
+                .promoCode(rideDTO.getPromoCode())
+                .cost(rideDTO.getCost())
+                .rideInfo(new RideInfo(
+                        rideDTO.getPaymentMethod(),
+                        rideDTO.getCarCategory(),
+                        rideDTO.getDistance()
+                ))
+                .build();
+
+        paymentServiceFeignClient.createPayment(paymentDTO);
+
         rideDTO.setDriverId(driverId);
 
         Ride savedRide = repository.save(rideDTOMapper.toRide(rideDTO));
@@ -160,6 +180,7 @@ public class RideService {
 
     @Transactional
     public RideDTO rejectDriverRequestByRideId(UUID rideId, UUID driverId) {
+        paymentServiceFeignClient.deletePayment(rideId.toString());
         driverServiceFeignClient.changeDriverStatus(driverId, new ChangeDriverStatusRequest(DriverStatus.FREE));
 
         driverNotificationService.changeStatusOnReadByRideIdAndDriverId(rideId, driverId);
@@ -243,12 +264,13 @@ public class RideService {
     private void fillInRideOnCreation(RideDTO rideDTO) {
         Map<String, String> rideDetails = mapsService.getRideDetails(rideDTO);
 
-        // TODO call payment-service to calculate costs and check if passenger balance is enough for ride
-        //  call google maps service to fill in addresses and distance
         double distance = Double.parseDouble(rideDetails.get("distance"));
-        CarCategory carCategory = rideDTO.getCarCategory();
 
-        rideDTO.setCost(BigDecimal.valueOf(10));
+        rideDTO.setCost(CalculationUtil.calculateRideCostByDistanceAndCarCategoryAndPromoCode(
+                distance,
+                rideDTO.getCarCategory(),
+                rideDTO.getPromoCode()
+        ));
 
         rideDTO.setDistance(distance);
         rideDTO.setOriginAddress(rideDetails.get("originAddress"));

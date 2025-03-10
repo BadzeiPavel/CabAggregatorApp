@@ -1,6 +1,5 @@
 package com.modsen.payment_service.config;
 
-import com.modsen.payment_service.models.dtos.PaymentDTO;
 import constants.KafkaConstants;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;

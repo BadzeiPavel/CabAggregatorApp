@@ -1,7 +1,7 @@
 package com.modsen.payment_service.models.enitties;
 
-import com.modsen.payment_service.enums.PaymentStatus;
-import com.modsen.payment_service.models.RideInfo;
+import enums.PaymentStatus;
+import models.dtos.RideInfo;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
