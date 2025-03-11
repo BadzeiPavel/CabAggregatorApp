@@ -1,5 +1,6 @@
 package com.modsen.ride_service.services;
 
+import com.modsen.ride_service.enums.NotificationStatus;
 import com.modsen.ride_service.enums.RideStatus;
 import com.modsen.ride_service.exceptions.ErrorServiceResponseException;
 import com.modsen.ride_service.exceptions.InvalidRideStatusException;
@@ -9,6 +10,7 @@ import com.modsen.ride_service.feign_clients.PaymentServiceFeignClient;
 import com.modsen.ride_service.mappers.ride_mappers.RideDTOMapper;
 import com.modsen.ride_service.mappers.ride_mappers.RideMapper;
 import com.modsen.ride_service.models.dtos.DriverNotificationDTO;
+import com.modsen.ride_service.models.dtos.PassengerNotificationDTO;
 import com.modsen.ride_service.models.dtos.RideDTO;
 import com.modsen.ride_service.models.dtos.RidePatchDTO;
 import com.modsen.ride_service.models.entitties.Ride;
@@ -44,6 +46,7 @@ public class RideService {
 
     private final BingMapsService mapsService;
     private final DriverNotificationService driverNotificationService;
+    private final PassengerNotificationService passengerNotificationService;
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final DriverServiceFeignClient driverServiceFeignClient;
@@ -155,6 +158,11 @@ public class RideService {
 
         RideDTO rideDTO = changeRideStatus(rideId, RideStatus.ACCEPTED);
 
+        passengerNotificationService.createPassengerNotification(PassengerNotificationDTO.builder()
+                .passengerId(rideDTO.getPassengerId())
+                .message("Driver accepted ride request")
+                .build());
+
         PaymentDTO paymentDTO = PaymentDTO.builder()
                 .rideId(rideDTO.getId().toString())
                 .passengerId(rideDTO.getPassengerId().toString())
@@ -187,6 +195,11 @@ public class RideService {
 
         Ride ride = repository.findByRideId(rideId);
         ride.setDriverId(null);
+
+        passengerNotificationService.createPassengerNotification(PassengerNotificationDTO.builder()
+                .passengerId(ride.getPassengerId())
+                .message("Driver rejected ride request")
+                .build());
 
         return sendNotification(repository.save(ride));
     }

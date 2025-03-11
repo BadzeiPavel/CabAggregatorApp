@@ -2,7 +2,6 @@ package com.modsen.ride_service.services;
 
 import com.modsen.ride_service.enums.NotificationStatus;
 import com.modsen.ride_service.exceptions.RideNotFoundException;
-import com.modsen.ride_service.mappers.ride_notification_mappers.DriverRideInfoMapper;
 import com.modsen.ride_service.mappers.ride_notification_mappers.NotificationDTOMapper;
 import com.modsen.ride_service.mappers.ride_notification_mappers.NotificationMapper;
 import com.modsen.ride_service.models.dtos.DriverNotificationDTO;
@@ -15,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,10 +25,10 @@ public class DriverNotificationService {
     private final DriverNotificationRepository repository;
     private final NotificationMapper notificationMapper;
     private final NotificationDTOMapper notificationDTOMapper;
-    private final DriverRideInfoMapper rideInfoMapper;
 
     public DriverNotificationDTO createDriverNotification(DriverNotificationDTO notificationDTO) {
         notificationDTO.setStatus(NotificationStatus.SEND);
+        notificationDTO.setCreatedAt(LocalDateTime.now());
         DriverNotification notification = notificationDTOMapper.toDriverNotification(notificationDTO);
 
         return notificationMapper.toDriverNotificationDTO(repository.save(notification));
@@ -40,7 +40,7 @@ public class DriverNotificationService {
             PageRequest pageRequest
     ) {
         Page<DriverNotification> driverNotificationPage =
-                repository.findByDriverIdAndStatusIsNot(driverId, NotificationStatus.READ, pageRequest);
+                repository.findByDriverId(driverId, pageRequest);
 
         List<DriverNotificationDTO> notificationDTOs = driverNotificationPage.stream()
                 .map(notificationMapper::toDriverNotificationDTO)

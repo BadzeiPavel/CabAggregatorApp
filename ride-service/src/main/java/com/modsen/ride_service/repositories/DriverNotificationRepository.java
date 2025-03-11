@@ -12,9 +12,7 @@ import java.util.UUID;
 
 public interface DriverNotificationRepository extends JpaRepository<DriverNotification, UUID> {
     @EntityGraph(attributePaths = "ride")
-    Page<DriverNotification> findByDriverIdAndStatusIsNot(UUID driverId,
-                                                          NotificationStatus notificationStatus,
-                                                          Pageable pageable);
+    Page<DriverNotification> findByDriverId(UUID driverId, Pageable pageable);
 
     @EntityGraph(attributePaths = "ride")
     Optional<DriverNotification> findByRideIdAndDriverId(

@@ -2,8 +2,13 @@ package com.modsen.ride_service.models.entitties;
 
 import com.modsen.ride_service.enums.NotificationStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -13,27 +18,20 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter @Setter
 @Entity
-@Table(name = "driver_notification")
-public class DriverNotification {
+@Table(name = "passenger_notification")
+public class PassengerNotification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ride_id",
-            referencedColumnName = "id",
-            insertable = false,
-            updatable = false,
-            nullable = false)
-    private Ride ride;
-
-    @NotNull(message = "Ride ID cannot be null")
-    @Column(name = "ride_id", nullable = false)
-    private UUID rideId;
-
     @Column(nullable = false)
-    private UUID driverId;
+    private UUID passengerId;
+
+    @NotBlank(message = "Message cannot be empty")
+    @Size(max = 100, message = "Message must not exceed 100 characters")
+    @Column(nullable = false, length = 100)
+    private String message;
 
     @Enumerated(EnumType.ORDINAL)
     private NotificationStatus status;
