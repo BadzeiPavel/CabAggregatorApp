@@ -1,11 +1,11 @@
 package com.modsen.ride_service.models.dtos;
 
 import com.modsen.ride_service.enums.NotificationStatus;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -22,6 +22,8 @@ public class DriverNotificationDTO {
     @NotNull(message = "Driver ID cannot be null")
     private UUID driverId;
 
-    @Enumerated(EnumType.ORDINAL)
+    @NotNull(message = "Status cannot be null")
     private NotificationStatus status;
+
+    private LocalDateTime createdAt;
 }
