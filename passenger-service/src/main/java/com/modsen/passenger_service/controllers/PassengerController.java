@@ -1,9 +1,8 @@
 package com.modsen.passenger_service.controllers;
 
-import com.modsen.passenger_service.models.dtos.PassengerDTO;
+import models.dtos.PassengerDTO;
 import com.modsen.passenger_service.services.PassengerService;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
 import models.dtos.UserPatchDTO;
 import org.springframework.http.HttpStatus;

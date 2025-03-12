@@ -1,6 +1,6 @@
 package com.modsen.driver_service.controllers;
 
-import com.modsen.driver_service.models.dtos.DriverDTO;
+import models.dtos.DriverDTO;
 import com.modsen.driver_service.services.DriverService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,12 +1,11 @@
 package com.modsen.ride_service.services;
 
-import com.modsen.ride_service.enums.NotificationStatus;
 import com.modsen.ride_service.enums.RideStatus;
 import com.modsen.ride_service.exceptions.ErrorServiceResponseException;
 import com.modsen.ride_service.exceptions.InvalidRideStatusException;
 import com.modsen.ride_service.exceptions.RideNotFoundException;
-import com.modsen.ride_service.feign_clients.DriverServiceFeignClient;
-import com.modsen.ride_service.feign_clients.PaymentServiceFeignClient;
+import com.modsen.ride_service.feign_clients.DriverFeignClient;
+import com.modsen.ride_service.feign_clients.PaymentFeignClient;
 import com.modsen.ride_service.mappers.ride_mappers.RideDTOMapper;
 import com.modsen.ride_service.mappers.ride_mappers.RideMapper;
 import com.modsen.ride_service.models.dtos.DriverNotificationDTO;
@@ -49,8 +48,8 @@ public class RideService {
     private final PassengerNotificationService passengerNotificationService;
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
-    private final DriverServiceFeignClient driverServiceFeignClient;
-    private final PaymentServiceFeignClient paymentServiceFeignClient;
+    private final DriverFeignClient driverFeignClient;
+    private final PaymentFeignClient paymentFeignClient;
 
     private final RideMapper rideMapper;
     private final RideDTOMapper rideDTOMapper;
@@ -126,7 +125,6 @@ public class RideService {
         return rideMapper.toRideDTO(repository.save(ride));
     }
 
-
     @Transactional
     public RideDTO changeRideStatus(UUID id, RideStatus rideStatus) {
         Ride ride = repository.findById(id)
@@ -154,7 +152,7 @@ public class RideService {
 
     @Transactional
     public RideDTO approveDriverRequestByRideIdAndDriverId(UUID rideId, UUID driverId) {
-        driverServiceFeignClient.changeDriverStatus(driverId, new ChangeDriverStatusRequest(DriverStatus.BUSY));
+        driverFeignClient.changeDriverStatus(driverId, new ChangeDriverStatusRequest(DriverStatus.BUSY));
 
         RideDTO rideDTO = changeRideStatus(rideId, RideStatus.ACCEPTED);
 
@@ -176,7 +174,7 @@ public class RideService {
                 ))
                 .build();
 
-        paymentServiceFeignClient.createPayment(paymentDTO);
+        paymentFeignClient.createPayment(paymentDTO);
 
         rideDTO.setDriverId(driverId);
 
@@ -188,8 +186,8 @@ public class RideService {
 
     @Transactional
     public RideDTO rejectDriverRequestByRideId(UUID rideId, UUID driverId) {
-        paymentServiceFeignClient.deletePayment(rideId.toString());
-        driverServiceFeignClient.changeDriverStatus(driverId, new ChangeDriverStatusRequest(DriverStatus.FREE));
+        paymentFeignClient.deletePayment(rideId.toString());
+        driverFeignClient.changeDriverStatus(driverId, new ChangeDriverStatusRequest(DriverStatus.FREE));
 
         driverNotificationService.changeStatusOnReadByRideIdAndDriverId(rideId, driverId);
 
@@ -206,7 +204,7 @@ public class RideService {
 
     private RideDTO sendNotification(Ride ride) {
         UUID freeDriverId = Optional.ofNullable(
-                        driverServiceFeignClient.getFreeDriverNotInList(new GetFreeDriverNotInListRequest(
+                        driverFeignClient.getFreeDriverNotInList(new GetFreeDriverNotInListRequest(
                                 idExclusions,
                                 ride.getSeatsCount(),
                                 ride.getCarCategory()
@@ -214,7 +212,7 @@ public class RideService {
                 )
                 .map(ResponseEntity::getBody)
                 .map(FreeDriver::getDriverId)
-                .orElseThrow(() -> new ErrorServiceResponseException("Driver with status FREE not found"));
+                .orElseThrow(() -> new ErrorServiceResponseException("No available drivers at the moment"));
 
         // add found driver id to exclusion to not send same ride notification again
         idExclusions.add(freeDriverId);

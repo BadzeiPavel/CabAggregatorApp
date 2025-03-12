@@ -2,7 +2,7 @@ package com.modsen.passenger_service.services;
 
 import com.modsen.passenger_service.mappers.PassengerDTOMapper;
 import com.modsen.passenger_service.mappers.PassengerMapper;
-import com.modsen.passenger_service.models.dtos.PassengerDTO;
+import models.dtos.PassengerDTO;
 import com.modsen.passenger_service.models.entities.Passenger;
 import com.modsen.passenger_service.repositories.PassengerRepository;
 import lombok.RequiredArgsConstructor;

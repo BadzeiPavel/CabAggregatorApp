@@ -5,7 +5,7 @@ import constants.KafkaConstants;
 import enums.DriverStatus;
 import com.modsen.driver_service.mappers.driver_mapper.DriverDTOMapper;
 import com.modsen.driver_service.mappers.driver_mapper.DriverMapper;
-import com.modsen.driver_service.models.dtos.DriverDTO;
+import models.dtos.DriverDTO;
 import com.modsen.driver_service.models.entities.Driver;
 import com.modsen.driver_service.repositories.DriverRepository;
 import lombok.RequiredArgsConstructor;

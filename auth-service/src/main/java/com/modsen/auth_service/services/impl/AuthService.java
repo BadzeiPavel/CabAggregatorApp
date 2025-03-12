@@ -1,11 +1,16 @@
 package com.modsen.auth_service.services.impl;
 
+import com.modsen.auth_service.feign_clients.DriverFeignClient;
+import com.modsen.auth_service.feign_clients.PassengerFeignClient;
 import com.modsen.auth_service.models.dto.AuthUserDTO;
 import com.modsen.auth_service.models.dto.LogoutDTO;
+import com.modsen.auth_service.models.dto.RegisterRequest;
 import com.modsen.auth_service.models.entities.User;
 import com.modsen.auth_service.services.IAuthService;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import models.dtos.DriverDTO;
+import models.dtos.PassengerDTO;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -22,12 +27,15 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class AuthService implements IAuthService {
 
     private final Keycloak keycloakClient;
+    private final DriverFeignClient driverFeignClient;
+    private final PassengerFeignClient passengerFeignClient;
 
     @Value("${app.keycloak.token-url}")
     private String tokenUrl;
@@ -57,6 +65,7 @@ public class AuthService implements IAuthService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .map(response -> ResponseEntity.ok().body(response))
+                .retry(3)
                 .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body("Invalid credentials")));
     }
@@ -74,54 +83,81 @@ public class AuthService implements IAuthService {
                 .retrieve()
                 .toBodilessEntity()
                 .map(response -> ResponseEntity.ok("Logged out successfully"))
+                .retry(3)
                 .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body("Logout failed: " + e.getMessage())));
     }
 
     @Override
-    public User register(AuthUserDTO authUserDto) {
-        RealmResource realmResource = keycloakClient.realm(realm);
+    public User register(RegisterRequest request) {
+        UserRepresentation user = createUserRepresentation(request);
+        setCredentials(user, request);
 
-        UserRepresentation user = createUserRepresentation(authUserDto);
-        setCredentials(user, authUserDto);
+        RealmResource realmResource = keycloakClient.realm(realm);
 
         Response response = realmResource.users().create(user);
         String userId = CreatedResponseUtil.getCreatedId(response);
 
-        addRole(realmResource, authUserDto, userId);
+        addRole(realmResource, request, userId);
+
+        sendUserCreationMessage(userId, request);
 
         return User.builder()
                 .id(userId)
-                .username(authUserDto.getUsername())
-                .email(authUserDto.getEmail())
-                .firstName(authUserDto.getFirstName())
-                .lastName(authUserDto.getLastName())
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
                 .build();
     }
 
-    private void addRole(RealmResource realmResource, AuthUserDTO authUserDTO, String userId) {
+    private void sendUserCreationMessage(String userId, RegisterRequest request) {
+        if(request.getRole().equals("PASSENGER")) {
+            passengerFeignClient.createPassenger(PassengerDTO.builder()
+                    .id(UUID.fromString(userId))
+                    .username(request.getUsername())
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
+                    .email(request.getEmail())
+                    .phone(request.getPhone())
+                    .birthDate(request.getBirthDate())
+                    .build());
+        } else if(request.getRole().equals("DRIVER")) {
+            driverFeignClient.createDriver(DriverDTO.builder()
+                    .id(UUID.fromString(userId))
+                    .username(request.getUsername())
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
+                    .email(request.getEmail())
+                    .phone(request.getPhone())
+                    .birthDate(request.getBirthDate())
+                    .build());
+        }
+    }
+
+    private void addRole(RealmResource realmResource, RegisterRequest request, String userId) {
         UserResource userResource = realmResource.users().get(userId);
-        RoleRepresentation role = keycloakClient.realm(realm).roles().get(authUserDTO.getRole()).toRepresentation();
+        RoleRepresentation role = keycloakClient.realm(realm).roles().get(request.getRole()).toRepresentation();
 
         userResource.roles().realmLevel().add(List.of(role));
     }
 
-    private void setCredentials(UserRepresentation userRepresentation, AuthUserDTO authUserDTO) {
+    private void setCredentials(UserRepresentation userRepresentation, RegisterRequest request) {
         CredentialRepresentation credential = new CredentialRepresentation();
         credential.setTemporary(false);
         credential.setType(CredentialRepresentation.PASSWORD);
-        credential.setValue(authUserDTO.getPassword());
+        credential.setValue(request.getPassword());
 
         userRepresentation.setCredentials(List.of(credential));
-        userRepresentation.setRealmRoles(List.of(authUserDTO.getRole()));
-        userRepresentation.setFirstName(authUserDTO.getFirstName());
-        userRepresentation.setLastName(authUserDTO.getLastName());
+        userRepresentation.setRealmRoles(List.of(request.getRole()));
+        userRepresentation.setFirstName(request.getFirstName());
+        userRepresentation.setLastName(request.getLastName());
     }
 
-    private UserRepresentation createUserRepresentation(AuthUserDTO authUserDTO) {
+    private UserRepresentation createUserRepresentation(RegisterRequest request) {
         UserRepresentation user = new UserRepresentation();
-        user.setUsername(authUserDTO.getUsername());
-        user.setEmail(authUserDTO.getEmail());
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
         user.setEmailVerified(true);
         user.setEnabled(true);
 

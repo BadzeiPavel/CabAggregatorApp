@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "payment-service", url = "http://localhost:8086/api/v1/payments")
-public interface PaymentServiceFeignClient {
+@FeignClient(name = "payment-controller", url = "http://localhost:8086/api/v1/payments")
+public interface PaymentFeignClient {
 
     @PostMapping
     ResponseEntity<PaymentDTO> createPayment(@Valid @RequestBody PaymentDTO paymentDTO);
