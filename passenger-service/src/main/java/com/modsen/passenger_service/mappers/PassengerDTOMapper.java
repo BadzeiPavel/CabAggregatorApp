@@ -1,6 +1,6 @@
 package com.modsen.passenger_service.mappers;
 
-import com.modsen.passenger_service.models.dtos.PassengerDTO;
+import models.dtos.PassengerDTO;
 import com.modsen.passenger_service.models.entities.Passenger;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;

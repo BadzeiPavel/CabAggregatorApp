@@ -16,4 +16,4 @@ app:
     url: http://localhost:8080   # Keycloak server URL
     realm: car-aggregator-auth   # Your Keycloak realm
     client-id: auth-service-client    # Client ID for the resource owner password credentials flow
-    client-secret: tOxIgfwX4Zkxyfeno82reCqsvIsjRCOu  # Client secret for the OAuth client
+    client-secret: FiDPXGo4mQKmkRFu8wtDg8IQJ6PdpEU8  # Client secret for the OAuth client

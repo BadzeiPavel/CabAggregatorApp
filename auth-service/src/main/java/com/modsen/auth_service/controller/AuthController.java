@@ -2,6 +2,7 @@ package com.modsen.auth_service.controller;
 
 import com.modsen.auth_service.models.dto.AuthUserDTO;
 import com.modsen.auth_service.models.dto.LogoutDTO;
+import com.modsen.auth_service.models.dto.RegisterRequest;
 import com.modsen.auth_service.models.entities.User;
 import com.modsen.auth_service.services.impl.AuthService;
 import jakarta.validation.Valid;
@@ -27,9 +28,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public Mono<ResponseEntity<User>> register(@Valid @RequestBody AuthUserDTO authUserDTO) {
+    public Mono<ResponseEntity<User>> register(@Valid @RequestBody RegisterRequest request) {
         return Mono.just(ResponseEntity.status(HttpStatus.CREATED)
-                .body(authService.register(authUserDTO)));
+                .body(authService.register(request)));
     }
 
     @PostMapping("/logout")

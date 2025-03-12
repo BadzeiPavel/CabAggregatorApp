@@ -1,4 +1,4 @@
-package com.modsen.passenger_service.models.dtos;
+package com.modsen.auth_service.models.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -6,19 +6,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PassengerDTO {
-
-    private UUID id;
+public class RegisterRequest {
 
     @Size(min = 5, message = "Username must be at least 5 characters long")
     @NotBlank(message = "Username cannot be empty")
     private String username;
+
+    @Size(min = 5, message = "Password must be at least 5 characters long")
+    @NotBlank(message = "Password cannot be empty")
+    private String password;
 
     @Size(min = 2, message = "First name must be at least 2 characters long")
     @NotBlank(message = "First name cannot be empty")
@@ -42,9 +42,6 @@ public class PassengerDTO {
     @NotNull(message = "Birth date cannot be empty")
     private LocalDate birthDate;
 
-    private LocalDateTime createdAt;
-
-    private LocalDateTime lastUpdateAt;
-
-    private boolean isDeleted;
+    @NotBlank(message = "Role cannot be empty")
+    private String role;
 }
