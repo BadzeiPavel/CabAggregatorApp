@@ -21,7 +21,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "driver",
        uniqueConstraints = {@UniqueConstraint(columnNames = "email"),
-                            @UniqueConstraint(columnNames = "username")}
+                            @UniqueConstraint(columnNames = "username"),
+                            @UniqueConstraint(columnNames = "phone")}
 )
 public class Driver {
 

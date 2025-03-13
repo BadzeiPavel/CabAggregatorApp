@@ -19,7 +19,7 @@ public class SecurityConfiguration {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .cors(ServerHttpSecurity.CorsSpec::disable)
                 .authorizeExchange(it -> it
-                        .pathMatchers("/api/v1/auth/**")
+                        .pathMatchers("/api/v1/auth/user/**")
                         .permitAll()
 
                         .anyExchange()

@@ -8,8 +8,8 @@ spring:
   application:
     name: ride-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/ride_db
-    username: postgres
+    url: jdbc:postgresql://localhost:5438/ride_db
+    username: root
     password: root
     driver-class-name: org.postgresql.Driver
   jpa:

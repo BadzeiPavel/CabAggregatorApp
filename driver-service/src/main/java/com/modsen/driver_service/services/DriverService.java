@@ -1,6 +1,7 @@
 package com.modsen.driver_service.services;
 
 import com.modsen.driver_service.exceptions.DriverNotFoundException;
+import com.modsen.driver_service.feign_clients.AuthFeignClient;
 import constants.KafkaConstants;
 import enums.DriverStatus;
 import com.modsen.driver_service.mappers.driver_mapper.DriverDTOMapper;
@@ -36,6 +37,7 @@ public class DriverService {
 
     private final DriverMapper driverMapper;
     private final DriverDTOMapper driverDTOMapper;
+    private final AuthFeignClient authFeignClient;
     private final DriverRepository repository;
 
     @Transactional
@@ -80,6 +82,15 @@ public class DriverService {
         Driver driver = repository.findDriverById(id);
         fillInDriverOnUpdate(driver, driverDTO);
 
+        authFeignClient.patch(id.toString(), new UserPatchDTO(
+                driverDTO.getUsername(),
+                driverDTO.getFirstName(),
+                driverDTO.getLastName(),
+                driverDTO.getEmail(),
+                driverDTO.getPhone(),
+                driverDTO.getBirthDate())
+        );
+
         return driverMapper.toDriverDTO(repository.save(driver));
     }
 
@@ -108,6 +119,8 @@ public class DriverService {
         Driver driver = repository.findDriverById(id);
         fillInDriverOnPatch(driver, userPatchDTO);
 
+        authFeignClient.patch(id.toString(), userPatchDTO);
+
         return driverMapper.toDriverDTO(repository.save(driver));
     }
 
@@ -123,6 +136,8 @@ public class DriverService {
     public DriverDTO softDeleteDriver(UUID id) {
         Driver driver = repository.findDriverById(id);
         driver.setDeleted(true);
+
+        authFeignClient.delete(id.toString());
 
         return driverMapper.toDriverDTO(repository.save(driver));
     }

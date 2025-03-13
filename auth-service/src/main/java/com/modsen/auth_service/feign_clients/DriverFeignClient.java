@@ -4,9 +4,11 @@ import jakarta.validation.Valid;
 import models.dtos.DriverDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+@Service
 @FeignClient(name = "driver-controller", url = "http://localhost:8083/api/v1/drivers")
 public interface DriverFeignClient {
 

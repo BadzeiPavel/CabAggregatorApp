@@ -19,7 +19,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "passenger",
        uniqueConstraints = {@UniqueConstraint(columnNames = "email"),
-                            @UniqueConstraint(columnNames = "username")}
+                            @UniqueConstraint(columnNames = "username"),
+                            @UniqueConstraint(columnNames = "phone")}
 )
 public class Passenger {
 

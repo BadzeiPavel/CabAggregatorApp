@@ -5,9 +5,11 @@ import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 @Configuration
 @EnableConfigurationProperties(KeycloakClientProperties.class)
@@ -26,4 +28,8 @@ public class ClientConfiguration {
                 .build();
     }
 
+    @Bean
+    public HttpMessageConverters messageConverters() {
+        return new HttpMessageConverters(new MappingJackson2HttpMessageConverter());
+    }
 }

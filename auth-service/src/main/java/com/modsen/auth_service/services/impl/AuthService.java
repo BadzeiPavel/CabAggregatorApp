@@ -11,6 +11,7 @@ import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import models.dtos.DriverDTO;
 import models.dtos.PassengerDTO;
+import models.dtos.UserPatchDTO;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -25,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import utils.PatchUtil;
 
 import java.util.List;
 import java.util.UUID;
@@ -109,6 +111,33 @@ public class AuthService implements IAuthService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .build();
+    }
+
+    @Override
+    public ResponseEntity<String> updateUser(String userId, UserPatchDTO userPatchDTO) {
+        RealmResource realmResource = keycloakClient.realm(realm);
+        UserResource userResource = realmResource.users().get(userId);
+
+        UserRepresentation userRepresentation = userResource.toRepresentation();
+
+        PatchUtil.patchIfNotNull(userPatchDTO.getUsername(), userRepresentation::setUsername);
+        PatchUtil.patchIfNotNull(userPatchDTO.getEmail(), userRepresentation::setEmail);
+        PatchUtil.patchIfNotNull(userPatchDTO.getFirstName(), userRepresentation::setFirstName);
+        PatchUtil.patchIfNotNull(userPatchDTO.getLastName(), userRepresentation::setLastName);
+
+        userResource.update(userRepresentation);
+
+        return ResponseEntity.ok("User updated successfully");
+    }
+
+    @Override
+    public ResponseEntity<String> deleteUser(String userId) {
+        RealmResource realmResource = keycloakClient.realm(realm);
+        UserResource userResource = realmResource.users().get(userId);
+
+        userResource.remove();
+
+        return ResponseEntity.ok("User deleted successfully");
     }
 
     private void sendUserCreationMessage(String userId, RegisterRequest request) {
