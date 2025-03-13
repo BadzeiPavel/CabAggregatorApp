@@ -1,5 +1,6 @@
 package com.modsen.passenger_service.services;
 
+import com.modsen.passenger_service.feign_clients.AuthFeignClient;
 import com.modsen.passenger_service.mappers.PassengerDTOMapper;
 import com.modsen.passenger_service.mappers.PassengerMapper;
 import models.dtos.PassengerDTO;
@@ -19,6 +20,7 @@ public class PassengerService {
 
     private final PassengerRepository repository;
     private final PassengerMapper passengerMapper;
+    private final AuthFeignClient authFeignClient;
     private final PassengerDTOMapper passengerDTOMapper;
 
     public PassengerDTO createPassenger(PassengerDTO passengerDTO) {
@@ -37,12 +39,23 @@ public class PassengerService {
         Passenger passenger = repository.getPassengerById(id);
         fillInPassengerOnUpdate(passenger, passengerDTO);
 
+        authFeignClient.patch(id.toString(), new UserPatchDTO(
+                passengerDTO.getUsername(),
+                passengerDTO.getFirstName(),
+                passengerDTO.getLastName(),
+                passengerDTO.getEmail(),
+                passengerDTO.getPhone(),
+                passengerDTO.getBirthDate())
+        );
+
         return passengerMapper.toPassengerDTO(repository.save(passenger));
     }
 
     public PassengerDTO patchPassenger(UUID id, UserPatchDTO userPatchDTO) {
         Passenger passenger = repository.getPassengerById(id);
         fillInPassengerOnPatch(passenger, userPatchDTO);
+
+        authFeignClient.patch(id.toString(), userPatchDTO);
 
         return passengerMapper.toPassengerDTO(repository.save(passenger));
     }
@@ -51,7 +64,9 @@ public class PassengerService {
         Passenger passenger = repository.getPassengerById(id);
         passenger.setDeleted(true);
 
-        return passengerMapper.toPassengerDTO(passenger);
+        authFeignClient.delete(id.toString());
+
+        return passengerMapper.toPassengerDTO(repository.save(passenger));
     }
 
     private static void fillInPassengerOnCreate(Passenger passenger, PassengerDTO passengerDTO) {

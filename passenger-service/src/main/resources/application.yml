@@ -5,8 +5,8 @@ spring:
   application:
     name: passenger-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/passenger_db
-    username: postgres
+    url: jdbc:postgresql://localhost:5436/passenger_db
+    username: root
     password: root
     driver-class-name: org.postgresql.Driver
   jpa:
