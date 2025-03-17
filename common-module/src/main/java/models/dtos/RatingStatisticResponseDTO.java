@@ -1,4 +1,4 @@
-package com.modsen.rating_service.models.dtos;
+package models.dtos;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;

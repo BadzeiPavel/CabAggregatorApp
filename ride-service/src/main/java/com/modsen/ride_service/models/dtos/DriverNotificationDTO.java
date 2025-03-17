@@ -22,6 +22,8 @@ public class DriverNotificationDTO {
     @NotNull(message = "Driver ID cannot be null")
     private UUID driverId;
 
+    private Double passengerRating;
+
     @NotNull(message = "Status cannot be null")
     private NotificationStatus status;
 

@@ -1,7 +1,7 @@
 package com.modsen.rating_service.utils;
 
 import com.modsen.rating_service.models.dtos.RatingDTO;
-import com.modsen.rating_service.models.dtos.RatingStatisticResponseDTO;
+import models.dtos.RatingStatisticResponseDTO;
 
 import java.util.List;
 

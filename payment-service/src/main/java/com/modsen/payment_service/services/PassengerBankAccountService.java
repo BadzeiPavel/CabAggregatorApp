@@ -4,7 +4,7 @@ import com.modsen.payment_service.exceptions.InvalidAmountValueException;
 import com.modsen.payment_service.exceptions.RecordNotFoundException;
 import com.modsen.payment_service.mappers.DtoMapper;
 import com.modsen.payment_service.mappers.EntityMapper;
-import com.modsen.payment_service.models.dtos.PassengerBankAccountDTO;
+import models.dtos.PassengerBankAccountDTO;
 import com.modsen.payment_service.models.enitties.PassengerBankAccount;
 import com.modsen.payment_service.repositories.PassengerBankAccountRepository;
 import lombok.RequiredArgsConstructor;

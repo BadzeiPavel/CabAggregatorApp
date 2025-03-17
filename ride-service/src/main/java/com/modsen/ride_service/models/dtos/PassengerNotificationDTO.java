@@ -28,6 +28,8 @@ public class PassengerNotificationDTO {
     @Size(max = 100, message = "Message must not exceed 100 characters")
     private String message;
 
+    private Double driverRating;
+
     @NotNull(message = "Status cannot be null")
     private NotificationStatus status;
 
