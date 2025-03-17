@@ -4,8 +4,7 @@ import com.modsen.ride_service.enums.RideStatus;
 import com.modsen.ride_service.exceptions.ErrorServiceResponseException;
 import com.modsen.ride_service.exceptions.InvalidRideStatusException;
 import com.modsen.ride_service.exceptions.RideNotFoundException;
-import com.modsen.ride_service.feign_clients.DriverFeignClient;
-import com.modsen.ride_service.feign_clients.PaymentFeignClient;
+import com.modsen.ride_service.feign_clients.*;
 import com.modsen.ride_service.mappers.ride_mappers.RideDTOMapper;
 import com.modsen.ride_service.mappers.ride_mappers.RideMapper;
 import com.modsen.ride_service.models.dtos.DriverNotificationDTO;
@@ -34,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import utils.CalculationUtil;
 import utils.PatchUtil;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -50,6 +50,9 @@ public class RideService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final DriverFeignClient driverFeignClient;
     private final PaymentFeignClient paymentFeignClient;
+    private final DriverRatingFeignClient driverRatingFeignClient;
+    private final PassengerRatingFeignClient passengerRatingFeignClient;
+    private final PassengerBankAccountFeignClient passengerBankAccountFeignClient;
 
     private final RideMapper rideMapper;
     private final RideDTOMapper rideDTOMapper;
@@ -159,6 +162,9 @@ public class RideService {
         passengerNotificationService.createPassengerNotification(PassengerNotificationDTO.builder()
                 .passengerId(rideDTO.getPassengerId())
                 .message("Driver accepted ride request")
+                .driverRating(Objects.requireNonNull(
+                                driverRatingFeignClient.getDriverRatingStatistic(driverId.toString()).getBody())
+                        .getRating())
                 .build());
 
         PaymentDTO paymentDTO = PaymentDTO.builder()
@@ -194,11 +200,6 @@ public class RideService {
         Ride ride = repository.findByRideId(rideId);
         ride.setDriverId(null);
 
-        passengerNotificationService.createPassengerNotification(PassengerNotificationDTO.builder()
-                .passengerId(ride.getPassengerId())
-                .message("Driver rejected ride request")
-                .build());
-
         return sendNotification(repository.save(ride));
     }
 
@@ -226,6 +227,11 @@ public class RideService {
         DriverNotificationDTO notificationDTO = DriverNotificationDTO.builder()
                 .rideId(ride.getId())
                 .driverId(driverId)
+                .passengerRating(
+                        Objects.requireNonNull(passengerRatingFeignClient
+                                .getPassengerRatingStatistic(ride.getPassengerId().toString()).getBody())
+                                .getRating()
+                )
                 .build();
 
         driverNotificationService.createDriverNotification(notificationDTO);
@@ -275,19 +281,32 @@ public class RideService {
     private void fillInRideOnCreation(RideDTO rideDTO) {
         Map<String, String> rideDetails = mapsService.getRideDetails(rideDTO);
 
+
         double distance = Double.parseDouble(rideDetails.get("distance"));
 
-        rideDTO.setCost(CalculationUtil.calculateRideCostByDistanceAndCarCategoryAndPromoCode(
+        BigDecimal cost = CalculationUtil.calculateRideCostByDistanceAndCarCategoryAndPromoCode(
                 distance,
                 rideDTO.getCarCategory(),
                 rideDTO.getPromoCode()
-        ));
+        );
 
+        checkPassengerBalance(rideDTO.getPassengerId().toString(), cost);
+
+        rideDTO.setCost(cost);
         rideDTO.setDistance(distance);
         rideDTO.setOriginAddress(rideDetails.get("originAddress"));
         rideDTO.setDestinationAddress(rideDetails.get("destinationAddress"));
         rideDTO.setStatus(RideStatus.REQUESTED);
         rideDTO.setCreatedAt(LocalDateTime.now());
+    }
+
+    private void checkPassengerBalance(String passengerId, BigDecimal cost) {
+        BigDecimal passengerBalance = Objects.requireNonNull(
+                passengerBankAccountFeignClient.getBalance(passengerId).getBody()
+        ).getBalance();
+        if(passengerBalance.compareTo(cost) < 0) {
+            throw new ErrorServiceResponseException("Insufficient passenger balance");
+        }
     }
 
     // TODO: move fillIns to utils/dto (?)

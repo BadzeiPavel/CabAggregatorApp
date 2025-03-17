@@ -1,4 +1,4 @@
-package com.modsen.payment_service.models.dtos;
+package models.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;

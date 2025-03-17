@@ -1,5 +1,7 @@
 package com.modsen.payment_service.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import models.dtos.PaymentDTO;
 import com.modsen.payment_service.services.PaymentService;
 import jakarta.validation.Valid;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
+@Tag(name = "Payment Controller", description = "CRUD API for payment")
 @RestController
 @RequestMapping("/api/v1/payments")
 @RequiredArgsConstructor
@@ -20,21 +23,25 @@ public class PaymentController {
 
     private final PaymentService service;
 
+    @Operation(summary = "Create payment")
     @PostMapping
     public ResponseEntity<PaymentDTO> createPayment(@Valid @RequestBody PaymentDTO paymentDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.createPayment(paymentDTO));
     }
 
+    @Operation(summary = "Delete payment by ride_id")
     @DeleteMapping("/{rideId}")
     public ResponseEntity<PaymentDTO> deletePayment(@PathVariable String rideId) {
         return ResponseEntity.ok(service.deletePayment(rideId));
     }
 
+    @Operation(summary = "Get payment by id")
     @GetMapping("/{id}")
     public ResponseEntity<PaymentDTO> getPayment(@PathVariable String id) {
         return ResponseEntity.ok(service.getPayment(id));
     }
 
+    @Operation(summary = "Get paginated payments by passenger_id")
     @GetMapping("/passengers/{passengerId}")
     public ResponseEntity<GetAllPaginatedResponse<PaymentDTO>> getPaginatedPaymentsByPassengerId(
             @PathVariable String passengerId,
@@ -46,6 +53,7 @@ public class PaymentController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(summary = "Get paginated passenger payments in date range")
     @GetMapping("/passengers/{passengerId}/date-range")
     public ResponseEntity<GetAllPaginatedResponse<PaymentDTO>> getPaginatedPaymentsByPassengerIdInDateRange(
             @PathVariable String passengerId,
@@ -59,6 +67,7 @@ public class PaymentController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(summary = "Get paginated payments by driver_id")
     @GetMapping("/drivers/{driverId}")
     public ResponseEntity<GetAllPaginatedResponse<PaymentDTO>> getPaginatedPaymentsByDriverId(
             @PathVariable String driverId,
@@ -70,6 +79,7 @@ public class PaymentController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(summary = "Get paginated driver payments in date range")
     @GetMapping("/drivers/{driverId}/date-range")
     public ResponseEntity<GetAllPaginatedResponse<PaymentDTO>> getPaginatedPaymentsByDriverIdInDateRange(
             @PathVariable String driverId,
@@ -83,6 +93,7 @@ public class PaymentController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(summary = "Set payment status to 'COMPLETED' by ride_id")
     @PutMapping("/rides/{rideId}/completed")
     public ResponseEntity<PaymentDTO> makePaymentOnCompletedRide(@PathVariable String rideId) {
         PaymentDTO paymentDTO = service.makePaymentOnCompletedRide(rideId);

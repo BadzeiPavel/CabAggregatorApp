@@ -5,6 +5,8 @@ import com.modsen.ride_service.models.dtos.RideDTO;
 import com.modsen.ride_service.models.dtos.RidePatchDTO;
 import com.modsen.ride_service.services.RideService;
 import enums.CarCategory;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import models.dtos.responses.GetAllPaginatedResponse;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Tag(name = "Ride Controller", description = "CRUD API for ride")
 @RestController
 @RequestMapping("/api/v1/rides")
 @RequiredArgsConstructor
@@ -24,12 +27,14 @@ public class RideController {
 
     private final RideService service;
 
+    @Operation(summary = "Create ride")
     @PostMapping
     public ResponseEntity<RideDTO> createRide(@Valid @RequestBody RideDTO rideDTO) {
         RideDTO createdRideDTO = service.createRide(rideDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRideDTO);
     }
 
+    @Operation(summary = "Approve ride by ride_id", description = "Can be set only by 'DRIVER'")
     @PutMapping("/{rideId}/accept")
     public ResponseEntity<RideDTO> approveDriverRideResponse(
             @PathVariable UUID rideId,
@@ -39,6 +44,7 @@ public class RideController {
         return ResponseEntity.ok(rideDTO);
     }
 
+    @Operation(summary = "Reject ride by ride_id", description = "Can be set only by 'DRIVER'")
     @PutMapping("/{rideId}/reject")
     public ResponseEntity<RideDTO> rejectDriverRideResponse(
             @PathVariable UUID rideId,
@@ -48,12 +54,14 @@ public class RideController {
         return ResponseEntity.ok(rideDTO);
     }
 
+    @Operation(summary = "Get ride by id")
     @GetMapping("/{id}")
     public ResponseEntity<RideDTO> getRide(@PathVariable UUID id) {
         RideDTO rideDTO = service.getRideById(id);
         return ResponseEntity.ok(rideDTO);
     }
 
+    @Operation(summary = "Get paginated rides by passenger_id")
     @GetMapping("/passengers/{passengerId}")
     public ResponseEntity<GetAllPaginatedResponse<RideDTO>> getPaginatedRidesByPassengerId(
             @PathVariable UUID passengerId,
@@ -65,6 +73,7 @@ public class RideController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(summary = "Get paginated rides in date range by passenger_id")
     @GetMapping("/passengers/{passengerId}/date-range")
     public ResponseEntity<GetAllPaginatedResponse<RideDTO>> getPaginatedPassengerRidesInDateRange(
             @PathVariable UUID passengerId,
@@ -78,6 +87,7 @@ public class RideController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(summary = "Get paginated rides by passenger_id")
     @GetMapping("/drivers/{driverId}")
     public ResponseEntity<GetAllPaginatedResponse<RideDTO>> getPaginatedRidesByDriverId(
             @PathVariable UUID driverId,
@@ -89,6 +99,7 @@ public class RideController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(summary = "Get paginated rides in date range by driver_id")
     @GetMapping("/drivers/{driverId}/date-range")
     public ResponseEntity<GetAllPaginatedResponse<RideDTO>> getPaginatedDriverRidesInDateRange(
             @PathVariable UUID driverId,
@@ -102,24 +113,28 @@ public class RideController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @Operation(summary = "Update rides by ride_id")
     @PutMapping("/{id}")
     public ResponseEntity<RideDTO> updateRide(@PathVariable UUID id, @Valid @RequestBody RideDTO rideDTO) {
         RideDTO updatedRideDTO = service.updateRide(id, rideDTO);
         return ResponseEntity.ok(updatedRideDTO);
     }
 
+    @Operation(summary = "Set ride status to 'IN_RIDE'", description = "Can be set only by 'DRIVER'")
     @PutMapping("/{id}/status/in-ride")
-    public ResponseEntity<RideDTO> changeRideStatusOnInRide(@PathVariable UUID id) {
+    public ResponseEntity<RideDTO> changeRideStatusToInRide(@PathVariable UUID id) {
         RideDTO rideDTO = service.changeRideStatus(id, RideStatus.IN_RIDE);
         return ResponseEntity.ok(rideDTO);
     }
 
+    @Operation(summary = "Set ride status to 'COMPLETED'", description = "Can be set only by 'DRIVER'")
     @PutMapping("/{id}/status/completed")
-    public ResponseEntity<RideDTO> changeRideStatusOnCompleted(@PathVariable UUID id) {
+    public ResponseEntity<RideDTO> changeRideStatusToCompleted(@PathVariable UUID id) {
         RideDTO rideDTO = service.changeRideStatus(id, RideStatus.COMPLETED);
         return ResponseEntity.ok(rideDTO);
     }
 
+    @Operation(summary = "Patch ride by id")
     @PatchMapping("/{id}")
     public ResponseEntity<RideDTO> patchRide(@PathVariable UUID id, @Valid @RequestBody RidePatchDTO ridePatchDTO) {
         RideDTO updatedRideDTO = service.patchRide(id, ridePatchDTO);

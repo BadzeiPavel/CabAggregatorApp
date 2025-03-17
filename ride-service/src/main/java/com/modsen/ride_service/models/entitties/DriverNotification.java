@@ -35,6 +35,8 @@ public class DriverNotification {
     @Column(nullable = false)
     private UUID driverId;
 
+    private Double passengerRating;
+
     @Enumerated(EnumType.ORDINAL)
     private NotificationStatus status;
 

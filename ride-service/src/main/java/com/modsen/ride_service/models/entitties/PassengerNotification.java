@@ -33,6 +33,8 @@ public class PassengerNotification {
     @Column(nullable = false, length = 100)
     private String message;
 
+    private Double driverRating;
+
     @Enumerated(EnumType.ORDINAL)
     private NotificationStatus status;
 

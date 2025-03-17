@@ -19,7 +19,12 @@ public class SecurityConfiguration {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .cors(ServerHttpSecurity.CorsSpec::disable)
                 .authorizeExchange(it -> it
-                        .pathMatchers("/api/v1/auth/user/**")
+                        .pathMatchers(
+                                "/api/v1/auth/user/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/webjars/**")
                         .permitAll()
 
                         .anyExchange()

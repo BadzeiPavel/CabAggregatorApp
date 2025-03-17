@@ -5,7 +5,7 @@ import com.modsen.rating_service.mappers.RatingDTOMapper;
 import com.modsen.rating_service.mappers.RatingMapper;
 import com.modsen.rating_service.models.dtos.RatingDTO;
 import com.modsen.rating_service.models.dtos.RatingPatchDTO;
-import com.modsen.rating_service.models.dtos.RatingStatisticResponseDTO;
+import models.dtos.RatingStatisticResponseDTO;
 import com.modsen.rating_service.models.entities.PassengerRating;
 import com.modsen.rating_service.repositories.PassengerRatingRepository;
 import com.modsen.rating_service.utils.CalculationUtil;
@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import utils.PatchUtil;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -89,9 +90,7 @@ public class PassengerRatingService {
     private List<RatingDTO> getAllPassengerRatingsByDriverId(String id) {
         List<PassengerRating> passengerRatings = Optional.ofNullable(repository.findByPassengerIdAndIsDeletedFalse(id))
                 .filter(list -> !list.isEmpty())
-                .orElseThrow(() ->
-                        new RatingNotFoundException("There is no any record in 'passenger_rating' table")
-                );
+                .orElse(new ArrayList<>());
 
         return passengerRatings.stream()
                 .map(ratingMapper::toRatingDTO)

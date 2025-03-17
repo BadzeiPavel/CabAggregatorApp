@@ -1,7 +1,7 @@
 package com.modsen.payment_service.mappers;
 
 import com.modsen.payment_service.models.dtos.DriverBankAccountDTO;
-import com.modsen.payment_service.models.dtos.PassengerBankAccountDTO;
+import models.dtos.PassengerBankAccountDTO;
 import models.dtos.PaymentDTO;
 import com.modsen.payment_service.models.enitties.DriverBankAccount;
 import com.modsen.payment_service.models.enitties.PassengerBankAccount;
