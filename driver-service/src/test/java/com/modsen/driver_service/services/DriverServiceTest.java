@@ -62,8 +62,8 @@ class DriverServiceTest {
     void setUp() {
         testDriver = new Driver(
                 driverId,
-                null,       // Car entity
-                null,       // carId
+                null,
+                null,
                 "john_doe",
                 "John",
                 "Doe",
@@ -78,7 +78,7 @@ class DriverServiceTest {
 
         testDriverDTO = new DriverDTO(
                 driverId,
-                null,       // carId
+                null,
                 "john_doe",
                 "John",
                 "Doe",
@@ -109,7 +109,7 @@ class DriverServiceTest {
     void getFreeDriverNotInList_ValidRequest_ReturnsDriver() {
         GetFreeDriverNotInListRequest request = new GetFreeDriverNotInListRequest(
                 List.of(UUID.randomUUID()),
-                (short) 4,  // int seatsCount
+                (short) 4,
                 CarCategory.ECONOMY
         );
 
@@ -130,7 +130,7 @@ class DriverServiceTest {
         verify(repository).findFirstFreeNotInList(
                 request.getDriverIdExclusions(),
                 DriverStatus.FREE,
-                request.getSeatsCount(), // Cast to short
+                request.getSeatsCount(),
                 request.getCarCategory()
         );
     }
@@ -181,13 +181,10 @@ class DriverServiceTest {
 
     @Test
     void softDeleteDriver_ValidId_MarksAsDeleted() {
-        // Arrange
         when(repository.findDriverById(driverId)).thenReturn(testDriver);
 
-        // Act
         driverService.softDeleteDriver(driverId);
 
-        // Assert
         assertTrue(testDriver.isDeleted());
         verify(authFeignClient).delete(driverId.toString());
         verify(repository).save(testDriver);
@@ -195,21 +192,17 @@ class DriverServiceTest {
 
     @Test
     void assignCarId_ValidParameters_UpdatesCarId() {
-        // Arrange
         UUID carId = UUID.randomUUID();
         when(repository.findDriverById(driverId)).thenReturn(testDriver);
 
-        // Act
         driverService.assignCarId(driverId, carId);
 
-        // Assert
         assertEquals(carId, testDriver.getCarId());
         verify(repository).save(testDriver);
     }
 
     @Test
     void patchDriver_ValidPatch_UpdatesSelectedFields() {
-        // Arrange
         UserPatchDTO patchDTO = new UserPatchDTO();
         patchDTO.setFirstName("James");
         patchDTO.setEmail("james@example.com");
@@ -218,10 +211,8 @@ class DriverServiceTest {
         when(repository.save(testDriver)).thenReturn(testDriver);
         when(driverMapper.toDriverDTO(testDriver)).thenReturn(testDriverDTO);
 
-        // Act
         driverService.patchDriver(driverId, patchDTO);
 
-        // Assert
         assertEquals("James", testDriver.getFirstName());
         assertEquals("james@example.com", testDriver.getEmail());
         verify(authFeignClient).patch(eq(driverId.toString()), eq(patchDTO));
