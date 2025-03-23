@@ -4,13 +4,14 @@ import com.modsen.payment_service.models.dtos.PaymentDTO;
 import com.modsen.payment_service.services.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllPaginatedResponseDTO;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/payments")
@@ -30,41 +31,51 @@ public class PaymentController {
     }
 
     @GetMapping("/passengers/{passengerId}")
-    public ResponseEntity<List<PaymentDTO>> getPaymentsByPassengerId(@PathVariable String passengerId) {
-        return ResponseEntity.ok(service.getPaymentsByPassengerId(passengerId));
+    public ResponseEntity<GetAllPaginatedResponseDTO<PaymentDTO>> getPaginatedPaymentsByPassengerId(
+            @PathVariable String passengerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        GetAllPaginatedResponseDTO<PaymentDTO> responseDTO =
+                service.getPaginatedPaymentsByPassengerId(passengerId, PageRequest.of(page, size));
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/passengers/{passengerId}/date-range")
-    public ResponseEntity<List<PaymentDTO>> getPaymentsByPassengerIdInDateRange(@PathVariable String passengerId,
-                                                                                @RequestParam @DateTimeFormat(
-                                                                                    iso = DateTimeFormat.ISO.DATE_TIME
-                                                                                )
-                                                                                LocalDateTime timeFrom,
-                                                                                @RequestParam @DateTimeFormat(
-                                                                                        iso = DateTimeFormat.ISO.DATE_TIME
-                                                                                )
-                                                                                LocalDateTime timeTo) {
-        List<PaymentDTO> payments = service.getPaymentsByPassengerIdInDateRange(passengerId, timeFrom, timeTo);
-        return ResponseEntity.ok(payments);
+    public ResponseEntity<GetAllPaginatedResponseDTO<PaymentDTO>> getPaginatedPaymentsByPassengerIdInDateRange(
+            @PathVariable String passengerId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        GetAllPaginatedResponseDTO<PaymentDTO> responseDTO =
+                service.getPaginatedPaymentsByPassengerIdInDateRange(passengerId, from, to, PageRequest.of(page, size));
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/drivers/{driverId}")
-    public ResponseEntity<List<PaymentDTO>> getPaymentsByDriverId(@PathVariable String driverId) {
-        return ResponseEntity.ok(service.getPaymentsByDriverId(driverId));
+    public ResponseEntity<GetAllPaginatedResponseDTO<PaymentDTO>> getPaginatedPaymentsByDriverId(
+            @PathVariable String driverId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        GetAllPaginatedResponseDTO<PaymentDTO> responseDTO =
+                service.getPaginatedPaymentsByDriverId(driverId, PageRequest.of(page, size));
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/drivers/{driverId}/date-range")
-    public ResponseEntity<List<PaymentDTO>> getPaymentsByDriverIdInDateRange(@PathVariable String passengerId,
-                                                                             @RequestParam @DateTimeFormat(
-                                                                                     iso = DateTimeFormat.ISO.DATE_TIME
-                                                                             )
-                                                                             LocalDateTime timeFrom,
-                                                                             @RequestParam @DateTimeFormat(
-                                                                                     iso = DateTimeFormat.ISO.DATE_TIME
-                                                                             )
-                                                                             LocalDateTime timeTo) {
-        List<PaymentDTO> payments = service.getPaymentsByDriverIdInDateRange(passengerId, timeFrom, timeTo);
-        return ResponseEntity.ok(payments);
+    public ResponseEntity<GetAllPaginatedResponseDTO<PaymentDTO>> getPaginatedPaymentsByDriverIdInDateRange(
+            @PathVariable String driverId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        GetAllPaginatedResponseDTO<PaymentDTO> responseDTO =
+                service.getPaginatedPaymentsByDriverIdInDateRange(driverId, from, to, PageRequest.of(page, size));
+        return ResponseEntity.ok(responseDTO);
     }
 
     @PutMapping("/{id}/completed")
@@ -72,5 +83,4 @@ public class PaymentController {
         PaymentDTO paymentDTO = service.makePaymentOnCompletedRide(id);
         return ResponseEntity.ok(paymentDTO);
     }
-
 }

@@ -21,4 +21,4 @@ app:
     logout-url: ${app.keycloak.url}/realms/${app.keycloak.realm}/protocol/openid-connect/logout
     client:
       id: auth-service-client
-      secret: bC9jzlEZps6jrLQjv0xl4kMZv2U3Mkvs
+      secret: tOxIgfwX4Zkxyfeno82reCqsvIsjRCOu

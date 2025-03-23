@@ -3,13 +3,18 @@ package com.modsen.driver_service.services;
 import com.modsen.driver_service.mappers.car_mapper.CarDTOMapper;
 import com.modsen.driver_service.mappers.car_mapper.CarMapper;
 import com.modsen.driver_service.models.dtos.CarDTO;
+import com.modsen.driver_service.models.dtos.CarPatchDTO;
 import com.modsen.driver_service.models.entities.Car;
 import com.modsen.driver_service.repositories.CarRepository;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllPaginatedResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import utils.PatchUtil;
 
-import java.util.Collections;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,6 +31,8 @@ public class CarService {
     @Transactional
     public CarDTO createCar(CarDTO carDTO) {
         Car car = carDTOMapper.toCar(carDTO);
+        fillInCarDTOOnCreate(car);
+
         Car savedCar = repository.save(car);
 
         driverService.assignCarId(savedCar.getDriverId(), savedCar.getId());
@@ -39,19 +46,32 @@ public class CarService {
         return carMapper.toCarDTO(car);
     }
 
-    public List<CarDTO> getAll() {
-        return repository.findByIsDeletedFalse()
-                .orElse(Collections.emptyList())
-                .stream()
+    public GetAllPaginatedResponseDTO<CarDTO> getPaginatedCars(PageRequest pageRequest) {
+        Page<Car> carPage = repository.findByIsDeletedFalse(pageRequest);
+
+        List<CarDTO> carDTOs = carPage.stream()
                 .map(carMapper::toCarDTO)
                 .toList();
+
+        return new GetAllPaginatedResponseDTO<>(
+                carDTOs,
+                carPage.getTotalPages(),
+                carPage.getTotalElements()
+        );
     }
 
     public CarDTO updateCar(UUID id, CarDTO carDTO) {
-        repository.checkCarExistenceById(id);
-        Car mappedCar = carDTOMapper.toCar(carDTO);
+        Car car = repository.getCarById(id);
+        fillInCarOnUpdate(car, carDTO);
 
-        return carMapper.toCarDTO(repository.save(mappedCar));
+        return carMapper.toCarDTO(repository.save(car));
+    }
+
+    public CarDTO patchCar(UUID id, CarPatchDTO carPatchDTO) {
+        Car car = repository.getCarById(id);
+        fillInCarOnPatch(car, carPatchDTO);
+
+        return carMapper.toCarDTO(repository.save(car));
     }
 
     public CarDTO softDeleteCar(UUID id) {
@@ -59,5 +79,29 @@ public class CarService {
         car.setDeleted(true);
 
         return carMapper.toCarDTO(repository.save(car));
+    }
+
+    private static void fillInCarDTOOnCreate(Car car) {
+        car.setDeleted(false);
+        car.setCreatedAt(LocalDateTime.now());
+    }
+
+    private static void fillInCarOnUpdate(Car car, CarDTO carDTO) {
+        car.setNumber(carDTO.getNumber());
+        car.setSeatsCount(carDTO.getSeatsCount());
+        car.setColor(carDTO.getColor());
+        car.setBrand(carDTO.getBrand());
+        car.setModel(carDTO.getModel());
+        car.setCarCategory(carDTO.getCarCategory());
+    }
+
+    private static void fillInCarOnPatch(Car car, CarPatchDTO carPatchDTO) {
+        PatchUtil.patchIfNotNull(carPatchDTO.getNumber(), car::setNumber);
+        PatchUtil.patchIfNotNull(carPatchDTO.getSeatsCount(), car::setSeatsCount);
+        PatchUtil.patchIfNotNull(carPatchDTO.getColor(), car::setColor);
+        PatchUtil.patchIfNotNull(carPatchDTO.getBrand(), car::setBrand);
+        PatchUtil.patchIfNotNull(carPatchDTO.getModel(), car::setModel);
+        PatchUtil.patchIfNotNull(carPatchDTO.getCarCategory(), car::setCarCategory);
+        car.setLastUpdateAt(LocalDateTime.now());
     }
 }

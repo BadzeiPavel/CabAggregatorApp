@@ -4,11 +4,12 @@ import com.modsen.ride_service.models.dtos.DriverNotificationDTO;
 import com.modsen.ride_service.services.DriverNotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllPaginatedResponseDTO;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -19,17 +20,21 @@ public class DriverNotificationController {
     private final DriverNotificationService service;
 
     @PostMapping
-    public ResponseEntity<DriverNotificationDTO> createDriverNotification(@Valid
-                                                                          @RequestBody
-                                                                          DriverNotificationDTO notificationDTO) {
+    public ResponseEntity<DriverNotificationDTO> createDriverNotification(
+            @Valid @RequestBody DriverNotificationDTO notificationDTO
+    ) {
         DriverNotificationDTO createdNotificationDTO = service.createDriverNotification(notificationDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdNotificationDTO);
     }
 
     @GetMapping("/{driverId}")
-    public ResponseEntity<List<DriverNotificationDTO>> getDriverNotificationsByDriverId(@PathVariable UUID driverId) {
-        List<DriverNotificationDTO> notificationDTOs = service.getDriverNotificationsByDriverId(driverId);
-        return ResponseEntity.ok(notificationDTOs);
+    public ResponseEntity<GetAllPaginatedResponseDTO<DriverNotificationDTO>> getPaginatedDriverNotificationsByDriverId(
+            @PathVariable UUID driverId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        GetAllPaginatedResponseDTO<DriverNotificationDTO> responseDTO =
+                service.getPaginatedDriverNotificationsByDriverId(driverId, PageRequest.of(page, size));
+        return ResponseEntity.ok(responseDTO);
     }
-
 }

@@ -17,9 +17,9 @@ public class DriverBankAccountController {
     private final DriverBankAccountService service;
 
     @PostMapping
-    public ResponseEntity<DriverBankAccountDTO> createBankAccount(@Valid
-                                                                  @RequestBody
-                                                                  DriverBankAccountDTO bankAccountDTO) {
+    public ResponseEntity<DriverBankAccountDTO> createBankAccount(
+            @Valid @RequestBody DriverBankAccountDTO bankAccountDTO
+    ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.createBankAccount(bankAccountDTO));
     }
 
@@ -29,18 +29,18 @@ public class DriverBankAccountController {
     }
 
     @PutMapping("{id}/top-up")
-    public ResponseEntity<DriverBankAccountDTO> topUpBalance(@PathVariable String id,
-                                                             @Valid
-                                                             @RequestBody
-                                                             ChangeBalanceRequestDTO changeBalanceRequestDTO) {
+    public ResponseEntity<DriverBankAccountDTO> topUpBalance(
+            @PathVariable String id,
+            @Valid @RequestBody ChangeBalanceRequestDTO changeBalanceRequestDTO
+    ) {
         return ResponseEntity.ok(service.topUpBalance(id, changeBalanceRequestDTO.getAmount()));
     }
 
     @PutMapping("{id}/deduct")
-    public ResponseEntity<DriverBankAccountDTO> deductBalance(@PathVariable String id,
-                                                              @Valid
-                                                              @RequestBody
-                                                              ChangeBalanceRequestDTO changeBalanceRequestDTO) {
+    public ResponseEntity<DriverBankAccountDTO> deductBalance(
+            @PathVariable String id,
+            @Valid @RequestBody ChangeBalanceRequestDTO changeBalanceRequestDTO
+    ) {
         return ResponseEntity.ok(service.deductBalance(id, changeBalanceRequestDTO.getAmount()));
     }
 }

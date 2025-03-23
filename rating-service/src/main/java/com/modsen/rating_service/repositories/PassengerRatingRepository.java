@@ -2,6 +2,8 @@ package com.modsen.rating_service.repositories;
 
 import com.modsen.rating_service.exceptions.RatingNotFoundException;
 import com.modsen.rating_service.models.entities.PassengerRating;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,11 +16,7 @@ public interface PassengerRatingRepository extends MongoRepository<PassengerRati
     List<PassengerRating> findByPassengerIdAndIsDeletedFalse(String id);
     Optional<PassengerRating> findByIdAndIsDeletedFalse(String id);
 
-    default void checkPassengerRatingExistenceById(String id) {
-        if(findByIdAndIsDeletedFalse(id).isEmpty()) {
-            throw new RatingNotFoundException("Rating entity with id='%s' not found".formatted(id));
-        }
-    }
+    Page<PassengerRating> findByPassengerIdAndIsDeletedFalse(String id, Pageable pageable);
 
     default PassengerRating getPassengerRatingById(String id) {
         return findByIdAndIsDeletedFalse(id)

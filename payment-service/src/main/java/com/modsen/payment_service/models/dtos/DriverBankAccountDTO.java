@@ -20,7 +20,6 @@ public class DriverBankAccountDTO {
     @Size(min = 1, max = 50, message = "Driver ID must be between 1 and 50 characters")
     private String driverId;
 
-    @NotNull(message = "Balance cannot be null")
     @Min(value = 0, message = "Balance cannot be negative")
     private BigDecimal balance;
 }

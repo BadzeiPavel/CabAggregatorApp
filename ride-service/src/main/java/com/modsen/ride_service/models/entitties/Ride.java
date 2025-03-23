@@ -31,7 +31,6 @@ public class Ride {
     @Column(nullable = false)
     private UUID passengerId;
 
-    @NotNull(message = "Driver ID cannot be null")
     @Column(nullable = false)
     private UUID driverId;
 
@@ -70,7 +69,7 @@ public class Ride {
 
     @UpdateTimestamp
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private LocalDateTime lastUpdateAt;
 
     @Min(value = 1, message = "Seats must be at least 1")
     @Max(value = 5, message = "Seats must be at most 5")

@@ -24,7 +24,6 @@ import java.util.UUID;
 public class Passenger {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Size(min = 5, message = "Username must be at least 5 characters long")

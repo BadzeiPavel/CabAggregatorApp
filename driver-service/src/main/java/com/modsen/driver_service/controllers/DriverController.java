@@ -5,11 +5,13 @@ import com.modsen.driver_service.models.dtos.DriverDTO;
 import com.modsen.driver_service.services.DriverService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllPaginatedResponseDTO;
+import models.dtos.UserPatchDTO;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -32,13 +34,21 @@ public class DriverController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DriverDTO>> getDrivers() {
-        return ResponseEntity.ok(service.getAll());
+    public ResponseEntity<GetAllPaginatedResponseDTO<DriverDTO>> getPaginatedDrivers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        GetAllPaginatedResponseDTO<DriverDTO> drivers = service.getPaginatedDrivers(PageRequest.of(page, size));
+        return ResponseEntity.ok(drivers);
     }
 
     @GetMapping("/free")
-    public ResponseEntity<List<DriverDTO>> getFreeDrivers() {
-        List<DriverDTO> freeDrivers = service.getDriversByStatus(DriverStatus.FREE);
+    public ResponseEntity<GetAllPaginatedResponseDTO<DriverDTO>> getPaginatedFreeDrivers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        GetAllPaginatedResponseDTO<DriverDTO> freeDrivers =
+                service.getPaginatedDriversByStatus(DriverStatus.FREE, PageRequest.of(page, size));
         return ResponseEntity.ok(freeDrivers);
     }
 
@@ -46,6 +56,12 @@ public class DriverController {
     public ResponseEntity<DriverDTO> updateDriver(@PathVariable UUID id, @Valid @RequestBody DriverDTO driverDTO) {
         DriverDTO updatedDriverDTO = service.updateDriver(id, driverDTO);
         return ResponseEntity.ok(updatedDriverDTO);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<DriverDTO> patchDriver(@PathVariable UUID id, @Valid @RequestBody UserPatchDTO userPatchDTO) {
+        DriverDTO driverDTO = service.patchDriver(id, userPatchDTO);
+        return ResponseEntity.ok(driverDTO);
     }
 
     @DeleteMapping("/{id}")

@@ -8,11 +8,16 @@ import com.modsen.ride_service.mappers.ride_mappers.RideMapper;
 import com.modsen.ride_service.models.dtos.ChangeRideStatusRequestDTO;
 import com.modsen.ride_service.models.dtos.DriverNotificationDTO;
 import com.modsen.ride_service.models.dtos.RideDTO;
+import com.modsen.ride_service.models.dtos.RidePatchDTO;
 import com.modsen.ride_service.models.entitties.Ride;
 import com.modsen.ride_service.repositories.RideRepository;
 import lombok.RequiredArgsConstructor;
+import models.dtos.GetAllPaginatedResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import utils.PatchUtil;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -51,39 +56,53 @@ public class RideService {
         return rideMapper.toRideDTO(ride);
     }
 
-    public List<RideDTO> getRidesByPassengerId(UUID passengerId) {
-        return repository.findByPassengerId(passengerId).stream()
-                .map(rideMapper::toRideDTO)
-                .toList();
+    public GetAllPaginatedResponseDTO<RideDTO> getPaginatedRidesByPassengerId(
+            UUID passengerId,
+            PageRequest pageRequest
+    ) {
+        Page<Ride> ridePage = repository.findByPassengerId(passengerId, pageRequest);
+
+        return getAllPaginatedResponseDTO(ridePage);
     }
 
-    public List<RideDTO> getPassengerRidesInDateRange(UUID passengerId,
-                                                      LocalDateTime timeFrom,
-                                                      LocalDateTime timeTo) {
-        return repository.findByPassengerIdAndCreatedAtIsBetween(passengerId, timeFrom, timeTo).stream()
-                .map(rideMapper::toRideDTO)
-                .toList();
+    public GetAllPaginatedResponseDTO<RideDTO> getPaginatedPassengerRidesInDateRange(
+            UUID passengerId,
+            LocalDateTime from,
+            LocalDateTime to,
+            PageRequest pageRequest
+    ) {
+        Page<Ride> ridePage = repository.findByPassengerIdAndCreatedAtIsBetween(passengerId, from, to, pageRequest);
+
+        return getAllPaginatedResponseDTO(ridePage);
     }
 
-    public List<RideDTO> getDriverRidesInDateRange(UUID driverId,
-                                                   LocalDateTime timeFrom,
-                                                   LocalDateTime timeTo) {
-        return repository.findByDriverIdAndCreatedAtIsBetween(driverId, timeFrom, timeTo).stream()
-                .map(rideMapper::toRideDTO)
-                .toList();
+    public GetAllPaginatedResponseDTO<RideDTO> getPaginatedDriverRidesInDateRange(
+            UUID driverId,
+            LocalDateTime from,
+            LocalDateTime to,
+            PageRequest pageRequest
+    ) {
+        Page<Ride> ridePage = repository.findByDriverIdAndCreatedAtIsBetween(driverId, from, to, pageRequest);
+
+        return getAllPaginatedResponseDTO(ridePage);
     }
 
-    public List<RideDTO> getRidesByDriverId(UUID driverId) {
-        return repository.findByDriverId(driverId).stream()
-                .filter(ride -> ride.getPassengerId() != null)
-                .map(rideMapper::toRideDTO)
-                .toList();
+    public GetAllPaginatedResponseDTO<RideDTO> getPaginatedRidesByDriverId(UUID driverId, PageRequest pageRequest) {
+        Page<Ride> ridePage = repository.findByDriverId(driverId, pageRequest);
+
+        return getAllPaginatedResponseDTO(ridePage);
     }
 
     public RideDTO updateRide(UUID rideId, RideDTO rideDTO) {
         Ride ride = repository.checkRideExistence(rideId);
         fillInRideOnUpdate(ride, rideDTO);
-        ride = rideDTOMapper.toRide(rideDTO);
+
+        return rideMapper.toRideDTO(repository.save(ride));
+    }
+
+    public RideDTO patchRide(UUID rideId, RidePatchDTO ridePatchDTO) {
+        Ride ride = repository.checkRideExistence(rideId);
+        fillInRideOnPatch(ride, ridePatchDTO);
 
         return rideMapper.toRideDTO(repository.save(ride));
     }
@@ -121,6 +140,7 @@ public class RideService {
         // TODO: send synchronous request to get 'FREE' driver id and NOT IN 'driverIds' List
         //  replace line below ^
         UUID driverId = UUID.fromString("b2f1b850-4d5b-11ec-81d3-0242ac130004");
+        ride.setDriverId(driverId);
 
         driverIds.add(driverId);
 
@@ -143,12 +163,12 @@ public class RideService {
                 .orElseThrow(() -> new RideNotFoundException("Ride entity with id='%s' cannot be found"
                         .formatted(id)));
 
-        if (!rideStatus.canBeObtainedFrom().contains(ride.getStatus())) {
+        if(!rideStatus.canBeObtainedFrom().contains(ride.getStatus())) {
             throw new InvalidRideStatusException("Status '%s' cannot be set".formatted(rideStatus));
         }
 
         ride.setStatus(rideStatus);
-        switch (ride.getStatus()) {
+        switch(ride.getStatus()) {
             case IN_RIDE -> ride.setStartTime(LocalDateTime.now());
             case COMPLETED -> {
                 // TODO send req via Kafka to payment-service
@@ -160,25 +180,45 @@ public class RideService {
         return ride;
     }
 
-    // TODO: move fillIns to utils/dto (?)
-    private void fillInRideOnUpdate(Ride ride, RideDTO rideDTO) {
-        rideDTO.setId(ride.getId());
-        rideDTO.setUpdatedAt(LocalDateTime.now());
-        rideDTO.setCost(ride.getCost());
-        rideDTO.setStatus(ride.getStatus());
-        rideDTO.setStartTime(ride.getStartTime());
-        rideDTO.setEndTime(ride.getEndTime());
-        rideDTO.setCreatedAt(ride.getCreatedAt());
-        rideDTO.setUpdatedAt(ride.getUpdatedAt());
+    private GetAllPaginatedResponseDTO<RideDTO> getAllPaginatedResponseDTO(Page<Ride> ridePage) {
+        List<RideDTO> rideDTOs = ridePage.stream()
+                .map(rideMapper::toRideDTO)
+                .toList();
+
+        return new GetAllPaginatedResponseDTO<>(
+                rideDTOs,
+                ridePage.getTotalPages(),
+                ridePage.getTotalElements()
+        );
     }
 
-    private void fillInRideOnCreation(RideDTO rideDTO) {
+    private static void fillInRideOnCreation(RideDTO rideDTO) {
         // TODO call payment-service to calculate costs
         rideDTO.setCost(BigDecimal.valueOf(10));
         rideDTO.setStatus(RideStatus.REQUESTED);
         rideDTO.setStartTime(null);
         rideDTO.setEndTime(null);
         rideDTO.setCreatedAt(LocalDateTime.now());
-        rideDTO.setUpdatedAt(null);
+        rideDTO.setLastUpdateAt(null);
+    }
+
+    // TODO: move fillIns to utils/dto (?)
+    private static void fillInRideOnUpdate(Ride ride, RideDTO rideDTO) {
+        ride.setPassengerId(rideDTO.getPassengerId());
+        ride.setPickupAddress(rideDTO.getPickupAddress());
+        ride.setDestinationAddress(rideDTO.getDestinationAddress());
+        ride.setSeatsCount(rideDTO.getSeatsCount());
+        ride.setCarCategory(rideDTO.getCarCategory());
+        ride.setPaymentMethod(rideDTO.getPaymentMethod());
+        ride.setLastUpdateAt(LocalDateTime.now());
+    }
+
+    private static void fillInRideOnPatch(Ride ride, RidePatchDTO ridePatchDTO) {
+        PatchUtil.patchIfNotNull(ridePatchDTO.getPickupAddress(), ride::setPickupAddress);
+        PatchUtil.patchIfNotNull(ridePatchDTO.getDestinationAddress(), ride::setDestinationAddress);
+        PatchUtil.patchIfNotNull(ridePatchDTO.getSeatsCount(), ride::setSeatsCount);
+        PatchUtil.patchIfNotNull(ridePatchDTO.getCarCategory(), ride::setCarCategory);
+        PatchUtil.patchIfNotNull(ridePatchDTO.getPaymentMethod(), ride::setPaymentMethod);
+        ride.setLastUpdateAt(LocalDateTime.now());
     }
 }

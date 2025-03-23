@@ -13,7 +13,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ChangeRideStatusRequestDTO {
 
-    @NotNull(message = "Driver ID cannot be null")
     private UUID driverId;
 
     @NotNull(message = "Ride status cannot be null")
