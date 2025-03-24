@@ -15,6 +15,7 @@ import java.util.UUID;
 @Repository
 public interface CarRepository extends JpaRepository<Car, UUID> {
     Optional<Car> findByIdAndIsDeletedFalse(UUID id);
+    Optional<Car> findByDriverId(UUID driverId);
 
     Page<Car> findByIsDeletedFalse(Pageable pageable);
 

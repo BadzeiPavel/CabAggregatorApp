@@ -1,10 +1,11 @@
-package com.modsen.driver_service.services;
+package com.modsen.driver_service.unit.services;
 
 import com.modsen.driver_service.feign_clients.AuthFeignClient;
 import com.modsen.driver_service.mappers.driver_mapper.DriverDTOMapper;
 import com.modsen.driver_service.mappers.driver_mapper.DriverMapper;
 import com.modsen.driver_service.models.entities.Driver;
 import com.modsen.driver_service.repositories.DriverRepository;
+import com.modsen.driver_service.services.DriverService;
 import enums.CarCategory;
 import enums.DriverStatus;
 import models.dtos.DriverDTO;

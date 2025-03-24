@@ -21,9 +21,11 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
 
     @Query("SELECT new models.dtos.responses.FreeDriver(d.id) " +
             "FROM Driver d " +
-            "WHERE d.status = :status AND d.carId IS NOT NULL " +
-            "AND (d.car.seatsCount >= :requiredSeats AND d.car.carCategory = :requiredCarCategory) " +
-            "AND d.id NOT IN :exclusions")
+            "WHERE d.status = :status AND d.car IS NOT NULL " +
+            "AND d.car.seatsCount >= :requiredSeats " +
+            "AND d.car.carCategory = :requiredCarCategory " +
+            "AND d.id NOT IN :exclusions " +
+            "ORDER BY d.id ASC LIMIT 1")
     Optional<FreeDriver> findFirstFreeNotInList(
             @Param("exclusions") List<UUID> exclusions,
             @Param("status") DriverStatus status,

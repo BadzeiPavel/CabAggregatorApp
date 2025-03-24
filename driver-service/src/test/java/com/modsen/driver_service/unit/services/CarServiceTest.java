@@ -1,17 +1,15 @@
-package com.modsen.driver_service.services;
+package com.modsen.driver_service.unit.services;
 
-import com.modsen.driver_service.mappers.car_mapper.CarDTOMapper;
 import com.modsen.driver_service.mappers.car_mapper.CarMapper;
 import com.modsen.driver_service.models.dtos.CarDTO;
 import com.modsen.driver_service.models.dtos.CarPatchDTO;
 import com.modsen.driver_service.models.entities.Car;
 import com.modsen.driver_service.repositories.CarRepository;
+import com.modsen.driver_service.services.CarService;
 import enums.CarCategory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
