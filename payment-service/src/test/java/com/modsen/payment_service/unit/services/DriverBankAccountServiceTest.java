@@ -1,4 +1,4 @@
-package com.modsen.payment_service.services;
+package com.modsen.payment_service.unit.services;
 
 import com.modsen.payment_service.exceptions.InvalidAmountValueException;
 import com.modsen.payment_service.exceptions.RecordNotFoundException;
@@ -7,6 +7,7 @@ import com.modsen.payment_service.mappers.EntityMapper;
 import com.modsen.payment_service.models.dtos.DriverBankAccountDTO;
 import com.modsen.payment_service.models.enitties.DriverBankAccount;
 import com.modsen.payment_service.repositories.DriverBankAccountRepository;
+import com.modsen.payment_service.services.DriverBankAccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

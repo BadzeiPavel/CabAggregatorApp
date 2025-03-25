@@ -1,4 +1,4 @@
-package com.modsen.payment_service.services;
+package com.modsen.payment_service.unit.services;
 
 import com.modsen.payment_service.exceptions.CannotProceedPaymentException;
 import com.modsen.payment_service.exceptions.RecordNotFoundException;
@@ -6,6 +6,9 @@ import com.modsen.payment_service.mappers.DtoMapper;
 import com.modsen.payment_service.mappers.EntityMapper;
 import com.modsen.payment_service.models.enitties.Payment;
 import com.modsen.payment_service.repositories.PaymentRepository;
+import com.modsen.payment_service.services.DriverBankAccountService;
+import com.modsen.payment_service.services.PassengerBankAccountService;
+import com.modsen.payment_service.services.PaymentService;
 import constants.KafkaConstants;
 import enums.PaymentMethod;
 import enums.PaymentStatus;

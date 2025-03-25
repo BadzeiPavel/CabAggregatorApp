@@ -215,15 +215,6 @@ public class DriverServiceIntegrationTest {
     }
 
     @Test
-    @Disabled
-    void softDeleteDriverTest() {
-        DriverDTO deletedDriver = driverService.softDeleteDriver(driverId);
-
-        assertTrue(deletedDriver.isDeleted());
-        verify(authFeignClient).delete(eq(driverId.toString()));
-    }
-
-    @Test
     void assignCarIdTest() {
         driverService.assignCarId(driverId, carId);
 
@@ -256,5 +247,14 @@ public class DriverServiceIntegrationTest {
         assertThrows(DriverNotFoundException.class, () -> 
             driverService.getFreeDriverNotInList(request)
         );
+    }
+
+    @Test
+    @Disabled
+    void softDeleteDriverTest() {
+        DriverDTO deletedDriver = driverService.softDeleteDriver(driverId);
+
+        assertTrue(deletedDriver.isDeleted());
+        verify(authFeignClient).delete(eq(driverId.toString()));
     }
 }

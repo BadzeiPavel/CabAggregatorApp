@@ -1,4 +1,4 @@
-package com.modsen.rating_service.services;
+package com.modsen.rating_service.unit.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -14,6 +14,7 @@ import com.modsen.rating_service.models.dtos.RatingDTO;
 import com.modsen.rating_service.models.dtos.RatingPatchDTO;
 import com.modsen.rating_service.models.entities.DriverRating;
 import com.modsen.rating_service.repositories.DriverRatingRepository;
+import com.modsen.rating_service.services.DriverRatingService;
 import com.modsen.rating_service.utils.CalculationUtil;
 import java.time.LocalDateTime;
 import java.util.Collections;
