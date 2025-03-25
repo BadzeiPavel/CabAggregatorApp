@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter @Setter
