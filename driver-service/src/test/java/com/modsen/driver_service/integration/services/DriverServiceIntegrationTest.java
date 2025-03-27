@@ -1,4 +1,4 @@
-package com.modsen.driver_service.integration.controllers;
+package com.modsen.driver_service.integration.services;
 
 import com.modsen.driver_service.exceptions.DriverNotFoundException;
 import com.modsen.driver_service.feign_clients.AuthFeignClient;
