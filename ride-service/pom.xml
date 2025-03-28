@@ -67,6 +67,15 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-contract-maven-plugin</artifactId>
+				<version>4.1.0</version>
+				<extensions>true</extensions>
+				<configuration>
+					<baseClassForTests>com.modsen.ride_service.contracts.RideServiceContractBase</baseClassForTests>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
@@ -95,5 +104,28 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<resources>
+			<resource>
+				<directory>${project.basedir}/src/main/resources</directory>
+			</resource>
+			<resource>
+				<directory>${project.build.directory}/stubs</directory>
+				<includes>
+					<include>**/*.groovy</include>
+				</includes>
+			</resource>
+		</resources>
 	</build>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>2024.0.0</version> <!-- Use your Spring Cloud version -->
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>

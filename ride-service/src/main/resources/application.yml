@@ -16,3 +16,15 @@ spring:
     hibernate:
       ddl-auto: validate
       dialect: org.hibernate.dialect.PostgreSQLDialect
+
+
+  cloud:
+    contract:
+      verifier:
+        enabled: true
+
+stubrunner:
+  ids:
+    - com.modsen:ride-service-contracts:stubs:0.0.1-SNAPSHOT
+  workOffline: true
+  repositoryRoot: file:/

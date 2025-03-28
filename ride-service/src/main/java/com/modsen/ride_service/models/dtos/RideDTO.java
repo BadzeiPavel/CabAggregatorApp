@@ -1,5 +1,6 @@
 package com.modsen.ride_service.models.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import enums.PaymentMethod;
 import com.modsen.ride_service.enums.RideStatus;
 import enums.CarCategory;
@@ -17,6 +18,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RideDTO {
 
     private UUID id;

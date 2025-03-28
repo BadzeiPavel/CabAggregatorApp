@@ -2,8 +2,10 @@ constants\KafkaConstants.class
 models\dtos\PaymentDTO$PaymentDTOBuilder.class
 models\dtos\PaymentDTO.class
 models\dtos\requests\ChangeDriverStatusRequest.class
+models\dtos\RideInfo$RideInfoBuilder.class
 models\dtos\responses\FreeDriver.class
 enums\CarCategory.class
+models\dtos\PassengerBankAccountDTO$PassengerBankAccountDTOBuilder.class
 models\dtos\DriverDTO$DriverDTOBuilder.class
 models\dtos\RatingStatisticResponseDTO.class
 models\dtos\events\ChangeDriverStatusEvent.class
