@@ -12,16 +12,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.UUID;
 
-@FeignClient(name = "driver-controller", url = "http://localhost:8083/api/v1/drivers")
+@FeignClient(name = "driver-service")
 public interface DriverFeignClient {
 
-    @PutMapping("/{id}/status")
+    @PutMapping("/api/v1/drivers/{id}/status")
     ResponseEntity<Void> changeDriverStatus(
             @PathVariable("id") UUID id,
             @RequestBody ChangeDriverStatusRequest requestDTO
     );
 
-    @PostMapping("/free")
+    @PostMapping("/api/v1/drivers/free")
     ResponseEntity<FreeDriver> getFreeDriverNotInList(
             @RequestBody GetFreeDriverNotInListRequest getFreeDriverNotInListRequest
     );

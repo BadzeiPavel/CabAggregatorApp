@@ -1,6 +1,5 @@
 server:
   port: 8083
-
 spring:
   application:
     name: driver-service
@@ -13,4 +12,9 @@ spring:
     hibernate:
       ddl-auto: validate
       dialect: org.hibernate.dialect.PostgreSQLDialect
-
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    hostname: driver-service

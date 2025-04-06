@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import utils.PatchUtil;
 
 import java.util.List;
@@ -36,8 +37,7 @@ import java.util.UUID;
 public class AuthService implements IAuthService {
 
     private final Keycloak keycloakClient;
-    private final DriverFeignClient driverFeignClient;
-    private final PassengerFeignClient passengerFeignClient;
+    private final WebClient.Builder webClientBuilder;
 
     @Value("${app.keycloak.token-url}")
     private String tokenUrl;
@@ -91,26 +91,28 @@ public class AuthService implements IAuthService {
     }
 
     @Override
-    public User register(RegisterRequest request) {
-        UserRepresentation user = createUserRepresentation(request);
-        setCredentials(user, request);
-
-        RealmResource realmResource = keycloakClient.realm(realm);
-
-        Response response = realmResource.users().create(user);
-        String userId = CreatedResponseUtil.getCreatedId(response);
-
-        addRole(realmResource, request, userId);
-
-        sendUserCreationMessage(userId, request);
-
-        return User.builder()
-                .id(userId)
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .build();
+    public Mono<User> register(RegisterRequest request) {
+        return Mono.fromCallable(() -> {
+                    // Blocking Keycloak operations
+                    UserRepresentation user = createUserRepresentation(request);
+                    setCredentials(user, request);
+                    RealmResource realmResource = keycloakClient.realm(realm);
+                    Response response = realmResource.users().create(user);
+                    String userId = CreatedResponseUtil.getCreatedId(response);
+                    addRole(realmResource, request, userId);
+                    return userId;
+                })
+                .subscribeOn(Schedulers.boundedElastic()) // Offload blocking call
+                .flatMap(userId -> sendUserCreationMessage(userId, request)
+                        .thenReturn(User.builder()
+                                .id(userId)
+                                .username(request.getUsername())
+                                .email(request.getEmail())
+                                .firstName(request.getFirstName())
+                                .lastName(request.getLastName())
+                                .build()
+                        )
+                );
     }
 
     @Override
@@ -140,28 +142,38 @@ public class AuthService implements IAuthService {
         return ResponseEntity.ok("User deleted successfully");
     }
 
-    private void sendUserCreationMessage(String userId, RegisterRequest request) {
-        if(request.getRole().equals("PASSENGER")) {
-            passengerFeignClient.createPassenger(PassengerDTO.builder()
-                    .id(UUID.fromString(userId))
-                    .username(request.getUsername())
-                    .firstName(request.getFirstName())
-                    .lastName(request.getLastName())
-                    .email(request.getEmail())
-                    .phone(request.getPhone())
-                    .birthDate(request.getBirthDate())
-                    .build());
-        } else if(request.getRole().equals("DRIVER")) {
-            driverFeignClient.createDriver(DriverDTO.builder()
-                    .id(UUID.fromString(userId))
-                    .username(request.getUsername())
-                    .firstName(request.getFirstName())
-                    .lastName(request.getLastName())
-                    .email(request.getEmail())
-                    .phone(request.getPhone())
-                    .birthDate(request.getBirthDate())
-                    .build());
-        }
+    private Mono<Void> sendUserCreationMessage(String userId, RegisterRequest request) {
+        String servicePath = request.getRole().equalsIgnoreCase("PASSENGER")
+                ? "http://passenger-service:8082/api/v1/passengers"
+                : "http://driver-service:8083/api/v1/drivers";
+
+        Object dto = request.getRole().equalsIgnoreCase("PASSENGER")
+                ? PassengerDTO.builder()
+                .id(UUID.fromString(userId))
+                .username(request.getUsername())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .email(request.getEmail())
+                .phone(request.getPhone())
+                .birthDate(request.getBirthDate())
+                .build()
+                : DriverDTO.builder()
+                .id(UUID.fromString(userId))
+                .username(request.getUsername())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .email(request.getEmail())
+                .phone(request.getPhone())
+                .birthDate(request.getBirthDate())
+                .build();
+
+        return webClientBuilder.build()
+                .post()
+                .uri(servicePath)
+                .bodyValue(dto)
+                .retrieve()
+                .toBodilessEntity()
+                .then();
     }
 
     private void addRole(RealmResource realmResource, RegisterRequest request, String userId) {

@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
-@FeignClient(name = "passenger-controller", url = "http://localhost:8082/api/v1/passengers")
+@FeignClient(name = "docker-passenger-service")
 public interface PassengerFeignClient {
 
-    @PostMapping
+    @PostMapping("/api/v1/passengers")
     ResponseEntity<PassengerDTO> createPassenger(@Valid @RequestBody PassengerDTO passengerDTO);
 }

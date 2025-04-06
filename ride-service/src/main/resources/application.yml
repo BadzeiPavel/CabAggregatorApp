@@ -16,12 +16,12 @@ spring:
     hibernate:
       ddl-auto: validate
       dialect: org.hibernate.dialect.PostgreSQLDialect
-
-
-  cloud:
-    contract:
-      verifier:
-        enabled: true
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    hostname: ride-service
 
 stubrunner:
   ids:
