@@ -12,3 +12,7 @@ spring:
       username: root
       password: root
       database: payment_db
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka/

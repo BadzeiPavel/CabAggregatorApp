@@ -7,3 +7,7 @@ spring:
   data:
     mongodb:
       uri: mongodb://root:root@localhost:27017/rating_db?authSource=admin
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka/

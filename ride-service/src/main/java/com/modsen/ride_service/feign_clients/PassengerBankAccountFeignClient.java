@@ -6,9 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "passenger-bank-account-controller", url = "http://localhost:8086/api/v1/bank-accounts/passengers")
+@FeignClient(name = "payment-service")
 public interface PassengerBankAccountFeignClient {
 
-    @GetMapping("{id}")
+    @GetMapping("/api/v1/bank-accounts/passengers/{id}")
     ResponseEntity<PassengerBankAccountDTO> getBalance(@PathVariable String id);
 }
