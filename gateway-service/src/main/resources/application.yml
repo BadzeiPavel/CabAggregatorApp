@@ -1,19 +1,138 @@
 server:
-  port: 8082
-
+  port: 9090
 spring:
   cloud:
     gateway:
+      httpclient:
+        response-timeout: 1500ms
       routes:
         - id: auth-service
-          uri: http://localhost:8081
+          uri: lb://auth-service
           predicates:
             - Path=/api/v1/auth/**
           filters:
-            - TokenRelay
-app:
-  keycloak:
-    url: http://localhost:8080   # Keycloak server URL
-    realm: car-aggregator-auth   # Your Keycloak realm
-    client-id: auth-service-client    # Client ID for the resource owner password credentials flow
-    client-secret: FiDPXGo4mQKmkRFu8wtDg8IQJ6PdpEU8  # Client secret for the OAuth client
+            - name: CircuitBreaker
+              args:
+                name: authCircuitBreaker
+                fallbackUri: forward:/fallback/auth
+
+        - id: driver-service
+          uri: lb://driver-service
+          predicates:
+            - Path=/api/v1/drivers/**
+            - Path=/api/v1/cars/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: driverCircuitBreaker
+                fallbackUri: forward:/fallback/driver
+
+        - id: passenger-service
+          uri: lb://passenger-service
+          predicates:
+            - Path=/api/v1/passengers/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: passengerCircuitBreaker
+                fallbackUri: forward:/fallback/passenger
+
+        - id: ride-service
+          uri: lb://ride-service
+          predicates:
+            - Path=/api/v1/rides/**
+            - Path=/api/v1/driver-notifications/**
+            - Path=/api/v1/passenger-notifications/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: rideCircuitBreaker
+                fallbackUri: forward:/fallback/ride
+
+        - id: rating-service
+          uri: lb://rating-service
+          predicates:
+            - Path=/api/v1/ratings/drivers/**
+            - Path=/api/v1/ratings/passengers/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ratingCircuitBreaker
+                fallbackUri: forward:/fallback/rating
+
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/v1/payments/**
+            - Path=/api/v1/bank-accounts/drivers/**
+            - Path=/api/v1/bank-accounts/passengers/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: paymentCircuitBreaker
+                fallbackUri: forward:/fallback/payment
+
+        - id: fallback-route
+          uri: forward:/fallback/default
+          predicates:
+            - Path=/**
+
+management:
+  endpoints:
+    gateway:
+      enabled: true
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    hostname: gateway-service
+
+resilience4j:
+  circuitbreaker:
+    metrics:
+      enabled: true
+    configs:
+      default:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        timeoutDuration: 1500ms
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        eventConsumerBufferSize: 10
+        slowCallDurationThreshold: 200ms
+        slowCallRateThreshold: 30
+        recordExceptions:
+          - java.util.concurrent.TimeoutException
+          - org.springframework.cloud.gateway.support.NotFoundException
+      instances:
+        authCircuitBreaker:
+          baseConfig: default
+        passengerCircuitBreaker:
+          baseConfig: default
+        driverCircuitBreaker:
+          baseConfig: default
+        rideCircuitBreaker:
+          baseConfig: default
+        paymentCircuitBreaker:
+          baseConfig: default
+        ratingCircuitBreaker:
+          baseConfig: default
+
+logging:
+  level:
+    org.springframework.web: TRACE
