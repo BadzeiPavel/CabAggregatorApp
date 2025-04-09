@@ -73,7 +73,7 @@ spring:
                 fallbackUri: forward:/fallback/payment
 
         - id: fallback-route
-          uri: forward:/fallback/default
+          uri: forward:/fallback
           predicates:
             - Path=/**
 
