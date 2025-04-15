@@ -19,8 +19,7 @@ spring:
         - id: driver-service
           uri: lb://driver-service
           predicates:
-            - Path=/api/v1/drivers/**
-            - Path=/api/v1/cars/**
+            - Path=/api/v1/drivers/**, /api/v1/cars/**
           filters:
             - name: CircuitBreaker
               args:
@@ -40,9 +39,7 @@ spring:
         - id: ride-service
           uri: lb://ride-service
           predicates:
-            - Path=/api/v1/rides/**
-            - Path=/api/v1/driver-notifications/**
-            - Path=/api/v1/passenger-notifications/**
+            - Path=/api/v1/rides/**, /api/v1/driver-notifications/**, /api/v1/passenger-notifications/**
           filters:
             - name: CircuitBreaker
               args:
@@ -52,8 +49,7 @@ spring:
         - id: rating-service
           uri: lb://rating-service
           predicates:
-            - Path=/api/v1/ratings/drivers/**
-            - Path=/api/v1/ratings/passengers/**
+            - Path=/api/v1/ratings/drivers/**, /api/v1/ratings/passengers/**
           filters:
             - name: CircuitBreaker
               args:
@@ -63,9 +59,7 @@ spring:
         - id: payment-service
           uri: lb://payment-service
           predicates:
-            - Path=/api/v1/payments/**
-            - Path=/api/v1/bank-accounts/drivers/**
-            - Path=/api/v1/bank-accounts/passengers/**
+            - Path=/api/v1/payments/**, /api/v1/bank-accounts/drivers/**, /api/v1/bank-accounts/passengers/**
           filters:
             - name: CircuitBreaker
               args:
