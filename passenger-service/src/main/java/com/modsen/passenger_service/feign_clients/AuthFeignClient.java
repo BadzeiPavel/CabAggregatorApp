@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
-@FeignClient(name = "auth-controller", url = "http://localhost:8081/api/v1/auth/user")
+@FeignClient(name = "auth-service")
 public interface AuthFeignClient {
 
-    @PutMapping("/{userId}")
+    @PutMapping("/api/v1/auth/user/{userId}")
     ResponseEntity<String> patch(@PathVariable String userId, @Valid @RequestBody UserPatchDTO userPatchDTO);
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/api/v1/auth/user/{userId}")
     ResponseEntity<String> delete(@PathVariable String userId);
 }

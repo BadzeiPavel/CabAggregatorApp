@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
 public interface IAuthService {
-    User register(RegisterRequest request);
+    Mono<User> register(RegisterRequest request);
     Mono<ResponseEntity<String>> login(AuthUserDTO authUserDTO);
     Mono<ResponseEntity<String>> logout(LogoutDTO logoutDTO);
     ResponseEntity<String> updateUser(String userId, UserPatchDTO userPatchDTO);
