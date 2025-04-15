@@ -7,6 +7,8 @@ bing-maps:
 spring:
   application:
     name: ride-service
+  main:
+    allow-bean-definition-overriding: true
   datasource:
     url: jdbc:postgresql://localhost:5438/ride_db
     username: root
