@@ -7,6 +7,7 @@ import com.modsen.driver_service.models.dtos.CarPatchDTO;
 import com.modsen.driver_service.models.entities.Car;
 import com.modsen.driver_service.repositories.CarRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import models.dtos.responses.GetAllPaginatedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CarService {
@@ -30,6 +32,8 @@ public class CarService {
 
     @Transactional
     public CarDTO createCar(CarDTO carDTO) {
+        log.info("Creating car: {}", carDTO);
+
         Car car = carDTOMapper.toCar(carDTO);
         fillInCarDTOOnCreate(car);
 
@@ -42,12 +46,16 @@ public class CarService {
 
     @Transactional(readOnly = true)
     public CarDTO getCarById(UUID id) {
+        log.info("Getting car: {}", id);
+
         Car car = repository.getCarById(id);
         return carMapper.toCarDTO(car);
     }
 
     @Transactional(readOnly = true)
     public GetAllPaginatedResponse<CarDTO> getPaginatedCars(PageRequest pageRequest) {
+        log.info("Getting paginated cars");
+
         Page<Car> carPage = repository.findByIsDeletedFalse(pageRequest);
 
         List<CarDTO> carDTOs = carPage.stream()
@@ -63,6 +71,8 @@ public class CarService {
 
     @Transactional
     public CarDTO updateCar(UUID id, CarDTO carDTO) {
+        log.info("Updating car {}; {}", id, carDTO);
+
         Car car = repository.getCarById(id);
         fillInCarOnUpdate(car, carDTO);
 
@@ -71,6 +81,8 @@ public class CarService {
 
     @Transactional
     public CarDTO patchCar(UUID id, CarPatchDTO carPatchDTO) {
+        log.info("Patching car {}; {}", id, carPatchDTO);
+
         Car car = repository.getCarById(id);
         fillInCarOnPatch(car, carPatchDTO);
 
@@ -79,6 +91,8 @@ public class CarService {
 
     @Transactional
     public CarDTO softDeleteCar(UUID id) {
+        log.info("Deleting car {}", id);
+
         Car car = repository.getCarById(id);
         car.setDeleted(true);
 

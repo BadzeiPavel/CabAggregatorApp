@@ -1,7 +1,5 @@
 package com.modsen.auth_service.services.impl;
 
-import com.modsen.auth_service.feign_clients.DriverFeignClient;
-import com.modsen.auth_service.feign_clients.PassengerFeignClient;
 import com.modsen.auth_service.models.dto.AuthUserDTO;
 import com.modsen.auth_service.models.dto.LogoutDTO;
 import com.modsen.auth_service.models.dto.RegisterRequest;
@@ -9,6 +7,7 @@ import com.modsen.auth_service.models.entities.User;
 import com.modsen.auth_service.services.IAuthService;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import models.dtos.DriverDTO;
 import models.dtos.PassengerDTO;
 import models.dtos.UserPatchDTO;
@@ -32,6 +31,7 @@ import utils.PatchUtil;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AuthService implements IAuthService {
@@ -59,6 +59,8 @@ public class AuthService implements IAuthService {
         String formData = "grant_type=password&client_id=%s&client_secret=%s&username=%s&password=%s"
                 .formatted(clientId, clientSecret, authUserDTO.getUsername(), authUserDTO.getPassword());
 
+        log.info("Logging user: {}", authUserDTO.getUsername());
+
         return WebClient.builder().build()
                 .post()
                 .uri(tokenUrl)
@@ -77,6 +79,8 @@ public class AuthService implements IAuthService {
         String formData = "client_id=%s&client_secret=%s&refresh_token=%s"
                 .formatted(clientId, clientSecret, logoutDTO.getRefreshToken());
 
+        log.info("Logging out user: refreshToken={}", logoutDTO.getRefreshToken());
+
         return WebClient.builder().build()
                 .post()
                 .uri(logoutUrl)
@@ -92,6 +96,8 @@ public class AuthService implements IAuthService {
 
     @Override
     public Mono<User> register(RegisterRequest request) {
+        log.info("Registering user: {}", request);
+
         return Mono.fromCallable(() -> {
                     // Blocking Keycloak operations
                     UserRepresentation user = createUserRepresentation(request);
@@ -117,6 +123,8 @@ public class AuthService implements IAuthService {
 
     @Override
     public ResponseEntity<String> updateUser(String userId, UserPatchDTO userPatchDTO) {
+        log.info("Updating user: {}", userPatchDTO);
+
         RealmResource realmResource = keycloakClient.realm(realm);
         UserResource userResource = realmResource.users().get(userId);
 
@@ -134,6 +142,8 @@ public class AuthService implements IAuthService {
 
     @Override
     public ResponseEntity<String> deleteUser(String userId) {
+        log.info("Deleting user: {}", userId);
+
         RealmResource realmResource = keycloakClient.realm(realm);
         UserResource userResource = realmResource.users().get(userId);
 

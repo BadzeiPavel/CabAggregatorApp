@@ -18,3 +18,32 @@ eureka:
       defaultZone: http://eureka-server:8761/eureka/
   instance:
     hostname: driver-service
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: driver-service
+      service: auth-service
+  elastic:
+    metrics:
+      export:
+        host: ${elastic.host}
+        enabled: true
+        export:
+          index: metrics-driver
+          auto-create-index: false
+          step: 1m
+elastic:
+  host: http://localhost:9200
