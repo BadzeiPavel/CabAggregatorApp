@@ -12,29 +12,41 @@
                     <timeZone>UTC</timeZone>
                 </timestamp>
                 <mdc>
+                    <!-- Micrometer Tracing + Brave -->
                     <includeMdcKeyName>traceId</includeMdcKeyName>
                     <includeMdcKeyName>spanId</includeMdcKeyName>
+                    <includeMdcKeyName>X-B3-TraceId</includeMdcKeyName>
+                    <includeMdcKeyName>X-B3-SpanId</includeMdcKeyName>
                 </mdc>
-                <context/>
                 <logLevel/>
                 <loggerName/>
                 <message/>
                 <pattern>
                     <pattern>
                         {
-                        "service": "${SERVICE_NAME}"
+                        "service": "${SERVICE_NAME}",
+                        "trace_id": "%mdc{traceId:-%mdc{X-B3-TraceId}}",
+                        "span_id": "%mdc{spanId:-%mdc{X-B3-SpanId}}",
+                        "thread": "%thread",
+                        "class": "%logger{40}"
                         }
                     </pattern>
                 </pattern>
-                <stackTrace/>
+                <stackTrace>
+                    <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                        <maxDepthPerThrowable>30</maxDepthPerThrowable>
+                        <maxLength>2048</maxLength>
+                        <shortenedClassNameLength>20</shortenedClassNameLength>
+                        <rootCauseFirst>true</rootCauseFirst>
+                    </throwableConverter>
+                </stackTrace>
             </providers>
         </encoder>
     </appender>
 
-    <!-- Add Console appender definition -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{40} - [TraceID: %X{traceId:-%X{X-B3-TraceId}}] %msg%n</pattern>
         </encoder>
     </appender>
 
