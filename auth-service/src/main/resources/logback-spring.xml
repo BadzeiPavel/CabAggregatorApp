@@ -12,6 +12,7 @@
                     <timeZone>UTC</timeZone>
                 </timestamp>
                 <mdc>
+                    <!-- For Spring Cloud Sleuth 3.x+ -->
                     <includeMdcKeyName>traceId</includeMdcKeyName>
                     <includeMdcKeyName>spanId</includeMdcKeyName>
                 </mdc>
@@ -22,7 +23,9 @@
                 <pattern>
                     <pattern>
                         {
-                        "service": "${SERVICE_NAME}"
+                        "service-name": "${SERVICE_NAME}",
+                        "traceId": "%mdc{traceId:-}",
+                        "spanId": "%mdc{spanId:-}"
                         }
                     </pattern>
                 </pattern>
@@ -34,7 +37,7 @@
     <!-- Add Console appender definition -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [TraceID: %X{traceId}] %msg%n</pattern>
         </encoder>
     </appender>
 
