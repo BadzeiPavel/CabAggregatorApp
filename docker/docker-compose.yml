@@ -209,6 +209,8 @@ services:
     ports:
       - "8081:8081"
     environment:
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - SPRING_SLEUTH_SAMPLER_PROBABILITY=1.0
       - SPRING_APPLICATION_NAME=auth-service
       - SERVER_PORT=8081
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -238,6 +240,8 @@ services:
     ports:
       - "8084:8084"
     environment:
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - SPRING_SLEUTH_SAMPLER_PROBABILITY=1.0
       - SPRING_APPLICATION_NAME=rating-service
       - SERVER_PORT=8084
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -260,6 +264,8 @@ services:
     ports:
       - "8086:8086"
     environment:
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - SPRING_SLEUTH_SAMPLER_PROBABILITY=1.0
       - SPRING_APPLICATION_NAME=payment-service
       - SERVER_PORT=8086
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -287,6 +293,8 @@ services:
     ports:
       - "8082:8082"
     environment:
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - SPRING_SLEUTH_SAMPLER_PROBABILITY=1.0
       - SPRING_APPLICATION_NAME=passenger-service
       - SERVER_PORT=8082
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -314,6 +322,8 @@ services:
     ports:
       - "8083:8083"
     environment:
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - SPRING_SLEUTH_SAMPLER_PROBABILITY=1.0
       - SPRING_APPLICATION_NAME=driver-service
       - SERVER_PORT=8083
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -346,6 +356,8 @@ services:
     env_file:
       - ../ride-service/.env
     environment:
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - SPRING_SLEUTH_SAMPLER_PROBABILITY=1.0
       - SPRING_APPLICATION_NAME=ride-service
       - SERVER_PORT=8085
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -439,6 +451,14 @@ services:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
+    networks:
+      - app-network
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
     networks:
       - app-network
 
