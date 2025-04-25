@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import javax.naming.AuthenticationException;
+
 @Tag(name = "Authentication", description = "API for authentication")
 @RestController
 @RequestMapping("/api/v1/auth/user")
@@ -35,8 +37,11 @@ public class AuthController {
     )
     @PostMapping("/register")
     public Mono<ResponseEntity<User>> register(@Valid @RequestBody RegisterRequest request) {
-        return Mono.just(ResponseEntity.status(HttpStatus.CREATED)
-                .body(service.register(request)));
+        return service.register(request)
+                .map(user -> ResponseEntity.status(HttpStatus.CREATED).body(user))
+                .onErrorResume(e -> {
+                    throw new RuntimeException(e.getMessage());
+                });
     }
 
     @Operation(summary = "Logout user", description = "Logout user by refresh token")

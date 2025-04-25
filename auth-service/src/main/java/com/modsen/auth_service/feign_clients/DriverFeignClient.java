@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
-@FeignClient(name = "driver-controller", url = "http://localhost:8083/api/v1/drivers")
+@FeignClient(name = "docker-driver-service")
 public interface DriverFeignClient {
 
-    @PostMapping
+    @PostMapping("/api/v1/drivers")
     ResponseEntity<DriverDTO> createDriver(@Valid @RequestBody DriverDTO driverDTO);
 }

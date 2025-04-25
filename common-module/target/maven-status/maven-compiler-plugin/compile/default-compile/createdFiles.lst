@@ -6,8 +6,6 @@ models\dtos\RideInfo$RideInfoBuilder.class
 models\dtos\responses\FreeDriver.class
 enums\CarCategory.class
 models\dtos\PassengerBankAccountDTO$PassengerBankAccountDTOBuilder.class
-models\dtos\responses\FreeDriver.class
-enums\CarCategory.class
 models\dtos\DriverDTO$DriverDTOBuilder.class
 models\dtos\RatingStatisticResponseDTO.class
 models\dtos\events\ChangeDriverStatusEvent.class

@@ -28,9 +28,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class DriverService {
 
     private final KafkaTemplate<String, ChangeDriverStatusEvent> kafkaTemplate;
@@ -42,6 +42,8 @@ public class DriverService {
 
     @Transactional
     public DriverDTO createDriver(DriverDTO driverDTO) {
+        log.info("Creating driver {}", driverDTO);
+
         Driver driver = driverDTOMapper.toDriver(driverDTO);
         fillInDriverOnCreate(driver, driverDTO);
 
@@ -50,12 +52,16 @@ public class DriverService {
 
     @Transactional(readOnly = true)
     public DriverDTO getDriver(UUID id) {
+        log.info("Getting driver {}", id);
+
         Driver driver = repository.findDriverById(id);
         return driverMapper.toDriverDTO(driver);
     }
 
     @Transactional(readOnly = true)
     public GetAllPaginatedResponse<DriverDTO> getPaginatedDrivers(PageRequest pageRequest) {
+        log.info("Getting paginated drivers");
+
         Page<Driver> driverPage = repository.findByIsDeletedFalse(pageRequest);
 
         return getAllPaginatedResponseDTO(driverPage);
@@ -79,6 +85,8 @@ public class DriverService {
 
     @Transactional
     public DriverDTO updateDriver(UUID id, DriverDTO driverDTO) {
+        log.info("Updating driver {}; {}", id, driverDTO);
+
         Driver driver = repository.findDriverById(id);
         fillInDriverOnUpdate(driver, driverDTO);
 
@@ -116,6 +124,8 @@ public class DriverService {
 
     @Transactional
     public DriverDTO patchDriver(UUID id, UserPatchDTO userPatchDTO) {
+        log.info("Patching driver {}; {}", id, userPatchDTO);
+
         Driver driver = repository.findDriverById(id);
         fillInDriverOnPatch(driver, userPatchDTO);
 
@@ -126,6 +136,8 @@ public class DriverService {
 
     @Transactional
     public void patchDriverStatus(UUID id, ChangeDriverStatusRequest requestDTO) {
+        log.info("Patching driver={} status on {}", id, requestDTO);
+
         Driver driver = repository.findDriverById(id);
         driver.setStatus(requestDTO.getDriverStatus());
 
@@ -134,6 +146,8 @@ public class DriverService {
 
     @Transactional
     public DriverDTO softDeleteDriver(UUID id) {
+        log.info("Deleting driver {}", id);
+
         Driver driver = repository.findDriverById(id);
         driver.setDeleted(true);
 

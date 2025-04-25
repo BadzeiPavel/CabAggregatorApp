@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'services'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [
+        'eureka-server:8761',
+        'auth-service:8081',
+        'rating-service:8084',
+        'payment-service:8086',
+        'passenger-service:8082',
+        'driver-service:8083',
+        'ride-service:8085',
+        'api-gateway:9090'
+      ]
