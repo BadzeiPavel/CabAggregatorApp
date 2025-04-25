@@ -17,7 +17,10 @@ spring:
       ribbon:
         enabled: false
   zipkin:
-    base-url: http://localhost:9411
+    base-url: http://zipkin:9411
+  sleuth:
+    sampler:
+      probability: 1.0
     sender:
       type: web
     enabled: true
@@ -51,6 +54,9 @@ management:
     export:
       prometheus:
         enabled: true
+      elastic:
+        enabled: true
+        host: http://elasticsearch:9200
     tags:
       application: auth-service
       service: auth-service
@@ -64,4 +70,4 @@ management:
           auto-create-index: false
           step: 1m
 elastic:
-  host: http://localhost:9200
+  host: http://elasticsearch:9200
