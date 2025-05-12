@@ -1,0 +1,53 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: rating-service
+  data:
+    mongodb:
+      uri: mongodb://root:root@localhost:27017/rating_db?authSource=admin
+  zipkin:
+    base-url: http://zipkin:9411
+  sleuth:
+    sampler:
+      probability: 1.0
+    sender:
+      type: web
+    enabled: true
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka/
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+      elastic:
+        enabled: true
+        host: http://elasticsearch:9200
+    tags:
+      application: rating-service
+      service: auth-service
+  elastic:
+    metrics:
+      export:
+        host: ${elastic.host}
+        enabled: true
+        export:
+          index: metrics-driver
+          auto-create-index: false
+          step: 1m
+elastic:
+  host: http://elasticsearch:9200

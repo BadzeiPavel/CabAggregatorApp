@@ -1,19 +1,127 @@
-version: "3.8"
-
 services:
+
+  postgres_db_driver:
+    container_name: postgres_driver
+    image: postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      PGDATA: /data/postgres
+      POSTGRES_DB: driver_db
+    volumes:
+      - postgres_db_driver:/data/postgres
+      - ./postgres-scripts/driver-init.sql:/docker-entrypoint-initdb.d/driver-init.sql
+    ports:
+      - "5434:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  postgres_db_passenger:
+    container_name: postgres_passenger
+    image: postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      PGDATA: /data/postgres
+      POSTGRES_DB: passenger_db
+    volumes:
+      - postgres_db_passenger:/data/postgres
+      - ./postgres-scripts/passenger-init.sql:/docker-entrypoint-initdb.d/passenger-init.sql
+    ports:
+      - "5436:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  postgres_db_ride:
+    container_name: postgres_ride
+    image: postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      PGDATA: /data/postgres
+      POSTGRES_DB: ride_db
+    volumes:
+      - postgres_db_ride:/data/postgres
+      - ./postgres-scripts/ride-init.sql:/docker-entrypoint-initdb.d/ride-init.sql
+    ports:
+      - "5438:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  postgres_db_keycloak:
+    container_name: postgres_keycloak
+    image: postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      PGDATA: /data/postgres
+      POSTGRES_DB: keycloak_db
+    volumes:
+      - postgres_db_keycloak:/data/postgres
+    ports:
+      - "5430:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U root -d keycloak_db" ]
+      interval: 5s
+      retries: 10
+    networks:
+      - app-network
+
+  mongo_db:
+    image: mongo:5.0.2
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: |
+        mongosh --quiet --eval "db.runCommand({ ping: 1 })" -u root -p root --authenticationDatabase admin
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - app-network
+
   keycloak:
     container_name: keycloak.openid-provider
     image: quay.io/keycloak/keycloak:25.0.1
+    depends_on:
+      - postgres_db_keycloak
     command:
       - start-dev
       - --import-realm
+      - --verbose
     ports:
-      - 8080:8080
-    volumes:
-      - ./keycloak/:/opt/keycloak/data/import/
+      - "8080:8080"
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres_keycloak:5432/keycloak_db
+      KC_DB_USERNAME: root
+      KC_DB_PASSWORD: root
       KC_HTTP_PORT: 8080
       KC_HOSTNAME_URL: http://localhost:8080
       KC_HOSTNAME_ADMIN_URL: http://localhost:8080
@@ -22,10 +130,347 @@ services:
       KC_HTTP_ENABLED: true
       KC_HEALTH_ENABLED: true
       KC_METRICS_ENABLED: true
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      KC_FEATURES: authorization,scripts
+      KC_SCRIPT_ENABLED: true
     healthcheck:
-      test: ['CMD-SHELL', '[ -f /tmp/HealthCheck.java ] || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)new java.net.URL(args[0]).openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://localhost:8080/auth/health/live']
+      test: [ "CMD", "/opt/keycloak/bin/kc.sh", "show-config" ]
       interval: 5s
       timeout: 5s
       retries: 20
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./keycloak/:/opt/keycloak/data/import/
+    networks:
+      - app-network
+
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.4
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "2181" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.4
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      - 29092:29092
+      - 9092:9092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "kafka:29092" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - app-network
+
+  eureka-server:
+    build: ../eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_APPLICATION_NAME=eureka-server
+      - SERVER_PORT=8761
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
+      - EUREKA_INSTANCE_HOSTNAME=eureka-server
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://eureka-server:8761/actuator/health" ]
+      interval: 30s
+      retries: 3
+    networks:
+      - app-network
+
+  auth-service:
+    build: ../auth-service
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - SPRING_SLEUTH_SAMPLER_PROBABILITY=1.0
+      - SPRING_APPLICATION_NAME=auth-service
+      - SERVER_PORT=8081
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - APP_KEYCLOAK_URL=http://keycloak:8080
+      - APP_KEYCLOAK_REALM=car-aggregator-auth
+      - APP_KEYCLOAK_TOKEN_URL=http://keycloak:8080/realms/car-aggregator-auth/protocol/openid-connect/token
+      - APP_KEYCLOAK_LOGOUT_URL=http://keycloak:8080/realms/car-aggregator-auth/protocol/openid-connect/logout
+      - APP_KEYCLOAK_CLIENT_ID=auth-service-client
+      - APP_KEYCLOAK_CLIENT_SECRET=FiDPXGo4mQKmkRFu8wtDg8IQJ6PdpEU8
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/car-aggregator-auth/protocol/openid-connect/certs
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/car-aggregator-auth
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/actuator/health" ]
+      interval: 30s
+      retries: 3
+    networks:
+      - app-network
+
+  rating-service:
+    build: ../rating-service
+    container_name: rating-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - SPRING_SLEUTH_SAMPLER_PROBABILITY=1.0
+      - SPRING_APPLICATION_NAME=rating-service
+      - SERVER_PORT=8084
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo_db:27017/rating_db?authSource=admin
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      mongo_db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8084/actuator/health" ]
+      interval: 30s
+      retries: 3
+    networks:
+      - app-network
+
+  payment-service:
+    build: ../payment-service
+    container_name: payment-service
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - SPRING_SLEUTH_SAMPLER_PROBABILITY=1.0
+      - SPRING_APPLICATION_NAME=payment-service
+      - SERVER_PORT=8086
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATA_MONGODB_HOST=mongo_db
+      - SPRING_DATA_MONGODB_PORT=27017
+      - SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE=admin
+      - SPRING_DATA_MONGODB_USERNAME=root
+      - SPRING_DATA_MONGODB_PASSWORD=root
+      - SPRING_DATA_MONGODB_DATABASE=payment_db
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      mongo_db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8086/actuator/health" ]
+      interval: 30s
+      retries: 3
+    networks:
+      - app-network
+
+  passenger-service:
+    build: ../passenger-service
+    container_name: passenger-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - SPRING_SLEUTH_SAMPLER_PROBABILITY=1.0
+      - SPRING_APPLICATION_NAME=passenger-service
+      - SERVER_PORT=8082
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db_passenger:5432/passenger_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+      - SPRING_JPA_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres_db_passenger:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8082/actuator/health" ]
+      interval: 30s
+      retries: 3
+    networks:
+      - app-network
+
+  driver-service:
+    build: ../driver-service
+    container_name: driver-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - SPRING_SLEUTH_SAMPLER_PROBABILITY=1.0
+      - SPRING_APPLICATION_NAME=driver-service
+      - SERVER_PORT=8083
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db_driver:5432/driver_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+      - SPRING_JPA_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres_db_driver:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8083/actuator/health" ]
+      interval: 30s
+      retries: 3
+    networks:
+      - app-network
+
+  ride-service:
+    build: ../ride-service
+    container_name: ride-service
+    ports:
+      - "8085:8085"
+    env_file:
+      - ../ride-service/.env
+    environment:
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - SPRING_SLEUTH_SAMPLER_PROBABILITY=1.0
+      - SPRING_APPLICATION_NAME=ride-service
+      - SERVER_PORT=8085
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db_ride:5432/ride_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+      - SPRING_JPA_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres_db_ride:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8085/actuator/health" ]
+      interval: 30s
+      retries: 3
+    networks:
+      - app-network
+
+  api-gateway:
+    build: ../gateway-service
+    ports:
+      - "9000:9000"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9000/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    networks:
+      - app-network
+
+  elasticsearch:
+    image: elasticsearch:8.13.0
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - app-network
+
+  logstash:
+    image: logstash:8.13.0
+    volumes:
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - "5000:5000"
+    depends_on:
+      - elasticsearch
+    networks:
+      - app-network
+
+  kibana:
+    image: kibana:8.13.0
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - app-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - app-network
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - app-network
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_db_driver:
+  postgres_db_passenger:
+  postgres_db_ride:
+  postgres_db_keycloak:
+  mongo_data:
+  grafana_data:
+  elasticsearch_data:

@@ -1,0 +1,73 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+  main:
+    allow-bean-definition-overriding: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${app.keycloak.url}/realms/${app.keycloak.realm}/protocol/openid-connect/certs
+          issuer-uri: ${app.keycloak.url}/realms/${app.keycloak.realm}
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+  zipkin:
+    base-url: http://zipkin:9411
+  sleuth:
+    sampler:
+      probability: 1.0
+    sender:
+      type: web
+    enabled: true
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    hostname: auth-service
+app:
+  keycloak:
+    url: http://keycloak:8080
+    realm: car-aggregator-auth
+    token-url: ${app.keycloak.url}/realms/${app.keycloak.realm}/protocol/openid-connect/token
+    logout-url: ${app.keycloak.url}/realms/${app.keycloak.realm}/protocol/openid-connect/logout
+    client:
+      id: auth-service-client
+      secret: FiDPXGo4mQKmkRFu8wtDg8IQJ6PdpEU8
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+      elastic:
+        enabled: true
+        host: http://elasticsearch:9200
+    tags:
+      application: auth-service
+      service: auth-service
+  elastic:
+    metrics:
+      export:
+        host: ${elastic.host}
+        enabled: true
+        export:
+          index: metrics-driver
+          auto-create-index: false
+          step: 1m
+elastic:
+  host: http://elasticsearch:9200

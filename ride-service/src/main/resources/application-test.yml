@@ -1,0 +1,30 @@
+server:
+  port: 8085
+
+bing-maps:
+  api-key: ${BING_MAPS_API_KEY:}
+
+spring:
+  application:
+    name: ride-service
+  datasource:
+    url: jdbc:postgresql://localhost:5438/ride_db
+    username: root
+    password: root
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+
+
+  cloud:
+    contract:
+      verifier:
+        enabled: true
+
+stubrunner:
+  ids:
+    - com.modsen:ride-service-contracts:stubs:0.0.1-SNAPSHOT
+  workOffline: true
+  repositoryRoot: file:/

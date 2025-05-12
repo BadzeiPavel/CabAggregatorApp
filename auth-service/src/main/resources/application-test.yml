@@ -1,0 +1,24 @@
+server:
+  port: 7082
+
+spring:
+  application:
+    name: auth-service-test
+  main:
+    allow-bean-definition-overriding: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080/realms/test-realm/protocol/openid-connect/certs
+          issuer-uri: http://localhost:8080/realms/test-realm
+
+app:
+  keycloak:
+    url: http://localhost:8080
+    realm: test-realm
+    token-url: ${app.keycloak.url}/realms/${app.keycloak.realm}/protocol/openid-connect/token
+    logout-url: ${app.keycloak.url}/realms/${app.keycloak.realm}/protocol/openid-connect/logout
+    client:
+      id: test-auth-service-client
+      secret: test-secret

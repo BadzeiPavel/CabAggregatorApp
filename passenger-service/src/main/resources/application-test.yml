@@ -1,0 +1,20 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: passenger-service
+  datasource:
+    url: jdbc:postgresql://localhost:5435/passenger_db_test
+    username: root
+    password: root
+    passenger-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # Create and drop the schema for tests
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+  test:
+    # Enable H2 for tests if necessary or use the PostgreSQL test database
+    h2:
+      console:
+        enabled: true
